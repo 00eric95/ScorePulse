@@ -4,5 +4,5 @@ __pycache__/
 instance/
 .env
 .DS_Store
-*.pkl
-data/raw/*.csv
+
+ 

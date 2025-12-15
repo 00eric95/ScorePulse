@@ -7,7 +7,8 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
@@ -18,151 +19,141 @@
                 extend: {
                     colors: {
                         brand: {
-                            dark: '#0f172a',
-                            accent: '#38bdf8', 
-                            success: '#22c55e',
-                            gold: '#fbbf24',
+                            dark: '#0a1128',       /* Deep Night Blue */
+                            card: 'rgba(28, 43, 75, 0.6)', /* Glass Card BG */
+                            accent: '#00f2c3',     /* Cyber Teal */
+                            orange: '#ff6b35',     /* Sporty Orange */
+                            text: '#e6f1ff',       /* Soft White */
+                            muted: '#a0a8b8'       /* Muted Blue-Grey */
                         }
                     },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
                 }
             }
         }
     </script>
-</head>
-<body class="bg-brand-dark text-white font-sans flex flex-col min-h-screen">
-
-    <div id="app-preloader" class="fixed inset-0 z-[9999] bg-brand-dark flex items-center justify-center transition-opacity duration-500">
-        <div class="text-center">
-            <svg width="150" height="150" viewBox="0 0 200 200" fill="none" class="mx-auto">
-                <path class="pulse-path" d="M10 100 H40 L60 40 L80 160 L100 100 H190" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                <g class="soccer-ball">
-                    <path d="M100 70 L125 85 V115 L100 130 L75 115 V85 Z" stroke="white" stroke-width="3" fill="transparent"/>
-                </g>
-            </svg>
-            <h2 class="text-2xl font-bold text-white mt-4 tracking-widest animate-pulse">SCORE<span class="text-brand-accent">PULSE</span></h2>
-            <p id="loading-text" class="text-xs text-slate-500 mt-2 font-mono">LOADING INTELLIGENCE...</p>
-        </div>
-    </div>
 
     <style>
+        /* Global Background Gradient */
+        body {
+            background-color: #0a1128;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 242, 195, 0.08), transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 107, 53, 0.05), transparent 40%);
+            background-attachment: fixed;
+        }
+
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(28, 43, 75, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        
+        /* Preloader Animations */
         .pulse-path { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: dash 2s ease-in-out infinite; }
         .soccer-ball { animation: spin 3s infinite linear; transform-origin: center; }
         @keyframes dash { 0% { stroke-dashoffset: 1000; } 50% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -1000; } }
         @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
+</head>
+<body class="text-brand-text font-sans flex flex-col min-h-screen">
+
+    <div id="app-preloader" class="fixed inset-0 z-[9999] bg-brand-dark flex items-center justify-center transition-opacity duration-500">
+        <div class="text-center">
+            <svg width="150" height="150" viewBox="0 0 200 200" fill="none" class="mx-auto">
+                <path class="pulse-path" d="M10 100 H40 L60 40 L80 160 L100 100 H190" stroke="#00f2c3" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                <g class="soccer-ball">
+                    <path d="M100 70 L125 85 V115 L100 130 L75 115 V85 Z" stroke="white" stroke-width="3" fill="transparent"/>
+                </g>
+            </svg>
+            <h2 class="text-3xl font-extrabold text-white mt-4 tracking-widest animate-pulse">SCORE<span class="text-brand-accent">PULSE</span></h2>
+            <p id="loading-text" class="text-xs text-brand-muted mt-2 font-mono tracking-widest">INITIALIZING AI MODELS...</p>
+        </div>
+    </div>
 
     <script>
         window.addEventListener('load', function() {
             const loader = document.getElementById('app-preloader');
             const text = document.getElementById('loading-text');
-
-            // Check Connection
             if (!navigator.onLine) {
                 text.innerText = "⚠️ OFFLINE MODE ACTIVE";
-                text.classList.add('text-red-500');
-                // Don't hide loader immediately if offline, or show offline UI
+                text.classList.add('text-brand-orange');
             } else {
-                // Hide loader after slight delay for smooth effect
                 setTimeout(() => {
                     loader.style.opacity = '0';
-                    setTimeout(() => {
-                        loader.style.display = 'none';
-                    }, 500);
-                }, 800); // 0.8s artificial delay
+                    setTimeout(() => { loader.style.display = 'none'; }, 500);
+                }, 800);
             }
-        });
-
-        // Listen for network changes
-        window.addEventListener('offline', () => {
-            const loader = document.getElementById('app-preloader');
-            const text = document.getElementById('loading-text');
-            loader.style.display = 'flex';
-            loader.style.opacity = '1';
-            text.innerText = "CONNECTION LOST. RECONNECTING...";
-            text.style.color = "#ef4444"; // Red
-        });
-
-        window.addEventListener('online', () => {
-            window.location.reload(); // Reload to fetch fresh data
         });
     </script>
 
-    <nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+    <nav class="glass sticky top-0 z-50 border-b-0">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
+            <div class="flex justify-between h-20 items-center">
                 
                 <a href="{{ url_for('home') }}" class="flex items-center space-x-2 group">
-                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-accent to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20 group-hover:scale-110 transition">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-accent to-blue-600 flex items-center justify-center text-brand-dark font-bold text-lg shadow-[0_0_15px_rgba(0,242,195,0.4)] group-hover:scale-110 transition duration-300">
                         <i class="fas fa-bolt"></i>
                     </div>
-                    <span class="text-xl font-bold tracking-wide">SCORE<span class="text-brand-accent">PULSE</span></span>
+                    <span class="text-2xl font-bold tracking-wide text-white">SCORE<span class="text-brand-accent drop-shadow-[0_0_8px_rgba(0,242,195,0.8)]">PULSE</span></span>
                 </a>
 
-                <div class="hidden md:flex space-x-8">
-                    <a href="{{ url_for('home') }}" class="text-slate-300 hover:text-white transition text-sm font-medium">Home</a>
-                    <a href="{{ url_for('predict') }}" class="text-slate-300 hover:text-white transition text-sm font-medium">Predict</a>
-                    <a href="{{ url_for('pricing') }}" class="text-slate-300 hover:text-white transition text-sm font-medium">Pricing</a>
+                <div class="hidden md:flex space-x-8 items-center">
+                    <a href="{{ url_for('home') }}" class="text-brand-muted hover:text-brand-accent transition text-sm font-medium hover:tracking-wide">Home</a>
+                    <a href="{{ url_for('predict') }}" class="text-brand-muted hover:text-brand-accent transition text-sm font-medium hover:tracking-wide">Predict</a>
+                    <a href="{{ url_for('pricing') }}" class="text-brand-muted hover:text-brand-accent transition text-sm font-medium hover:tracking-wide">Pricing</a>
                     
                     {% if current_user.is_authenticated and current_user.id == 1 %}
-                        <a href="{{ url_for('admin_dashboard') }}" class="text-brand-gold hover:text-white transition text-sm font-medium border border-brand-gold/30 px-3 py-1 rounded-full">Admin Panel</a>
+                        <a href="{{ url_for('admin_dashboard') }}" class="text-brand-orange hover:text-white border border-brand-orange/30 hover:bg-brand-orange/20 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition">Admin Panel</a>
                     {% endif %}
                 </div>
 
                 <div class="flex items-center space-x-4">
                     
-                    <a href="https://t.me/ScorePulseBot" target="_blank" class="p-2 rounded-full text-blue-400 hover:bg-slate-800 hover:text-white transition-colors focus:outline-none flex items-center gap-2" title="Open Telegram Bot">
+                    <a href="https://t.me/ScorePulseBot" target="_blank" class="p-2 rounded-full text-blue-400 hover:bg-white/10 transition-colors flex items-center gap-2">
                         <i class="fab fa-telegram text-2xl"></i>
-                        <span class="hidden lg:inline text-xs font-bold uppercase tracking-wider">Bot</span>
                     </a>
 
-                    <button id="theme-toggle" class="p-2 rounded-full text-slate-400 hover:bg-slate-800 hover:text-white transition-colors focus:outline-none">
-                        <i class="fas fa-moon text-xl" id="theme-icon"></i>
-                    </button>
-
                     {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('profile') }}" class="text-sm font-medium text-slate-300 hover:text-white flex items-center gap-2 ml-2">
-                            <div class="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center text-brand-accent border border-slate-700">
+                        <a href="{{ url_for('profile') }}" class="flex items-center gap-3 pl-4 border-l border-white/10">
+                            <div class="text-right hidden sm:block">
+                                <span class="block text-xs text-brand-muted">Welcome,</span>
+                                <span class="block text-sm font-bold text-white leading-none">{{ current_user.username }}</span>
+                            </div>
+                            <div class="w-9 h-9 bg-brand-accent rounded-lg flex items-center justify-center text-brand-dark font-bold shadow-lg">
                                 {{ current_user.username[0] | upper }}
                             </div>
-                            <span class="hidden sm:inline">{{ current_user.username }}</span>
                         </a>
-                        <a href="{{ url_for('logout') }}" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition border border-slate-700 ml-2">LOGOUT</a>
                     {% else %}
-                        <a href="{{ url_for('login') }}" class="text-slate-300 hover:text-white text-sm font-medium ml-2">Log In</a>
-                        <a href="{{ url_for('register') }}" class="bg-brand-accent hover:bg-sky-400 text-slate-900 px-5 py-2 rounded-lg text-sm font-bold transition shadow-lg shadow-brand-accent/20 ml-2">Get Started</a>
+                        <a href="{{ url_for('login') }}" class="text-white hover:text-brand-accent text-sm font-medium px-4">Log In</a>
+                        <a href="{{ url_for('register') }}" class="bg-brand-accent hover:bg-emerald-300 text-brand-dark px-6 py-2.5 rounded-full text-sm font-bold transition shadow-[0_4px_14px_rgba(0,242,195,0.3)] hover:transform hover:-translate-y-0.5">Get Started</a>
                     {% endif %}
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-4 mt-6">
+    <div class="max-w-7xl mx-auto px-4 mt-8">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    {% set color_class = '' %}
-                    {% set icon_class = '' %}
-                    
                     {% if category == 'success' %}
-                        {% set color_class = 'bg-green-500/10 border-green-500/20 text-green-400' %}
-                        {% set icon_class = 'fa-check-circle' %}
-                    {% elif category == 'warning' %}
-                        {% set color_class = 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400' %}
-                        {% set icon_class = 'fa-exclamation-triangle' %}
+                        {% set styles = 'border-l-4 border-brand-accent bg-green-900/20 text-green-200' %}
+                        {% set icon = 'fa-check-circle text-brand-accent' %}
                     {% else %}
-                        {% set color_class = 'bg-red-500/10 border-red-500/20 text-red-400' %}
-                        {% set icon_class = 'fa-times-circle' %}
+                        {% set styles = 'border-l-4 border-brand-orange bg-red-900/20 text-red-200' %}
+                        {% set icon = 'fa-exclamation-triangle text-brand-orange' %}
                     {% endif %}
-
-                    <div class="p-4 mb-4 rounded-xl border flex items-start gap-3 shadow-lg reveal active {{ color_class }}">
-                        <i class="fas {{ icon_class }} mt-1"></i>
-                        <div>
-                            {% if category == 'warning' %}
-                                <strong class="font-bold block text-sm uppercase tracking-wide mb-1">Risk Notice</strong>
-                            {% endif %}
-                            <span>{{ message }}</span>
-                        </div>
+                    
+                    <div class="glass p-4 mb-6 rounded-r-xl flex items-center gap-4 {{ styles }} animate-fade-in-down">
+                        <i class="fas {{ icon }} text-xl"></i>
+                        <span class="font-medium">{{ message }}</span>
                     </div>
                 {% endfor %}
             {% endif %}
@@ -173,38 +164,34 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-slate-950 border-t border-slate-800 py-12 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            
-            <div class="flex justify-center items-center gap-2 mb-6 opacity-50">
+    <footer class="bg-brand-dark border-t border-white/5 py-12 mt-auto relative overflow-hidden">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-1 bg-brand-accent/50 blur-[100px]"></div>
+
+        <div class="max-w-7xl mx-auto px-4 text-center relative z-10">
+            <div class="flex justify-center items-center gap-2 mb-6">
                 <i class="fas fa-bolt text-brand-accent"></i>
-                <span class="font-bold text-lg">ScorePulse AI</span>
+                <span class="font-bold text-lg text-white tracking-widest">SCORE<span class="text-brand-accent">PULSE</span> AI</span>
             </div>
+
+            <p class="text-brand-muted text-sm mb-8 max-w-md mx-auto">
+                Leveraging neural networks and historical data to provide the most accurate football predictions in the market.
+            </p>
 
             <div class="flex justify-center gap-8 mb-8">
-                <a href="https://twitter.com" target="_blank" class="text-slate-500 hover:text-sky-400 transition-colors duration-300 transform hover:scale-110">
-                    <i class="fab fa-twitter text-2xl"></i>
-                    <span class="sr-only">Twitter</span>
-                </a>
-                <a href="https://t.me/ScorePulseBot" target="_blank" class="text-slate-500 hover:text-blue-400 transition-colors duration-300 transform hover:scale-110">
-                    <i class="fab fa-telegram text-2xl"></i>
-                    <span class="sr-only">Telegram</span>
-                </a>
-                <a href="https://github.com" target="_blank" class="text-slate-500 hover:text-white transition-colors duration-300 transform hover:scale-110">
-                    <i class="fab fa-github text-2xl"></i>
-                    <span class="sr-only">GitHub</span>
-                </a>
+                <a href="#" class="text-brand-muted hover:text-brand-accent transition transform hover:scale-110"><i class="fab fa-twitter text-2xl"></i></a>
+                <a href="https://t.me/ScorePulseBot" class="text-brand-muted hover:text-blue-400 transition transform hover:scale-110"><i class="fab fa-telegram text-2xl"></i></a>
+                <a href="#" class="text-brand-muted hover:text-white transition transform hover:scale-110"><i class="fab fa-github text-2xl"></i></a>
             </div>
 
-            <p class="text-slate-500 text-sm mb-6">&copy; 2025 ScorePulse AI. Empowering smarter decisions.</p>
-            
-            <div class="flex justify-center space-x-6 opacity-75 grayscale hover:grayscale-0 transition duration-300">
+            <div class="flex justify-center items-center space-x-6 opacity-60 grayscale hover:grayscale-0 transition duration-500">
                 <i class="fab fa-cc-visa text-3xl text-white"></i>
                 <i class="fab fa-cc-paypal text-3xl text-blue-400"></i>
-                <div class="flex items-center border border-green-600 rounded px-2 py-0.5">
-                    <span class="text-green-500 font-bold text-sm">M-PESA</span>
+                <div class="flex items-center border border-green-600 rounded px-3 py-1 bg-green-900/20">
+                    <span class="text-green-500 font-bold text-xs tracking-wider">M-PESA</span>
                 </div>
             </div>
+            
+            <p class="text-slate-600 text-xs mt-8">&copy; 2025 ScorePulse AI. All rights reserved.</p>
         </div>
     </footer>
 
