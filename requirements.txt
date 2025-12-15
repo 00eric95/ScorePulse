@@ -15,4 +15,4 @@ beautifulsoup4
 python-telegram-bot>=20.6
 psycopg2-binary
 gunicorn
-torch
+torch>=2.0.0
