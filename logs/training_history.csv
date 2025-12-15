@@ -1,0 +1,5 @@
+Timestamp,Target,ModelType,Metric,Value
+2025-12-10 00:37:10,WLD,RandomForest,Accuracy,0.5043189881227826
+2025-12-10 01:01:16,Over25,RandomForest,Accuracy,0.5711861792380071
+2025-12-10 01:31:41,BTTS,RandomForest,Accuracy,0.5360944007403979
+2025-12-10 03:25:35,TotalGoals,RandomForest,MSE,2.5455378302390996

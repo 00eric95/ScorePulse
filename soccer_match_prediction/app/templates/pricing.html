@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Pricing{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-24">
+    <div class="text-center mb-20 reveal active">
+        <h1 class="text-5xl font-extrabold text-white mb-6">Choose Your Edge</h1>
+        <p class="text-xl text-slate-400">Unlock the full power of our AI models.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        
+        <div class="glass-card p-8 rounded-3xl flex flex-col relative reveal active" style="transition-delay: 100ms;">
+            <h3 class="text-xl font-bold text-white">Starter</h3>
+            <div class="my-6">
+                <span class="text-4xl font-extrabold text-white">Free</span>
+            </div>
+            <ul class="space-y-4 text-slate-400 flex-grow mb-8">
+                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-3"></i> Win/Loss Predictions</li>
+                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-3"></i> Total Goals</li>
+                <li class="flex items-center text-slate-600"><i class="fas fa-times mr-3"></i> No Advanced Models</li>
+                <li class="flex items-center text-slate-600"><i class="fas fa-times mr-3"></i> Limited Daily Usage</li>
+            </ul>
+            <a href="{{ url_for('register') }}" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-center transition">Sign Up Free</a>
+        </div>
+
+        <div class="glass-card p-8 rounded-3xl flex flex-col relative transform md:scale-110 z-10 border-brand-accent shadow-[0_0_40px_rgba(56,189,248,0.15)] reveal active" style="transition-delay: 200ms;">
+            <div class="absolute top-0 right-0 bg-brand-accent text-slate-900 text-xs font-bold px-4 py-1.5 rounded-bl-xl rounded-tr-2xl">MOST POPULAR</div>
+            <h3 class="text-xl font-bold text-brand-accent">Silver</h3>
+            <div class="my-6">
+                <span class="text-5xl font-extrabold text-white">KES 500</span><span class="text-slate-500">/mo</span>
+            </div>
+            <ul class="space-y-4 text-slate-300 flex-grow mb-8">
+                <li class="flex items-center"><i class="fas fa-check text-brand-accent mr-3"></i> <strong>Unlimited</strong> Predictions</li>
+                <li class="flex items-center"><i class="fas fa-check text-brand-accent mr-3"></i> Goals & Over/Under</li>
+                <li class="flex items-center"><i class="fas fa-check text-brand-accent mr-3"></i> Random Forest Model</li>
+                <li class="flex items-center"><i class="fas fa-check text-brand-accent mr-3"></i> Profile History</li>
+            </ul>
+            <div class="grid grid-cols-2 gap-3">
+                <button class="bg-green-600 hover:bg-green-500 text-white py-3 rounded-xl font-bold text-sm transition shadow-lg shadow-green-900/20">
+                    <i class="fas fa-mobile-alt mr-2"></i> M-PESA
+                </button>
+                <button class="bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold text-sm transition shadow-lg shadow-blue-900/20">
+                    <i class="fab fa-paypal mr-2"></i> PayPal
+                </button>
+            </div>
+        </div>
+
+        <div class="glass-card p-8 rounded-3xl flex flex-col relative border-yellow-500/30 reveal active" style="transition-delay: 300ms;">
+            <h3 class="text-xl font-bold text-brand-gold">Gold</h3>
+            <div class="my-6">
+                <span class="text-4xl font-extrabold text-white">KES 1,200</span><span class="text-slate-500">/mo</span>
+            </div>
+            <ul class="space-y-4 text-slate-300 flex-grow mb-8">
+                <li class="flex items-center"><i class="fas fa-star text-brand-gold mr-3"></i> <strong>Everything in Silver</strong></li>
+                <li class="flex items-center"><i class="fas fa-check text-brand-gold mr-3"></i> BTTS (Both Teams Score)</li>
+                <li class="flex items-center"><i class="fas fa-brain text-brand-gold mr-3"></i> <strong>Neural Network Model</strong></li>
+                <li class="flex items-center"><i class="fas fa-chart-pie text-brand-gold mr-3"></i> Confidence Scores %</li>
+            </ul>
+            <button class="w-full py-4 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:to-yellow-400 text-white font-bold rounded-xl transition shadow-lg shadow-yellow-900/20">
+                Go Gold
+            </button>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

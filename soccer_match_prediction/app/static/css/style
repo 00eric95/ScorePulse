@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- GLOBAL STYLES --- */
+:root {
+    --glass-bg: rgba(17, 24, 39, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --neon-blue: #38bdf8;
+    --neon-green: #22c55e;
+    --neon-purple: #a855f7;
+}
+
+body {
+    background-color: #0f172a;
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
+    background-attachment: fixed;
+}
+
+/* --- GLASSMORPHISM CARD --- */
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.glass-card:hover {
+    border-color: rgba(56, 189, 248, 0.3);
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.1);
+}
+
+/* --- CUSTOM ANIMATIONS --- */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+.reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- HERO IMAGE STYLING --- */
+/* This makes the hero image blend into the background seamlessly */
+.hero-image-container {
+    position: relative;
+    mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+}
+
+.hero-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(56, 189, 248, 0.2) 0%, transparent 70%);
+    z-index: -1;
+}
+
+/* --- FORM ELEMENTS --- */
+select, input {
+    transition: all 0.3s ease;
+}
+
+select:focus, input:focus {
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.5);
+    transform: translateY(-1px);
+}
+
+/* --- TEAM BADGE PLACEHOLDER --- */
+.team-badge-placeholder {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    background: linear-gradient(135deg, #334155, #1e293b);
+    border: 2px solid rgba(255,255,255,0.1);
+}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-20 px-4">
+    <div class="glass-card w-full max-w-md p-8 rounded-3xl border border-slate-800/60 shadow-2xl relative overflow-hidden reveal active">
+        
+        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
+
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-white">Create Account</h2>
+            <p class="text-slate-400 mt-2 text-sm">Join the winning team today.</p>
+        </div>
+
+        <form method="POST" class="space-y-6">
+            {{ form.hidden_tag() }}
+            
+            <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Username</label>
+                {{ form.username(class="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-accent focus:border-transparent outline-none transition placeholder-slate-600", placeholder="e.g. SharpShooter") }}
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Email</label>
+                {{ form.email(class="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-accent focus:border-transparent outline-none transition placeholder-slate-600", placeholder="name@example.com") }}
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Password</label>
+                {{ form.password(class="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-accent focus:border-transparent outline-none transition placeholder-slate-600", placeholder="••••••••") }}
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Confirm Password</label>
+                {{ form.confirm_password(class="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-accent focus:border-transparent outline-none transition placeholder-slate-600", placeholder="••••••••") }}
+            </div>
+
+            <button type="submit" class="w-full bg-brand-accent hover:bg-sky-400 text-slate-900 font-bold py-3.5 rounded-xl transition shadow-lg shadow-brand-accent/20 mt-4">
+                Sign Up
+            </button>
+        </form>
+
+        <p class="mt-8 text-center text-slate-500 text-sm">
+            Already have an account? <a href="{{ url_for('login') }}" class="text-brand-accent hover:text-white font-medium transition">Log in</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

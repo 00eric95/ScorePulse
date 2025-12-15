@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-20 px-4">
+    <div class="glass-card w-full max-w-md p-8 rounded-3xl border border-slate-800/60 shadow-2xl relative overflow-hidden reveal active">
+        
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-white">Welcome Back</h2>
+            <p class="text-slate-400 mt-2 text-sm">Access your predictions.</p>
+        </div>
+
+        <form method="POST" class="space-y-6">
+            {{ form.hidden_tag() }}
+            
+            <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Email</label>
+                {{ form.email(class="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-accent focus:border-transparent outline-none transition placeholder-slate-600") }}
+            </div>
+
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Password</label>
+                    <a href="#" class="text-xs text-brand-accent hover:text-white transition">Forgot?</a>
+                </div>
+                {{ form.password(class="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-accent focus:border-transparent outline-none transition placeholder-slate-600") }}
+            </div>
+
+            <div class="flex items-center">
+                {{ form.remember(class="w-4 h-4 rounded bg-slate-800 border-slate-600 text-brand-accent focus:ring-brand-accent") }}
+                <label class="ml-2 text-sm text-slate-400">Remember me</label>
+            </div>
+
+            <button type="submit" class="w-full bg-brand-accent hover:bg-sky-400 text-slate-900 font-bold py-3.5 rounded-xl transition shadow-lg shadow-brand-accent/20">
+                Log In
+            </button>
+        </form>
+
+        <p class="mt-8 text-center text-slate-500 text-sm">
+            Don't have an account? <a href="{{ url_for('register') }}" class="text-brand-accent hover:text-white font-medium transition">Sign up</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

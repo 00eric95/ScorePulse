@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<div class="relative bg-slate-900 overflow-hidden border-b border-slate-800">
+    <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10 text-center">
+        <span class="inline-block py-1 px-3 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold uppercase tracking-widest border border-blue-500/20 mb-6 animate-fade-in-up">
+            AI-Powered Intelligence
+        </span>
+        <h1 class="text-5xl md:text-7xl font-black text-white tracking-tighter mb-6 leading-tight animate-fade-in-up animation-delay-100">
+            PREDICT THE <br>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-accent to-green-400">UNPREDICTABLE</span>
+        </h1>
+        
+        <div class="flex justify-center gap-4 animate-fade-in-up animation-delay-300">
+            <a href="{{ url_for('predict') }}" class="px-8 py-4 bg-brand-accent hover:bg-sky-400 text-slate-900 text-lg font-bold rounded-xl shadow-[0_0_20px_rgba(56,189,248,0.4)] transition hover:scale-105">
+                Start Analysis
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="bg-slate-950 py-16">
+    <div class="max-w-5xl mx-auto px-4">
+        
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                <i class="fas fa-calendar-alt text-brand-accent"></i> 
+                Match Center
+            </h2>
+            <span class="text-xs text-slate-500 font-mono uppercase tracking-widest">Next 7 Days</span>
+        </div>
+
+        {% if matches %}
+            {% set league_map = {
+                'E0': {'name': 'Premier League', 'flag': 'gb-eng', 'country': 'England'},
+                'E1': {'name': 'Championship', 'flag': 'gb-eng', 'country': 'England'},
+                'E2': {'name': 'League One', 'flag': 'gb-eng', 'country': 'England'},
+                'SP1': {'name': 'La Liga', 'flag': 'es', 'country': 'Spain'},
+                'SP2': {'name': 'Segunda Division', 'flag': 'es', 'country': 'Spain'},
+                'D1': {'name': 'Bundesliga', 'flag': 'de', 'country': 'Germany'},
+                'D2': {'name': '2. Bundesliga', 'flag': 'de', 'country': 'Germany'},
+                'I1': {'name': 'Serie A', 'flag': 'it', 'country': 'Italy'},
+                'I2': {'name': 'Serie B', 'flag': 'it', 'country': 'Italy'},
+                'F1': {'name': 'Ligue 1', 'flag': 'fr', 'country': 'France'},
+                'F2': {'name': 'Ligue 2', 'flag': 'fr', 'country': 'France'},
+                'N1': {'name': 'Eredivisie', 'flag': 'nl', 'country': 'Netherlands'},
+                'B1': {'name': 'Pro League', 'flag': 'be', 'country': 'Belgium'},
+                'P1': {'name': 'Liga Portugal', 'flag': 'pt', 'country': 'Portugal'},
+                'T1': {'name': 'Super Lig', 'flag': 'tr', 'country': 'Turkey'},
+                'SC0': {'name': 'Premiership', 'flag': 'gb-sct', 'country': 'Scotland'},
+                'SC1': {'name': 'Championship', 'flag': 'gb-sct', 'country': 'Scotland'},
+                'G1': {'name': 'Super League', 'flag': 'gr', 'country': 'Greece'},
+                'NOR': {'name': 'Eliteserien', 'flag': 'no', 'country': 'Norway'},
+                'AUT': {'name': 'Bundesliga', 'flag': 'at', 'country': 'Austria'},
+                'DEN': {'name': 'Superliga', 'flag': 'dk', 'country': 'Denmark'},
+                'SWE': {'name': 'Allsvenskan', 'flag': 'se', 'country': 'Sweden'},
+                'POL': {'name': 'Ekstraklasa', 'flag': 'pl', 'country': 'Poland'},
+                'ROM': {'name': 'Liga I', 'flag': 'ro', 'country': 'Romania'},
+                'FIN': {'name': 'Veikkausliiga', 'flag': 'fi', 'country': 'Finland'},
+                'RUS': {'name': 'Premier League', 'flag': 'ru', 'country': 'Russia'}
+            } %}
+
+            {% for league_code, games in matches|groupby('league') %}
+                {% set info = league_map.get(league_code, {'name': league_code, 'flag': 'world', 'country': 'World'}) %}
+                
+                <div class="mb-8 reveal active">
+                    <div class="flex items-center gap-3 mb-4 pl-2">
+                        <span class="text-2xl" title="{{ info.country }}">
+                            {% if info.flag == 'gb-eng' %}🏴󠁧󠁢󠁥󠁮󠁧󠁿{% elif info.flag == 'es' %}🇪🇸{% elif info.flag == 'de' %}🇩🇪{% elif info.flag == 'it' %}🇮🇹{% elif info.flag == 'fr' %}🇫🇷{% elif info.flag == 'nl' %}🇳🇱{% elif info.flag == 'pt' %}🇵🇹{% elif info.flag == 'tr' %}🇹🇷{% elif info.flag == 'gb-sct' %}🏴󠁧󠁢󠁳󠁣󠁴󠁿{% else %}🏳️{% endif %}
+                        </span>
+                        <div>
+                            <h3 class="text-white font-bold text-lg">{{ info.name }}</h3>
+                            <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">{{ info.country }}</p>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        {% for match in games %}
+                        <div class="group bg-slate-900 border border-slate-800 rounded-xl p-4 hover:border-brand-accent/30 transition flex items-center justify-between shadow-lg relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition duration-700"></div>
+
+                            <div class="flex flex-col gap-1 w-16 text-center border-r border-slate-800 pr-4">
+                                <span class="text-xs text-slate-500 font-bold uppercase">{{ match.date[5:7] }}/{{ match.date[8:10] }}</span>
+                                <span class="text-[10px] text-slate-600">20:45</span>
+                            </div>
+
+                            <div class="flex-1 px-6">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-white font-bold text-sm">{{ match.home }}</span>
+                                    <span class="text-slate-600 text-xs">vs</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-white font-bold text-sm">{{ match.away }}</span>
+                                </div>
+                            </div>
+
+                            <a href="{{ url_for('predict', home_team=match.home, away_team=match.away) }}" class="p-2 rounded-lg bg-slate-800 text-brand-accent hover:bg-brand-accent hover:text-slate-900 transition">
+                                <i class="fas fa-chart-pie"></i>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+
+        {% else %}
+            <div class="p-12 text-center bg-slate-900/50 rounded-2xl border border-dashed border-slate-800">
+                <i class="fas fa-calendar-times text-4xl text-slate-600 mb-4"></i>
+                <h3 class="text-white font-bold text-lg">No Upcoming Matches</h3>
+                <p class="text-slate-500 text-sm mt-2">Check back later for the latest schedule.</p>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

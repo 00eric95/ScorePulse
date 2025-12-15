@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}About{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-20 text-center">
+    <h1 class="text-4xl font-bold text-white mb-6">About ScorePulse AI</h1>
+    <p class="text-xl text-slate-400 leading-relaxed mb-12">
+        We believe that sports betting shouldn't be a guessing game. 
+        By leveraging advanced machine learning algorithms, we analyze historical data, 
+        player form, and market trends to level the playing field for fans.
+    </p>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+            <h3 class="text-brand-accent font-bold mb-2">Our Mission</h3>
+            <p class="text-slate-500 text-sm">To democratize access to professional-grade sports analytics.</p>
+        </div>
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+            <h3 class="text-brand-accent font-bold mb-2">Our Data</h3>
+            <p class="text-slate-500 text-sm">Sourced from top-tier providers and processed through 25+ engineered features.</p>
+        </div>
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+            <h3 class="text-brand-accent font-bold mb-2">Our Tech</h3>
+            <p class="text-slate-500 text-sm">Python, PyTorch, and Scikit-Learn power our neural networks and decision trees.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

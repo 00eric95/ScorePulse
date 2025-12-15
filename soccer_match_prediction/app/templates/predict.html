@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+{% block title %}Predict Match{% endblock %}
+{% block content %}
+
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-950 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
+    <div class="max-w-6xl w-full space-y-8 reveal active">
+        
+        <div class="text-center mb-10">
+            <span class="px-4 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold uppercase tracking-widest border border-blue-500/20">AI Simulation Console</span>
+            <h2 class="text-4xl md:text-5xl font-black text-white tracking-tighter mt-4 drop-shadow-2xl">
+                MATCH <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">PREDICTOR</span>
+            </h2>
+        </div>
+
+        <div class="glass-card bg-slate-900/60 backdrop-blur-xl rounded-3xl overflow-hidden border border-slate-800 shadow-2xl relative">
+            
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-brand-accent to-transparent opacity-70"></div>
+
+            <form method="POST" id="predictForm" class="p-8 md:p-12">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    
+                    <div class="space-y-6">
+                        <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 hover:border-blue-500/30 transition duration-300">
+                            <h3 class="text-blue-400 font-bold mb-4 uppercase text-sm">Home Team</h3>
+                            <div class="space-y-4">
+                                <select id="home_country" class="w-full bg-slate-900 border-slate-600 rounded-lg px-3 py-2 text-white outline-none focus:border-blue-500" onchange="handleCountryChange('home')">
+                                    <option value="">Select Country</option>
+                                </select>
+                                <select id="home_league" class="w-full bg-slate-900 border-slate-600 rounded-lg px-3 py-2 text-white outline-none focus:border-blue-500 opacity-50 cursor-not-allowed" disabled onchange="handleLeagueChange('home')">
+                                    <option value="">Select League</option>
+                                </select>
+                                <select name="home_team" id="home_team" class="w-full bg-slate-700 border-blue-500 rounded-lg px-4 py-3 text-white font-bold outline-none focus:ring-2 focus:ring-blue-500 opacity-50 cursor-not-allowed" disabled onchange="updateBadge('home', this.value); fetchStats('home', this.value)">
+                                    <option value="">Select Team</option>
+                                </select>
+                            </div>
+                            <div class="mt-6 flex justify-center">
+                                <div id="home-badge" class="w-20 h-20 rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center text-xl font-black text-white shadow-lg transition-all">?</div>
+                            </div>
+                        </div>
+                        
+                        <div id="home_stats" class="hidden bg-blue-900/10 border border-blue-500/20 p-4 rounded-xl transition-all">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs text-blue-300 font-bold uppercase">Rating</span>
+                                <span class="text-xl font-black text-white" id="home_rating">-</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                                <div class="bg-slate-900 p-2 rounded"><p class="text-slate-500 font-bold">PPG</p><p class="text-white font-mono" id="home_ppg">-</p></div>
+                                <div class="bg-slate-900 p-2 rounded"><p class="text-slate-500 font-bold">xG</p><p class="text-white font-mono" id="home_xg">-</p></div>
+                                <div class="bg-slate-900 p-2 rounded"><p class="text-slate-500 font-bold">GD</p><p class="text-white font-mono" id="home_gd">-</p></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 hover:border-red-500/30 transition duration-300">
+                            <h3 class="text-red-400 font-bold mb-4 uppercase text-sm">Away Team</h3>
+                            <div class="space-y-4">
+                                <select id="away_country" class="w-full bg-slate-900 border-slate-600 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" onchange="handleCountryChange('away', false)">
+                                    <option value="">Select Country</option>
+                                </select>
+                                <select id="away_league" class="w-full bg-slate-900 border-slate-600 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500 opacity-50 cursor-not-allowed" disabled onchange="handleLeagueChange('away')">
+                                    <option value="">Select League</option>
+                                </select>
+                                <select name="away_team" id="away_team" class="w-full bg-slate-700 border-red-500 rounded-lg px-4 py-3 text-white font-bold outline-none focus:ring-2 focus:ring-red-500 opacity-50 cursor-not-allowed" disabled onchange="updateBadge('away', this.value); fetchStats('away', this.value)">
+                                    <option value="">Select Team</option>
+                                </select>
+                            </div>
+                            <div class="mt-6 flex justify-center">
+                                <div id="away-badge" class="w-20 h-20 rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center text-xl font-black text-white shadow-lg transition-all">?</div>
+                            </div>
+                        </div>
+
+                        <div id="away_stats" class="hidden bg-red-900/10 border border-red-500/20 p-4 rounded-xl transition-all">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs text-red-300 font-bold uppercase">Rating</span>
+                                <span class="text-xl font-black text-white" id="away_rating">-</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                                <div class="bg-slate-900 p-2 rounded"><p class="text-slate-500 font-bold">PPG</p><p class="text-white font-mono" id="away_ppg">-</p></div>
+                                <div class="bg-slate-900 p-2 rounded"><p class="text-slate-500 font-bold">xG</p><p class="text-white font-mono" id="away_xg">-</p></div>
+                                <div class="bg-slate-900 p-2 rounded"><p class="text-slate-500 font-bold">GD</p><p class="text-white font-mono" id="away_gd">-</p></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <div class="mt-10 flex justify-center">
+                    <div class="w-full max-w-xs">
+                        <label class="block text-xs font-bold text-slate-500 uppercase text-center mb-2">My Pick (Optional)</label>
+                        <select name="user_prediction" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-4 text-white text-center text-sm outline-none">
+                            <option value="None">-- Skip --</option>
+                            <option value="Home Win">Home Win</option>
+                            <option value="Draw">Draw</option>
+                            <option value="Away Win">Away Win</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="text-center pt-8">
+                    <button type="submit" class="w-full md:w-auto px-20 py-5 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-black text-xl rounded-2xl shadow-[0_0_30px_rgba(56,189,248,0.3)] transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95 border border-white/10">
+                        RUN SIMULATION
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. Data Injection from Backend
+    const hierarchy = {{ hierarchy | tojson }};
+    const defaultHome = "{{ default_home if default_home else '' }}";
+    const defaultAway = "{{ default_away if default_away else '' }}";
+
+    // 2. Helper: Add Options to Select
+    function populateSelect(id, items) {
+        const select = document.getElementById(id);
+        // Keep the placeholder (first option)
+        select.innerHTML = select.options[0].outerHTML; 
+        items.forEach(item => {
+            select.add(new Option(item, item));
+        });
+    }
+
+    // 3. Helper: Generate Color from String (for Badge)
+    function stringToColor(str) {
+        let hash = 0; 
+        for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+        return '#' + "00000".substring(0, 6 - c.length) + c;
+    }
+
+    // 4. Update Visual Badge
+    function updateBadge(side, teamName) {
+        const badge = document.getElementById(side + '-badge');
+        if (!teamName) { 
+            badge.innerText = "?"; 
+            badge.style.background = "#0f172a";
+            badge.style.borderColor = "#334155";
+            return; 
+        }
+        
+        const initials = teamName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        badge.innerText = initials;
+        
+        const color = stringToColor(teamName);
+        badge.style.background = `linear-gradient(135deg, ${color}, #0f172a)`;
+        badge.style.borderColor = color;
+    }
+
+    // 5. Handle Country Change (Populates Leagues)
+    function handleCountryChange(side, autoSync = true) {
+        const country = document.getElementById(side + '_country').value;
+        const leagueSelect = document.getElementById(side + '_league');
+        const teamSelect = document.getElementById(side + '_team');
+
+        // Reset lower levels
+        leagueSelect.innerHTML = '<option value="">Select League</option>'; 
+        leagueSelect.disabled = true; 
+        leagueSelect.classList.add('opacity-50', 'cursor-not-allowed');
+        
+        teamSelect.innerHTML = '<option value="">Select Team</option>'; 
+        teamSelect.disabled = true; 
+        teamSelect.classList.add('opacity-50', 'cursor-not-allowed');
+        
+        updateBadge(side, "");
+
+        if (country && hierarchy[country]) {
+            const leagues = Object.keys(hierarchy[country]).sort();
+            populateSelect(side + '_league', leagues);
+            
+            leagueSelect.disabled = false;
+            leagueSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            // Auto-sync Home Country to Away Country to save clicks
+            if (side === 'home' && autoSync) {
+                const awayCountry = document.getElementById('away_country');
+                awayCountry.value = country;
+                handleCountryChange('away', false);
+            }
+        }
+    }
+
+    // 6. Handle League Change (Populates Teams)
+    function handleLeagueChange(side, autoSync = true) {
+        const country = document.getElementById(side + '_country').value;
+        const league = document.getElementById(side + '_league').value;
+        const teamSelect = document.getElementById(side + '_team');
+
+        teamSelect.innerHTML = '<option value="">Select Team</option>'; 
+        teamSelect.disabled = true; 
+        teamSelect.classList.add('opacity-50', 'cursor-not-allowed');
+
+        if (country && league && hierarchy[country][league]) {
+            const teams = hierarchy[country][league].sort();
+            populateSelect(side + '_team', teams);
+            
+            teamSelect.disabled = false;
+            teamSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            // Auto-sync League if it exists in Away Country
+            if (side === 'home' && autoSync) {
+                const awayLeague = document.getElementById('away_league');
+                let exists = false;
+                for(let i=0; i<awayLeague.options.length; i++) {
+                    if(awayLeague.options[i].value === league) exists = true;
+                }
+                
+                if(exists) {
+                    awayLeague.value = league;
+                    handleLeagueChange('away', false);
+                }
+            }
+        }
+    }
+
+    // 7. Fetch Stats API
+    async function fetchStats(side, teamName) {
+        if(!teamName) return;
+        
+        const card = document.getElementById(side + '_stats');
+        try {
+            const res = await fetch(`/api/team_stats/${teamName}`);
+            const data = await res.json();
+            
+            if(data.error) return;
+
+            document.getElementById(side + '_rating').innerText = data.rating;
+            document.getElementById(side + '_ppg').innerText = data.ppg;
+            document.getElementById(side + '_xg').innerText = data.xg;
+            document.getElementById(side + '_gd').innerText = data.gd_trend;
+            
+            card.classList.remove('hidden');
+        } catch(e) { console.error(e); }
+    }
+
+    // 8. AUTOFILL LOGIC (The Fail-Safe Mechanism)
+    function autofillTeam(side, targetTeam) {
+        if (!targetTeam) return;
+        
+        // Iterate through hierarchy to find the team's Country and League
+        for (const [country, leagues] of Object.entries(hierarchy)) {
+            for (const [league, teams] of Object.entries(leagues)) {
+                if (teams.includes(targetTeam)) {
+                    // 1. Set Country
+                    const countrySelect = document.getElementById(side + '_country');
+                    countrySelect.value = country;
+                    handleCountryChange(side, false); // No sync to avoid overwriting the other side
+                    
+                    // 2. Set League
+                    const leagueSelect = document.getElementById(side + '_league');
+                    leagueSelect.value = league;
+                    handleLeagueChange(side, false);
+                    
+                    // 3. Set Team
+                    const teamSelect = document.getElementById(side + '_team');
+                    teamSelect.value = targetTeam;
+                    
+                    // 4. Trigger Visuals
+                    updateBadge(side, targetTeam);
+                    fetchStats(side, targetTeam);
+                    return;
+                }
+            }
+        }
+    }
+
+    // 9. Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        const countries = Object.keys(hierarchy).sort();
+        populateSelect('home_country', countries);
+        populateSelect('away_country', countries);
+
+        // CHECK FOR AUTOFILL VALUES FROM SERVER
+        if (defaultHome) autofillTeam('home', defaultHome);
+        if (defaultAway) autofillTeam('away', defaultAway);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-slate-950 py-12 px-4">
+    <div class="max-w-6xl mx-auto space-y-8 reveal active">
+        
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-3xl font-black text-white">Command Center</h2>
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span class="text-green-400 text-xs font-bold uppercase tracking-widest">System Online</span>
+            </div>
+        </div>
+
+        {% if schedule_alert %}
+        <div class="bg-red-500/10 border-l-4 border-red-500 p-6 rounded-r-xl flex items-start gap-4 shadow-lg animate-pulse mb-8">
+            <div class="bg-red-500/20 p-3 rounded-full text-red-500">
+                <i class="fas fa-exclamation-triangle text-2xl"></i>
+            </div>
+            <div>
+                <h3 class="text-red-400 font-bold text-lg">Action Required: Update Schedule</h3>
+                <p class="text-slate-300 text-sm mt-1">
+                    The <strong>upcoming.csv</strong> file has not been updated in <span class="font-mono font-bold text-white">{{ schedule_age }} days</span>.
+                </p>
+            </div>
+        </div>
+        {% endif %}
+
+        <div id="console-panel" class="hidden glass-card bg-black rounded-2xl border border-slate-700 overflow-hidden shadow-2xl mb-8">
+            <div class="bg-slate-900 px-4 py-2 border-b border-slate-800 flex justify-between items-center">
+                <span class="text-xs font-mono text-brand-accent animate-pulse">● LIVE TERMINAL</span>
+                <span id="task-name" class="text-xs text-slate-400">System Idle</span>
+            </div>
+            <div id="console-logs" class="p-4 font-mono text-xs text-green-400 h-48 overflow-y-auto space-y-1">
+                </div>
+            <div class="h-1 bg-slate-800 w-full">
+                <div id="progress-bar" class="h-full bg-brand-accent transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            
+            <div class="glass-card bg-slate-900 p-8 rounded-2xl border border-slate-800 hover:border-blue-500/30 transition group">
+                <div class="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-400 mb-4 group-hover:scale-110 transition">
+                    <i class="fas fa-sync-alt text-xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Model Retraining</h3>
+                <p class="text-slate-400 text-sm mb-6">Update AI weights with latest match data.</p>
+                <button onclick="triggerTask('/admin/run_retrain')" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition flex justify-center items-center gap-2">
+                    Start Process
+                </button>
+            </div>
+
+            <div class="glass-card bg-slate-900 p-8 rounded-2xl border border-slate-800 hover:border-purple-500/30 transition group">
+                <div class="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center text-purple-400 mb-4 group-hover:scale-110 transition">
+                    <i class="fas fa-check-double text-xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Result Grading</h3>
+                <p class="text-slate-400 text-sm mb-6">Check 'real_results.csv' and grade users.</p>
+                <form action="{{ url_for('update_results') }}" method="POST">
+                    <button type="submit" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl transition flex justify-center items-center gap-2">
+                        Grade Predictions
+                    </button>
+                </form>
+            </div>
+
+            <div class="glass-card bg-slate-900 p-8 rounded-2xl border border-slate-800 hover:border-green-500/30 transition group md:col-span-2">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-2">Strategy Backtest</h3>
+                        <p class="text-slate-400 text-sm mb-6">Simulate betting on historical test data.</p>
+                        <button onclick="triggerTask('/admin/run_roi')" class="px-8 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition">
+                            Run Simulation
+                        </button>
+                    </div>
+                    <div class="w-1/2 hidden md:block">
+                        <img id="roi-chart" src="{{ url_for('static', filename='img/roi_chart.png') }}?v=1" 
+                             class="w-full h-32 object-cover rounded-lg border border-slate-700 opacity-50 group-hover:opacity-100 transition">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 text-center">
+                <div class="text-slate-500 text-xs font-bold uppercase">Total Users</div>
+                <div class="text-3xl font-black text-white mt-1">{{ stats.total_users }}</div>
+            </div>
+            <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 text-center">
+                <div class="text-slate-500 text-xs font-bold uppercase">Revenue</div>
+                <div class="text-3xl font-black text-green-400 mt-1">KES {{ stats.total_revenue }}</div>
+            </div>
+            <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 text-center">
+                <div class="text-slate-500 text-xs font-bold uppercase">Engine Status</div>
+                <div class="text-3xl font-black text-blue-400 mt-1">{{ health.status }}</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let isPolling = false;
+
+    function triggerTask(url) {
+        document.getElementById('console-panel').classList.remove('hidden');
+        document.getElementById('console-logs').innerHTML = '<div class="text-slate-500">Requesting start...</div>';
+        
+        fetch(url, { method: 'POST' })
+            .then(r => r.json())
+            .then(data => { if(!isPolling) startPolling(); });
+    }
+
+    function startPolling() {
+        isPolling = true;
+        const logDiv = document.getElementById('console-logs');
+        const bar = document.getElementById('progress-bar');
+        const taskLabel = document.getElementById('task-name');
+        const chart = document.getElementById('roi-chart');
+
+        const interval = setInterval(() => {
+            fetch('/api/admin/job_status')
+                .then(r => r.json())
+                .then(data => {
+                    taskLabel.innerText = data.task || "Processing...";
+                    bar.style.width = data.progress + "%";
+                    logDiv.innerHTML = data.logs.map(l => `<div>${l}</div>`).join('');
+                    logDiv.scrollTop = logDiv.scrollHeight;
+
+                    if (data.status === 'completed' || data.status === 'error') {
+                        clearInterval(interval);
+                        isPolling = false;
+                        if (data.task && data.task.includes("ROI")) {
+                            chart.src = chart.src.split('?')[0] + '?v=' + new Date().getTime();
+                        }
+                    }
+                });
+        }, 1500);
+    }
+</script>
+{% endblock %}
