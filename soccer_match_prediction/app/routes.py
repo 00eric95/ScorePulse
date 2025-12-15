@@ -4,11 +4,11 @@ import threading
 import json
 import time
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, date  # <--- FIXED IMPORT HERE
 from flask import render_template, url_for, flash, redirect, request, jsonify, current_app as app
 from app import db, login_manager
 from app.forms import RegistrationForm, LoginForm, PredictForm
-from app.models import User, Prediction, Payment
+from app.models import User, Prediction, Payment, Match
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_bcrypt import Bcrypt
 
@@ -45,13 +45,31 @@ def load_user(user_id):
 @app.route("/")
 @app.route("/home")
 def home():
-    # Fetch upcoming matches for the homepage ticker
-    upcoming = []
-    if ai_engine and hasattr(ai_engine, 'get_upcoming_matches'):
-        try:
-            upcoming = ai_engine.get_upcoming_matches(count=20)
-        except: pass
-    return render_template('home.html', matches=upcoming)
+    # 1. Get the date from the URL (e.g., ?date=2025-12-25)
+    # If no date is clicked, default to Today's date
+    selected_date = request.args.get('date', str(date.today()))
+    
+    matches = []
+    
+    try:
+        # 2. Query the Database for that specific date
+        # We use .like() to match the string "YYYY-MM-DD" because DB stores full datetime
+        matches = Match.query.filter(Match.date.like(f"{selected_date}%")).order_by(Match.date.asc()).all()
+        
+        # Fallback: If no matches found for today (and it IS today), try AI engine defaults
+        if not matches and selected_date == str(date.today()) and ai_engine:
+             if hasattr(ai_engine, 'get_upcoming_matches'):
+                matches = ai_engine.get_upcoming_matches(count=20)
+             
+    except Exception as e:
+        print(f"Error fetching matches: {e}")
+        # Fallback to the AI Engine default if the DB query crashes
+        if ai_engine and hasattr(ai_engine, 'get_upcoming_matches'):
+            matches = ai_engine.get_upcoming_matches(count=20)
+
+    # 3. Render template with the matches AND the selected_date
+    return render_template('home.html', matches=matches, selected_date=selected_date)
+
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():

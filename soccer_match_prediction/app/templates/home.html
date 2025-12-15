@@ -60,12 +60,26 @@
 <div class="py-20">
     <div class="max-w-6xl mx-auto px-4">
         
-        <div class="flex items-center justify-between mb-10 border-b border-white/10 pb-4">
+        <div class="flex flex-col md:flex-row items-center justify-between mb-10 border-b border-white/10 pb-4 gap-4">
+            
             <h2 class="text-3xl font-bold text-white flex items-center gap-3">
                 <span class="text-brand-accent"><i class="fas fa-calendar-alt"></i></span> 
                 Match Center
             </h2>
-            <span class="text-xs text-brand-muted font-mono uppercase tracking-widest bg-white/5 px-3 py-1 rounded">Next 7 Days</span>
+
+            <div class="relative group">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-brand-accent">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+                
+                <input 
+                    type="date" 
+                    id="match-date" 
+                    value="{{ selected_date }}" 
+                    onchange="window.location.href='{{ url_for('home') }}?date=' + this.value"
+                    class="bg-brand-dark border border-white/10 text-white text-sm rounded-lg focus:ring-brand-accent focus:border-brand-accent block w-full pl-10 p-2.5 placeholder-brand-muted shadow-lg hover:border-brand-accent/50 transition cursor-pointer"
+                >
+            </div>
         </div>
 
         {% if matches %}
@@ -150,8 +164,8 @@
                 <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
                     <i class="fas fa-calendar-times text-4xl text-brand-muted"></i>
                 </div>
-                <h3 class="text-white font-bold text-2xl mb-2">No Upcoming Matches</h3>
-                <p class="text-brand-muted text-sm">Our AI is scanning for the next schedule updates.</p>
+                <h3 class="text-white font-bold text-2xl mb-2">No Matches Found</h3>
+                <p class="text-brand-muted text-sm">No games scheduled for {{ selected_date }}. Try selecting a different date.</p>
             </div>
         {% endif %}
 
