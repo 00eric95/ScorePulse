@@ -1,0 +1,719 @@
+<!-- templates/admin/alerts.html -->
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-white mb-2">Alert Center</h1>
+            <p class="text-slate-400">Monitor and manage system alerts and notifications</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="refreshAlerts()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-white transition flex items-center gap-2">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <button onclick="showNewAlertModal()" class="px-4 py-2 bg-gradient-to-r from-brand-primary to-brand-secondary hover:opacity-90 rounded-lg text-white transition flex items-center gap-2">
+                <i class="fas fa-plus"></i> New Alert
+            </button>
+        </div>
+    </div>
+    
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="stat-card">
+            <div class="text-2xl font-bold text-red-400 mb-1">{{ stats.total_critical|default(0) }}</div>
+            <div class="text-sm text-slate-400">Critical Alerts</div>
+            <div class="text-xs text-slate-500 mt-2">
+                <i class="fas fa-arrow-up text-red-400"></i> {{ stats.critical_trend|default(0) }}% from last week
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="text-2xl font-bold text-orange-400 mb-1">{{ stats.total_warning|default(0) }}</div>
+            <div class="text-sm text-slate-400">Warnings</div>
+            <div class="text-xs text-slate-500 mt-2">
+                <i class="fas fa-arrow-down text-green-400"></i> {{ stats.warning_trend|default(0) }}% from last week
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="text-2xl font-bold text-blue-400 mb-1">{{ stats.total_unread|default(0) }}</div>
+            <div class="text-sm text-slate-400">Unread Alerts</div>
+            <div class="text-xs text-slate-500 mt-2">
+                <i class="fas fa-clock text-orange-400"></i> {{ stats.avg_response|default('N/A') }} avg response
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="text-2xl font-bold text-green-400 mb-1">{{ stats.total_resolved|default(0) }}</div>
+            <div class="text-sm text-slate-400">Resolved Today</div>
+            <div class="text-xs text-slate-500 mt-2">
+                <i class="fas fa-check-circle text-green-400"></i> {{ stats.resolution_rate|default(0) }}% rate
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filters & Search -->
+    <div class="glass-card p-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm text-slate-400 mr-2">Filter by:</span>
+                <button onclick="filterAlerts('all')" class="filter-pill active" data-filter="all">All</button>
+                <button onclick="filterAlerts('critical')" class="filter-pill" data-filter="critical">
+                    <i class="fas fa-exclamation-circle mr-2 text-red-400"></i>Critical
+                </button>
+                <button onclick="filterAlerts('warning')" class="filter-pill" data-filter="warning">
+                    <i class="fas fa-exclamation-triangle mr-2 text-orange-400"></i>Warning
+                </button>
+                <button onclick="filterAlerts('info')" class="filter-pill" data-filter="info">
+                    <i class="fas fa-info-circle mr-2 text-blue-400"></i>Info
+                </button>
+                <button onclick="filterAlerts('unread')" class="filter-pill" data-filter="unread">
+                    <i class="fas fa-envelope mr-2 text-green-400"></i>Unread
+                </button>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <div class="relative">
+                    <input type="text" 
+                           id="alertSearch" 
+                           placeholder="Search alerts..." 
+                           class="pl-10 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-white focus:outline-none focus:border-brand-primary w-64">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
+                </div>
+                
+                <select id="timeFilter" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-white focus:outline-none focus:border-brand-primary">
+                    <option value="24h">Last 24 hours</option>
+                    <option value="7d" selected>Last 7 days</option>
+                    <option value="30d">Last 30 days</option>
+                    <option value="all">All time</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Bulk Actions -->
+        <div class="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg mb-6">
+            <div class="flex items-center gap-4">
+                <div class="flex items-center">
+                    <input type="checkbox" id="selectAll" class="mr-3">
+                    <label for="selectAll" class="text-sm text-slate-400"><span id="selectedCount">0</span> alerts selected</label>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <button onclick="markSelectedAsRead()" class="px-3 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded text-sm transition">
+                        <i class="fas fa-envelope-open mr-2"></i>Mark as read
+                    </button>
+                    <button onclick="resolveSelected()" class="px-3 py-1 bg-green-600/20 hover:bg-green-600/30 text-green-400 rounded text-sm transition">
+                        <i class="fas fa-check mr-2"></i>Resolve
+                    </button>
+                    <button onclick="deleteSelected()" class="px-3 py-1 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded text-sm transition">
+                        <i class="fas fa-trash mr-2"></i>Delete
+                    </button>
+                </div>
+            </div>
+            
+            <div class="text-sm text-slate-500">
+                Showing <span id="visibleCount">{{ alerts|length }}</span> of {{ stats.total_alerts|default(0) }} total alerts
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alerts List -->
+    <div id="alertsContainer">
+        {% if alerts %}
+        <div class="space-y-4">
+            {% for alert in alerts %}
+            <div class="alert-card alert-{{ alert.severity }} p-6 {% if not alert.read %}alert-new{% endif %}" 
+                 data-severity="{{ alert.severity }}"
+                 data-id="{{ alert.id }}"
+                 data-read="{{ alert.read|lower }}">
+                <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                    <div class="flex-1">
+                        <div class="flex items-start gap-4">
+                            <div class="mt-1">
+                                {% if alert.severity == 'critical' %}
+                                <i class="fas fa-exclamation-circle text-2xl text-red-400"></i>
+                                {% elif alert.severity == 'warning' %}
+                                <i class="fas fa-exclamation-triangle text-2xl text-orange-400"></i>
+                                {% elif alert.severity == 'info' %}
+                                <i class="fas fa-info-circle text-2xl text-blue-400"></i>
+                                {% else %}
+                                <i class="fas fa-check-circle text-2xl text-green-400"></i>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h3 class="text-lg font-bold text-white">{{ alert.title }}</h3>
+                                    <span class="alert-severity severity-{{ alert.severity }}">
+                                        <i class="fas fa-circle" style="font-size: 6px;"></i>
+                                        {{ alert.severity|upper }}
+                                    </span>
+                                    {% if alert.read %}
+                                    <span class="text-xs px-2 py-1 rounded bg-slate-800 text-slate-400">
+                                        <i class="fas fa-check mr-1"></i>Read
+                                    </span>
+                                    {% else %}
+                                    <span class="text-xs px-2 py-1 rounded bg-blue-900/30 text-blue-400">
+                                        <i class="fas fa-envelope mr-1"></i>Unread
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                
+                                <p class="text-slate-300 mb-3">{{ alert.message }}</p>
+                                
+                                <div class="flex flex-wrap items-center gap-4 text-sm text-slate-500">
+                                    <span>
+                                        <i class="fas fa-clock mr-1"></i>
+                                        {{ alert.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-tag mr-1"></i>
+                                        {{ alert.category }}
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-server mr-1"></i>
+                                        {{ alert.source }}
+                                    </span>
+                                    {% if alert.assigned_to %}
+                                    <span>
+                                        <i class="fas fa-user mr-1"></i>
+                                        {{ alert.assigned_to }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start gap-2">
+                        {% if not alert.read %}
+                        <button onclick="markAsRead('{{ alert.id }}')" 
+                                class="px-3 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded text-sm transition"
+                                title="Mark as read">
+                            <i class="fas fa-envelope-open"></i>
+                        </button>
+                        {% endif %}
+                        
+                        <button onclick="resolveAlert('{{ alert.id }}')" 
+                                class="px-3 py-1 bg-green-600/20 hover:bg-green-600/30 text-green-400 rounded text-sm transition"
+                                title="Resolve alert">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        
+                        <button onclick="deleteAlert('{{ alert.id }}')" 
+                                class="px-3 py-1 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded text-sm transition"
+                                title="Delete alert">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="glass-card p-12 text-center">
+            <i class="fas fa-check-circle text-4xl text-green-400 mb-4"></i>
+            <h3 class="text-xl font-bold text-white mb-2">No Active Alerts</h3>
+            <p class="text-slate-400 mb-6">All systems are operating normally</p>
+            <div class="inline-block px-4 py-2 bg-slate-800 rounded-lg text-slate-300 text-sm">
+                <i class="fas fa-shield-alt mr-2"></i>System status: Healthy
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if alerts and total_pages > 1 %}
+    <div class="flex justify-center items-center gap-2 mt-8">
+        <button onclick="changePage({{ page-1 }})" 
+                {% if page <= 1 %}disabled{% endif %}
+                class="px-4 py-2 rounded-lg {% if page <= 1 %}bg-slate-900 text-slate-600{% else %}bg-slate-800 hover:bg-slate-700 text-white{% endif %}">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        
+        {% for p in range(1, total_pages+1) %}
+        <button onclick="changePage({{ p }})"
+                class="px-4 py-2 rounded-lg {% if p == page %}bg-brand-primary text-slate-900{% else %}bg-slate-800 hover:bg-slate-700 text-white{% endif %}">
+            {{ p }}
+        </button>
+        {% endfor %}
+        
+        <button onclick="changePage({{ page+1 }})" 
+                {% if page >= total_pages %}disabled{% endif %}
+                class="px-4 py-2 rounded-lg {% if page >= total_pages %}bg-slate-900 text-slate-600{% else %}bg-slate-800 hover:bg-slate-700 text-white{% endif %}">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- New Alert Modal -->
+<div id="newAlertModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 rounded-2xl border border-slate-800 w-full max-w-md p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-white">Create New Alert</h3>
+            <button onclick="closeNewAlertModal()" class="text-slate-500 hover:text-white">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="newAlertForm" onsubmit="createAlert(event)">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-slate-400 mb-2">Title</label>
+                    <input type="text" 
+                           name="title" 
+                           required 
+                           class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-brand-primary">
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-slate-400 mb-2">Severity</label>
+                    <select name="severity" 
+                            class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-brand-primary">
+                        <option value="info">Info</option>
+                        <option value="warning">Warning</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-slate-400 mb-2">Category</label>
+                    <select name="category" 
+                            class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-brand-primary">
+                        <option value="system">System</option>
+                        <option value="database">Database</option>
+                        <option value="ai">AI Engine</option>
+                        <option value="security">Security</option>
+                        <option value="performance">Performance</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-slate-400 mb-2">Message</label>
+                    <textarea name="message" 
+                              rows="3" 
+                              required 
+                              class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-brand-primary"></textarea>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 mt-8">
+                <button type="button" 
+                        onclick="closeNewAlertModal()" 
+                        class="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-white transition">
+                    Cancel
+                </button>
+                <button type="submit" 
+                        class="flex-1 px-4 py-2 bg-gradient-to-r from-brand-primary to-brand-secondary hover:opacity-90 rounded-lg text-white transition">
+                    Create Alert
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.alert-card {
+    background: rgba(28, 43, 75, 0.6);
+    border-left: 4px solid;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.alert-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.alert-critical {
+    border-left-color: var(--brand-danger);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(28, 43, 75, 0.6));
+}
+
+.alert-warning {
+    border-left-color: var(--brand-warning);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(28, 43, 75, 0.6));
+}
+
+.alert-info {
+    border-left-color: var(--brand-secondary);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(28, 43, 75, 0.6));
+}
+
+.alert-success {
+    border-left-color: var(--brand-success);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(28, 43, 75, 0.6));
+}
+
+.alert-severity {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.severity-critical {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--brand-danger);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.severity-warning {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--brand-warning);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.severity-info {
+    background: rgba(59, 130, 246, 0.2);
+    color: var(--brand-secondary);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.severity-success {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--brand-success);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.filter-pill {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    outline: none;
+}
+
+.filter-pill:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.filter-pill.active {
+    background: rgba(0, 242, 195, 0.1);
+    border-color: rgba(0, 242, 195, 0.3);
+    color: var(--brand-primary);
+}
+
+@keyframes pulseNew {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.alert-new {
+    animation: pulseNew 2s infinite;
+    border: 1px solid rgba(0, 242, 195, 0.3);
+}
+</style>
+
+<script>
+// Alert management
+let selectedAlerts = new Set();
+
+// Filter alerts
+function filterAlerts(filter) {
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    const alerts = document.querySelectorAll('.alert-card');
+    let visibleCount = 0;
+    
+    alerts.forEach(alert => {
+        if (filter === 'all') {
+            alert.style.display = 'block';
+            visibleCount++;
+        } else if (filter === 'unread') {
+            const isUnread = alert.dataset.read === 'false';
+            alert.style.display = isUnread ? 'block' : 'none';
+            if (isUnread) visibleCount++;
+        } else {
+            const matchesFilter = alert.dataset.severity === filter;
+            alert.style.display = matchesFilter ? 'block' : 'none';
+            if (matchesFilter) visibleCount++;
+        }
+    });
+    
+    document.getElementById('visibleCount').textContent = visibleCount;
+}
+
+// Search alerts
+const searchAlerts = AdminUtils.debounce(function(query) {
+    if (query.length < 2) {
+        document.querySelectorAll('.alert-card').forEach(alert => {
+            alert.style.display = 'block';
+        });
+        document.getElementById('visibleCount').textContent = document.querySelectorAll('.alert-card').length;
+        return;
+    }
+    
+    document.querySelectorAll('.alert-card').forEach(alert => {
+        const title = alert.querySelector('h3').textContent.toLowerCase();
+        const message = alert.querySelector('p').textContent.toLowerCase();
+        const matches = title.includes(query.toLowerCase()) || message.includes(query.toLowerCase());
+        alert.style.display = matches ? 'block' : 'none';
+    });
+}, 300);
+
+document.getElementById('alertSearch').addEventListener('input', function(e) {
+    searchAlerts(e.target.value);
+});
+
+// Time filter
+document.getElementById('timeFilter').addEventListener('change', async function(e) {
+    try {
+        const data = await AdminUtils.fetchAPI(`/api/admin/alerts?time=${e.target.value}`);
+        updateAlertsDisplay(data);
+    } catch (error) {
+        console.error('Failed to filter alerts by time:', error);
+    }
+});
+
+// Alert actions
+async function markAsRead(alertId) {
+    try {
+        const data = await AdminUtils.fetchAPI(`/api/admin/alerts/${alertId}/read`, {
+            method: 'POST'
+        });
+        
+        if (data.success) {
+            const alert = document.querySelector(`[data-id="${alertId}"]`);
+            alert.classList.remove('alert-new');
+            alert.dataset.read = 'true';
+            AdminUtils.showToast('Alert marked as read', 'success');
+        }
+    } catch (error) {
+        console.error('Failed to mark alert as read:', error);
+    }
+}
+
+async function resolveAlert(alertId) {
+    if (!confirm('Are you sure you want to resolve this alert?')) return;
+    
+    try {
+        const data = await AdminUtils.fetchAPI(`/api/admin/alerts/${alertId}/resolve`, {
+            method: 'POST'
+        });
+        
+        if (data.success) {
+            document.querySelector(`[data-id="${alertId}"]`).remove();
+            AdminUtils.showToast('Alert resolved successfully', 'success');
+        }
+    } catch (error) {
+        console.error('Failed to resolve alert:', error);
+    }
+}
+
+async function deleteAlert(alertId) {
+    if (!confirm('Are you sure you want to delete this alert?')) return;
+    
+    try {
+        const data = await AdminUtils.fetchAPI(`/api/admin/alerts/${alertId}`, {
+            method: 'DELETE'
+        });
+        
+        if (data.success) {
+            document.querySelector(`[data-id="${alertId}"]`).remove();
+            selectedAlerts.delete(alertId);
+            updateSelectedCount();
+            AdminUtils.showToast('Alert deleted', 'success');
+        }
+    } catch (error) {
+        console.error('Failed to delete alert:', error);
+    }
+}
+
+// Bulk actions
+function updateSelectedCount() {
+    const count = selectedAlerts.size;
+    document.getElementById('selectedCount').textContent = count;
+    document.getElementById('selectAll').nextElementSibling.textContent = 
+        `${count} alerts selected`;
+}
+
+document.getElementById('selectAll').addEventListener('change', function(e) {
+    const checkboxes = document.querySelectorAll('.alert-checkbox');
+    checkboxes.forEach(cb => {
+        cb.checked = e.target.checked;
+        const alertId = cb.closest('.alert-card').dataset.id;
+        if (e.target.checked) {
+            selectedAlerts.add(alertId);
+        } else {
+            selectedAlerts.delete(alertId);
+        }
+    });
+    updateSelectedCount();
+});
+
+async function markSelectedAsRead() {
+    if (selectedAlerts.size === 0) {
+        AdminUtils.showToast('No alerts selected', 'warning');
+        return;
+    }
+    
+    try {
+        const data = await AdminUtils.fetchAPI('/api/admin/alerts/bulk-read', {
+            method: 'POST',
+            body: JSON.stringify({ alert_ids: Array.from(selectedAlerts) })
+        });
+        
+        if (data.success) {
+            selectedAlerts.forEach(id => {
+                const alert = document.querySelector(`[data-id="${id}"]`);
+                if (alert) {
+                    alert.classList.remove('alert-new');
+                    alert.dataset.read = 'true';
+                }
+            });
+            selectedAlerts.clear();
+            updateSelectedCount();
+            AdminUtils.showToast(`${data.count} alerts marked as read`, 'success');
+        }
+    } catch (error) {
+        console.error('Failed to mark alerts as read:', error);
+    }
+}
+
+async function resolveSelected() {
+    if (selectedAlerts.size === 0) {
+        AdminUtils.showToast('No alerts selected', 'warning');
+        return;
+    }
+    
+    try {
+        const data = await AdminUtils.fetchAPI('/api/admin/alerts/bulk-resolve', {
+            method: 'POST',
+            body: JSON.stringify({ alert_ids: Array.from(selectedAlerts) })
+        });
+        
+        if (data.success) {
+            selectedAlerts.forEach(id => {
+                document.querySelector(`[data-id="${id}"]`)?.remove();
+            });
+            selectedAlerts.clear();
+            updateSelectedCount();
+            AdminUtils.showToast(`${data.count} alerts resolved`, 'success');
+        }
+    } catch (error) {
+        console.error('Failed to resolve alerts:', error);
+    }
+}
+
+async function deleteSelected() {
+    if (selectedAlerts.size === 0) {
+        AdminUtils.showToast('No alerts selected', 'warning');
+        return;
+    }
+    
+    if (!confirm(`Are you sure you want to delete ${selectedAlerts.size} alerts?`)) return;
+    
+    try {
+        const data = await AdminUtils.fetchAPI('/api/admin/alerts/bulk-delete', {
+            method: 'POST',
+            body: JSON.stringify({ alert_ids: Array.from(selectedAlerts) })
+        });
+        
+        if (data.success) {
+            selectedAlerts.forEach(id => {
+                document.querySelector(`[data-id="${id}"]`)?.remove();
+            });
+            selectedAlerts.clear();
+            updateSelectedCount();
+            AdminUtils.showToast(`${data.count} alerts deleted`, 'success');
+        }
+    } catch (error) {
+        console.error('Failed to delete alerts:', error);
+    }
+}
+
+// New alert modal
+function showNewAlertModal() {
+    document.getElementById('newAlertModal').classList.remove('hidden');
+}
+
+function closeNewAlertModal() {
+    document.getElementById('newAlertModal').classList.add('hidden');
+    document.getElementById('newAlertForm').reset();
+}
+
+async function createAlert(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData);
+    
+    try {
+        const response = await AdminUtils.fetchAPI('/api/admin/alerts', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+        
+        if (response.success) {
+            AdminUtils.showToast('Alert created successfully', 'success');
+            closeNewAlertModal();
+            refreshAlerts();
+        }
+    } catch (error) {
+        console.error('Failed to create alert:', error);
+    }
+}
+
+// Pagination
+function changePage(page) {
+    window.location.href = `?page=${page}`;
+}
+
+// Refresh alerts
+async function refreshAlerts() {
+    try {
+        const data = await AdminUtils.fetchAPI('/api/admin/alerts/refresh');
+        updateAlertsDisplay(data);
+        AdminUtils.showToast('Alerts refreshed', 'success');
+    } catch (error) {
+        console.error('Failed to refresh alerts:', error);
+    }
+}
+
+function updateAlertsDisplay(data) {
+    // This would update the alerts container with new HTML
+    // Implementation depends on your backend response structure
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    // Add checkboxes to alerts
+    const alerts = document.querySelectorAll('.alert-card');
+    alerts.forEach(alert => {
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'mr-3 alert-checkbox';
+        checkbox.addEventListener('change', function() {
+            const alertId = this.closest('.alert-card').dataset.id;
+            if (this.checked) {
+                selectedAlerts.add(alertId);
+            } else {
+                selectedAlerts.delete(alertId);
+                document.getElementById('selectAll').checked = false;
+            }
+            updateSelectedCount();
+        });
+        
+        alert.querySelector('.flex.items-start').prepend(checkbox);
+    });
+    
+    // Auto-refresh every 30 seconds
+    setInterval(refreshAlerts, 30000);
+});
+</script>
+{% endblock %}

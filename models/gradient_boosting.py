@@ -1,3 +1,11 @@
+"""
+This module implements a standard Scikit-Learn Gradient Boosting wrapper.
+It supports both classification and regression tasks via a 'mode' switch.
+The class initializes with robust default hyperparameters for tree depth and learning rate.
+Methods are provided for training, prediction, and probabilistic output for matches.
+It utilizes joblib for persistence, saving trained weights to the project's models directory.
+"""
+
 from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegressor
 import joblib
 import sys

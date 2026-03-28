@@ -1,0 +1,778 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}{{ page_title }} - ScorePulse AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Brand Color Variables */
+    :root {
+        --brand-primary: {{ brand_colors.primary }};
+        --brand-secondary: {{ brand_colors.secondary }};
+        --brand-accent: {{ brand_colors.accent }};
+        --brand-success: {{ brand_colors.success }};
+        --brand-warning: {{ brand_colors.warning }};
+        --brand-danger: {{ brand_colors.danger }};
+        --brand-dark: {{ brand_colors.dark }};
+        --brand-light: {{ brand_colors.light }};
+    }
+    
+    /* Command Center Base Styling */
+    .command-center {
+        background: linear-gradient(135deg, var(--brand-dark) 0%, #1c2b4b 100%);
+        min-height: 100vh;
+    }
+    
+    .glass-card {
+        background: rgba(28, 43, 75, 0.6);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-card:hover {
+        border-color: var(--brand-primary);
+        box-shadow: 0 8px 32px rgba(0, 242, 195, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    /* Stat Cards */
+    .stat-card {
+        background: linear-gradient(135deg, 
+            rgba(28, 43, 75, 0.8) 0%, 
+            rgba(10, 17, 40, 0.9) 100%);
+        border: 1px solid rgba(0, 242, 195, 0.15);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .stat-card:hover {
+        border-color: var(--brand-primary);
+        box-shadow: 0 10px 30px rgba(0, 242, 195, 0.15);
+        transform: translateY(-5px);
+    }
+    
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-icon-primary { background: rgba(0, 242, 195, 0.15); color: var(--brand-primary); }
+    .stat-icon-secondary { background: rgba(0, 153, 255, 0.15); color: var(--brand-secondary); }
+    .stat-icon-success { background: rgba(16, 185, 129, 0.15); color: var(--brand-success); }
+    .stat-icon-accent { background: rgba(255, 107, 53, 0.15); color: var(--brand-accent); }
+    
+    .trend-up { color: var(--brand-success); }
+    .trend-down { color: var(--brand-danger); }
+    
+    /* System Status Indicators */
+    .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    
+    .status-online { 
+        background: rgba(16, 185, 129, 0.2); 
+        color: var(--brand-success);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    
+    .status-offline { 
+        background: rgba(239, 68, 68, 0.2); 
+        color: var(--brand-danger);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    
+    .status-warning { 
+        background: rgba(245, 158, 11, 0.2); 
+        color: var(--brand-warning);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    
+    /* Alert Styling */
+    .alert-item {
+        padding: 1rem;
+        border-left: 4px solid;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        background: rgba(28, 43, 75, 0.4);
+        transition: all 0.2s ease;
+    }
+    
+    .alert-item:hover {
+        background: rgba(28, 43, 75, 0.6);
+        transform: translateX(2px);
+    }
+    
+    .alert-critical { border-left-color: var(--brand-danger); }
+    .alert-warning { border-left-color: var(--brand-warning); }
+    .alert-info { border-left-color: var(--brand-secondary); }
+    
+    /* Chart Containers */
+    .chart-container {
+        background: rgba(10, 17, 40, 0.5);
+        border-radius: 12px;
+        padding: 1.5rem;
+        height: 100%;
+    }
+    
+    /* Tab Styling */
+    .command-tabs {
+        background: rgba(28, 43, 75, 0.4);
+        border-radius: 12px;
+        padding: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .command-tab {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 600;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .command-tab:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .command-tab.active {
+        background: var(--brand-primary);
+        color: var(--brand-dark);
+        box-shadow: 0 4px 12px rgba(0, 242, 195, 0.3);
+    }
+    
+    /* Live Indicator */
+    .live-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        animation: pulse 2s infinite;
+    }
+    
+    .live-indicator::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--brand-primary);
+        animation: blink 1s infinite;
+    }
+    
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    
+    /* Metric Badges */
+    .metric-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: bold;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+    
+    /* Quick Actions */
+    .quick-action {
+        background: rgba(28, 43, 75, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .quick-action:hover {
+        background: rgba(28, 43, 75, 0.6);
+        border-color: var(--brand-primary);
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="command-center">
+    <div class="container-fluid px-4 py-6">
+        
+        <!-- Header -->
+        <div class="row mb-6">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="display-6 fw-bold text-white mb-2">
+                            <i class="fas fa-satellite-dish me-3" style="color: var(--brand-primary);"></i>
+                            Command Center
+                        </h1>
+                        <p class="text-slate-300 mb-0">
+                            Real-time system monitoring and advanced controls
+                            <span class="live-indicator ms-3">LIVE</span>
+                        </p>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <button onclick="refreshDashboard()" 
+                                class="btn btn-lg px-4" 
+                                style="background: var(--brand-primary); color: var(--brand-dark);">
+                            <i class="fas fa-sync-alt me-2"></i> Refresh
+                        </button>
+                        <a href="{{ url_for('admin_dashboard') }}" 
+                           class="btn btn-lg px-4" 
+                           style="background: rgba(255,255,255,0.1); color: white;">
+                            <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                        </a>
+                    </div>
+                </div>
+                <div class="text-end mt-2">
+                    <small class="text-slate-500">Last updated: {{ last_updated }}</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Stats Grid -->
+        <div class="row g-4 mb-6">
+            {% for stat in quick_stats %}
+            <div class="col-xl-3 col-lg-6">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="stat-icon stat-icon-{{ stat.color }}">
+                            <i class="fas fa-{{ stat.icon }}"></i>
+                        </div>
+                        <div class="text-end">
+                            <span class="metric-badge">
+                                <i class="fas fa-arrow-{% if stat.trend_up %}up trend-up{% else %}down trend-down{% endif %} me-1"></i>
+                                {{ stat.trend }}
+                            </span>
+                        </div>
+                    </div>
+                    <h3 class="display-5 fw-bold text-white mb-1">{{ stat.value }}</h3>
+                    <p class="text-slate-400 mb-0">{{ stat.title }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Main Dashboard -->
+        <div class="row g-4">
+            
+            <!-- Left Column: System Status & Health -->
+            <div class="col-xl-8">
+                
+                <!-- System Status Card -->
+                <div class="glass-card p-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="h5 fw-bold text-white mb-0">
+                            <i class="fas fa-server me-2" style="color: var(--brand-secondary);"></i>
+                            System Status
+                        </h3>
+                        <div class="d-flex gap-2">
+                            <span class="status-indicator status-online">
+                                <i class="fas fa-circle"></i>
+                                Overall: Healthy
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center p-3 bg-dark rounded">
+                                <div class="me-3">
+                                    <i class="fas fa-robot fa-2x" style="color: var(--brand-primary);"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1 text-white">AI Engine</h6>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-slate-400">Prediction System</span>
+                                        {% if system_status.ai_engine %}
+                                        <span class="status-indicator status-online">Online</span>
+                                        {% else %}
+                                        <span class="status-indicator status-offline">Offline</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center p-3 bg-dark rounded">
+                                <div class="me-3">
+                                    <i class="fas fa-database fa-2x" style="color: var(--brand-secondary);"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1 text-white">Database</h6>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-slate-400">PostgreSQL</span>
+                                        {% if system_status.database %}
+                                        <span class="status-indicator status-online">Online</span>
+                                        {% else %}
+                                        <span class="status-indicator status-offline">Offline</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center p-3 bg-dark rounded">
+                                <div class="me-3">
+                                    <i class="fas fa-bolt fa-2x" style="color: var(--brand-accent);"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1 text-white">Cache System</h6>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-slate-400">Redis</span>
+                                        {% if system_status.cache %}
+                                        <span class="status-indicator status-online">Active</span>
+                                        {% else %}
+                                        <span class="status-indicator status-offline">Inactive</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center p-3 bg-dark rounded">
+                                <div class="me-3">
+                                    <i class="fas fa-envelope fa-2x" style="color: var(--brand-success);"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1 text-white">Email Service</h6>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-slate-400">SMTP Server</span>
+                                        {% if system_status.email_service %}
+                                        <span class="status-indicator status-online">Online</span>
+                                        {% else %}
+                                        <span class="status-indicator status-offline">Offline</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Performance Metrics -->
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="glass-card p-4 h-100">
+                            <h4 class="h5 fw-bold text-white mb-4">
+                                <i class="fas fa-microchip me-2" style="color: var(--brand-accent);"></i>
+                                CPU Usage
+                            </h4>
+                            <div class="d-flex align-items-center mb-3">
+                                <h2 class="display-4 fw-bold text-white mb-0">
+                                    {{ metrics.cpu_usage|default(0)|round(1) }}%
+                                </h2>
+                                <div class="ms-auto">
+                                    <div class="progress" style="width: 150px; height: 8px;">
+                                        <div class="progress-bar" 
+                                             role="progressbar" 
+                                             style="width: {{ metrics.cpu_usage|default(0) }}%; background-color: var(--brand-accent);">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="small text-slate-400">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Last 12-hour trend shown below
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <div class="glass-card p-4 h-100">
+                            <h4 class="h5 fw-bold text-white mb-4">
+                                <i class="fas fa-memory me-2" style="color: var(--brand-secondary);"></i>
+                                Memory Usage
+                            </h4>
+                            <div class="d-flex align-items-center mb-3">
+                                <h2 class="display-4 fw-bold text-white mb-0">
+                                    {{ metrics.memory_usage|default(0)|round(1) }}%
+                                </h2>
+                                <div class="ms-auto">
+                                    <div class="progress" style="width: 150px; height: 8px;">
+                                        <div class="progress-bar" 
+                                             role="progressbar" 
+                                             style="width: {{ metrics.memory_usage|default(0) }}%; background-color: var(--brand-secondary);">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="small text-slate-400">
+                                <i class="fas fa-info-circle me-1"></i>
+                                {{ metrics.memory_usage|default(0)|round(1) }}% of total memory
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activities -->
+                <div class="glass-card p-4 mt-4">
+                    <h4 class="h5 fw-bold text-white mb-4">
+                        <i class="fas fa-history me-2" style="color: var(--brand-primary);"></i>
+                        Recent Activities
+                    </h4>
+                    <div class="activity-feed">
+                        {% for activity in recent_activities %}
+                        <div class="activity-item d-flex align-items-center mb-3 p-3 bg-dark rounded">
+                            <div class="flex-shrink-0">
+                                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px; background: rgba(0, 242, 195, 0.2); color: var(--brand-primary);">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1 text-white">
+                                    {{ activity.user.username if activity.user else 'System' }}
+                                </h6>
+                                <p class="mb-0 text-slate-400 small">
+                                    {{ activity.action }}
+                                    {% if activity.details %}
+                                    <span class="text-slate-500">• {{ activity.details }}</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <small class="text-slate-500">
+                                    {{ activity.timestamp.strftime('%H:%M') }}
+                                </small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Right Column: Alerts & Quick Actions -->
+            <div class="col-xl-4">
+                
+                <!-- Active Alerts -->
+                <div class="glass-card p-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="h5 fw-bold text-white mb-0">
+                            <i class="fas fa-bell me-2" style="color: var(--brand-danger);"></i>
+                            Active Alerts
+                        </h4>
+                        <span class="badge rounded-pill" 
+                              style="background: var(--brand-danger); color: white;">
+                            {{ active_alerts|length }}
+                        </span>
+                    </div>
+                    
+                    <div class="alerts-list">
+                        {% if active_alerts %}
+                            {% for alert in active_alerts[:5] %}
+                            <div class="alert-item alert-{{ alert.severity if alert.severity else 'info' }}">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="mb-0 text-white">{{ alert.name }}</h6>
+                                    <small class="text-slate-500">
+                                        {{ alert.timestamp.strftime('%H:%M') }}
+                                    </small>
+                                </div>
+                                <p class="mb-2 text-slate-400 small">{{ alert.message }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-dark text-white small">
+                                        {{ alert.component if alert.component else 'System' }}
+                                    </span>
+                                    {% if alert.acknowledged %}
+                                    <span class="badge bg-success small">Acknowledged</span>
+                                    {% else %}
+                                    <span class="badge bg-warning text-dark small">New</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                            
+                            {% if active_alerts|length > 5 %}
+                            <div class="text-center mt-3">
+                                <a href="{{ url_for('admin_monitoring_alerts') }}" 
+                                   class="text-decoration-none" 
+                                   style="color: var(--brand-primary);">
+                                    <i class="fas fa-external-link-alt me-1"></i>
+                                    View all {{ active_alerts|length }} alerts
+                                </a>
+                            </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-check-circle fa-3x mb-3" style="color: var(--brand-success);"></i>
+                                <p class="text-slate-400 mb-0">No active alerts</p>
+                                <small class="text-slate-500">All systems are operating normally</small>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="glass-card p-4">
+                    <h4 class="h5 fw-bold text-white mb-4">
+                        <i class="fas fa-bolt me-2" style="color: var(--brand-primary);"></i>
+                        Quick Actions
+                    </h4>
+                    
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <button onclick="runHealthCheck()" class="quick-action w-100">
+                                <div class="text-center">
+                                    <i class="fas fa-heartbeat fa-2x mb-2" style="color: var(--brand-danger);"></i>
+                                    <h6 class="mb-1 text-white">Health Check</h6>
+                                    <small class="text-slate-400">Run system diagnostics</small>
+                                </div>
+                            </button>
+                        </div>
+                        
+                        <div class="col-6">
+                            <button onclick="clearSystemCache()" class="quick-action w-100">
+                                <div class="text-center">
+                                    <i class="fas fa-broom fa-2x mb-2" style="color: var(--brand-accent);"></i>
+                                    <h6 class="mb-1 text-white">Clear Cache</h6>
+                                    <small class="text-slate-400">Refresh all cache data</small>
+                                </div>
+                            </button>
+                        </div>
+                        
+                        <div class="col-6">
+                            <a href="{{ url_for('run_insights') }}" class="quick-action w-100 text-decoration-none">
+                                <div class="text-center">
+                                    <i class="fas fa-brain fa-2x mb-2" style="color: var(--brand-success);"></i>
+                                    <h6 class="mb-1 text-white">Generate Insights</h6>
+                                    <small class="text-slate-400">Run AI analytics</small>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <div class="col-6">
+                            <a href="{{ url_for('admin_monitoring_dashboard') }}" class="quick-action w-100 text-decoration-none">
+                                <div class="text-center">
+                                    <i class="fas fa-chart-bar fa-2x mb-2" style="color: var(--brand-secondary);"></i>
+                                    <h6 class="mb-1 text-white">Detailed Metrics</h6>
+                                    <small class="text-slate-400">View full dashboard</small>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- System Uptime -->
+                    <div class="mt-4 pt-4 border-top border-slate-800">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 text-white">System Uptime</h6>
+                                <p class="mb-0 text-slate-400 small">
+                                    {{ metrics.uptime.days }} days, {{ metrics.uptime.hours }} hours
+                                </p>
+                            </div>
+                            <div class="text-end">
+                                <div class="display-6 fw-bold text-white">
+                                    {{ metrics.uptime.total_hours }}h
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Predictions -->
+                <div class="glass-card p-4 mt-4">
+                    <h4 class="h5 fw-bold text-white mb-4">
+                        <i class="fas fa-chart-line me-2" style="color: var(--brand-success);"></i>
+                        Recent Predictions
+                    </h4>
+                    <div class="predictions-list">
+                        {% for pred in recent_predictions %}
+                        <div class="prediction-item d-flex align-items-center mb-3 p-3 bg-dark rounded">
+                            <div class="flex-shrink-0">
+                                {% if pred.status == 'Won' %}
+                                <div class="rounded-circle bg-success d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas fa-check text-white"></i>
+                                </div>
+                                {% elif pred.status == 'Lost' %}
+                                <div class="rounded-circle bg-danger d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas fa-times text-white"></i>
+                                </div>
+                                {% else %}
+                                <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas fa-clock text-dark"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1 text-white">{{ pred.home_team }} vs {{ pred.away_team }}</h6>
+                                <p class="mb-0 text-slate-400 small">
+                                    Prediction: {{ pred.pred_outcome }}
+                                    {% if pred.confidence %}
+                                    <span class="ms-2">
+                                        <i class="fas fa-bullseye me-1"></i>{{ pred.confidence }}%
+                                    </span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- Footer Stats -->
+        <div class="row mt-6">
+            <div class="col-12">
+                <div class="glass-card p-4">
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-3 mb-md-0">
+                            <div class="h4 fw-bold text-white mb-1">{{ alert_stats.total|default(0) }}</div>
+                            <div class="text-slate-400 small">Total Alerts (7d)</div>
+                        </div>
+                        <div class="col-md-3 mb-3 mb-md-0">
+                            <div class="h4 fw-bold text-white mb-1">{{ alert_stats.critical|default(0) }}</div>
+                            <div class="text-slate-400 small">Critical Alerts</div>
+                        </div>
+                        <div class="col-md-3 mb-3 mb-md-0">
+                            <div class="h4 fw-bold text-white mb-1" style="color: var(--brand-success);">
+                                {{ metrics.response_time|default(0)|round(2) }}ms
+                            </div>
+                            <div class="text-slate-400 small">Avg Response Time</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="h4 fw-bold text-white mb-1">
+                                {{ (metrics.disk_usage|default(0))|round(1) }}%
+                            </div>
+                            <div class="text-slate-400 small">Disk Usage</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+// Auto-refresh dashboard
+let refreshInterval = {{ refresh_interval }};
+
+function refreshDashboard() {
+    window.location.reload();
+}
+
+// Set up auto-refresh
+setTimeout(refreshDashboard, refreshInterval);
+
+// Quick action functions
+function runHealthCheck() {
+    fetch('{{ url_for("admin_monitoring_health") }}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Health check completed successfully!');
+                refreshDashboard();
+            } else {
+                alert('❌ Health check failed: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            alert('❌ Error running health check: ' + error.message);
+        });
+}
+
+function clearSystemCache() {
+    if (confirm('Are you sure you want to clear all system cache?')) {
+        fetch('{{ url_for("api_cache_clear") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ pattern: '*' })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Cache cleared successfully!');
+                refreshDashboard();
+            } else {
+                alert('❌ Cache clear failed: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            alert('❌ Error clearing cache: ' + error.message);
+        });
+    }
+}
+
+// Live update for metrics (simulated)
+function updateLiveMetrics() {
+    // Update timestamps
+    const now = new Date();
+    document.querySelectorAll('.live-indicator').forEach(el => {
+        el.nextElementSibling?.textContent = now.toLocaleTimeString();
+    });
+    
+    // Update CPU/Memory values slightly (for demo)
+    const cpuEl = document.querySelector('.display-4.text-white');
+    if (cpuEl) {
+        const current = parseFloat(cpuEl.textContent);
+        const change = (Math.random() - 0.5) * 2; // Random change between -1 and +1
+        const newValue = Math.max(0, Math.min(100, current + change));
+        cpuEl.textContent = newValue.toFixed(1) + '%';
+        
+        // Update progress bar
+        const progressBar = document.querySelector('.progress-bar');
+        if (progressBar) {
+            progressBar.style.width = newValue + '%';
+        }
+    }
+}
+
+// Update metrics every 10 seconds
+setInterval(updateLiveMetrics, 10000);
+
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltips.forEach(tooltip => {
+        new bootstrap.Tooltip(tooltip);
+    });
+});
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl/Cmd + R to refresh
+    if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+        e.preventDefault();
+        refreshDashboard();
+    }
+    
+    // Ctrl/Cmd + H for health check
+    if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
+        e.preventDefault();
+        runHealthCheck();
+    }
+});
+</script>
+{% endblock %}

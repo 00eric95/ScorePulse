@@ -1,0 +1,648 @@
+{% extends "base.html" %}
+{% block title %}Model Performance Dashboard{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-slate-950 py-12 px-4">
+    <div class="max-w-7xl mx-auto space-y-8">
+        
+        <!-- Page Header -->
+        <div class="glass-card bg-slate-900 rounded-3xl p-8 border border-slate-700 shadow-2xl">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-4xl font-bold text-white mb-2">AI Model Performance Dashboard</h1>
+                    <p class="text-slate-400">Validation results for {{ validation_report.timestamp if validation_report else 'No validation data' }}</p>
+                </div>
+                <div class="flex gap-4">
+                    <button onclick="refreshValidation()" class="px-6 py-3 bg-brand-accent hover:bg-white text-slate-900 font-bold rounded-lg transition flex items-center gap-2">
+                        <i class="fas fa-sync-alt"></i> Refresh Validation
+                    </button>
+                    <button onclick="runNewValidation()" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-lg transition flex items-center gap-2">
+                        <i class="fas fa-chart-line"></i> Run New Validation
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {% if validation_report %}
+        
+        <!-- Performance Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            
+            <!-- Accuracy Card -->
+            <div class="glass-card bg-slate-900 rounded-3xl p-6 border border-slate-700 text-center">
+                <div class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Accuracy</div>
+                <div class="text-5xl font-black {{ 'text-green-400' if validation_report.performance_metrics.basic.accuracy > 50 else 'text-red-400' }}">
+                    {{ validation_report.performance_metrics.basic.accuracy }}<span class="text-2xl text-slate-500">%</span>
+                </div>
+                <div class="mt-4 text-sm text-slate-400">
+                    {{ validation_report.performance_metrics.basic.correct_predictions }}/{{ validation_report.performance_metrics.basic.total_matches }} correct
+                </div>
+            </div>
+            
+            <!-- ROI Card -->
+            <div class="glass-card bg-slate-900 rounded-3xl p-6 border border-slate-700 text-center">
+                <div class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">ROI</div>
+                {% set roi = validation_report.performance_metrics.betting.overall.roi|default(0) %}
+                <div class="text-5xl font-black {{ 'text-green-400' if roi > 0 else 'text-red-400' }}">
+                    {{ roi }}<span class="text-2xl text-slate-500">%</span>
+                </div>
+                <div class="mt-4 text-sm text-slate-400">
+                    £{{ validation_report.performance_metrics.betting.overall.profit|default(0)|round(2) }} profit
+                </div>
+            </div>
+            
+            <!-- Win Rate Card -->
+            <div class="glass-card bg-slate-900 rounded-3xl p-6 border border-slate-700 text-center">
+                <div class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Win Rate</div>
+                <div class="text-5xl font-black {{ 'text-green-400' if validation_report.performance_metrics.betting.overall.win_rate|default(0) > 50 else 'text-slate-200' }}">
+                    {{ validation_report.performance_metrics.betting.overall.win_rate|default(0) }}<span class="text-2xl text-slate-500">%</span>
+                </div>
+                <div class="mt-4 text-sm text-slate-400">
+                    {{ validation_report.performance_metrics.betting.overall.wins|default(0) }}/{{ validation_report.performance_metrics.betting.overall.bets|default(0) }} bets
+                </div>
+            </div>
+            
+            <!-- Status Card -->
+            <div class="glass-card bg-slate-900 rounded-3xl p-6 border {{ 'border-red-500' if validation_report.retraining_analysis.needed else 'border-green-500' }} text-center">
+                <div class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Model Status</div>
+                {% if validation_report.retraining_analysis.needed %}
+                <div class="text-3xl font-black text-red-400 mb-2">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>Needs Retraining
+                </div>
+                <div class="text-sm text-red-300">
+                    Priority: {{ validation_report.retraining_analysis.priority|upper }}
+                </div>
+                {% else %}
+                <div class="text-3xl font-black text-green-400 mb-2">
+                    <i class="fas fa-check-circle mr-2"></i>Healthy
+                </div>
+                <div class="text-sm text-green-300">
+                    No action required
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Interactive Charts Section -->
+        <div class="glass-card bg-slate-900 rounded-3xl p-8 border border-slate-700">
+            <h3 class="text-2xl font-bold text-white mb-6">Performance Analytics</h3>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Accuracy Trend -->
+                <div class="bg-slate-950 rounded-xl p-4">
+                    <h4 class="text-lg font-bold text-white mb-4">Accuracy Over Time</h4>
+                    <div class="h-64">
+                        <iframe src="{{ url_for('static', filename=validation_report.visualizations.accuracy_trend) }}" 
+                                class="w-full h-full rounded-lg border-0"></iframe>
+                    </div>
+                </div>
+                
+                <!-- ROI Comparison -->
+                <div class="bg-slate-950 rounded-xl p-4">
+                    <h4 class="text-lg font-bold text-white mb-4">Betting Strategy ROI</h4>
+                    <div class="h-64">
+                        <iframe src="{{ url_for('static', filename=validation_report.visualizations.roi_comparison) }}" 
+                                class="w-full h-full rounded-lg border-0"></iframe>
+                    </div>
+                </div>
+                
+                <!-- Performance Dashboard -->
+                <div class="lg:col-span-2 bg-slate-950 rounded-xl p-4">
+                    <h4 class="text-lg font-bold text-white mb-4">Performance Dashboard</h4>
+                    <div class="h-96">
+                        <iframe src="{{ url_for('static', filename=validation_report.visualizations.performance_dashboard) }}" 
+                                class="w-full h-full rounded-lg border-0"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Performance Breakdown -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Prediction Distribution -->
+            <div class="glass-card bg-slate-900 rounded-3xl p-6 border border-slate-700">
+                <h4 class="text-lg font-bold text-white mb-4">Prediction Distribution</h4>
+                <div class="h-64">
+                    <iframe src="{{ url_for('static', filename=validation_report.visualizations.prediction_distribution) }}" 
+                            class="w-full h-full rounded-lg border-0"></iframe>
+                </div>
+                <div class="mt-4 grid grid-cols-3 gap-2">
+                    {% for pred_type in ['H', 'D', 'A'] %}
+                    {% set pred_data = validation_report.performance_metrics.detailed[pred_type + '_predictions'] if (pred_type + '_predictions') in validation_report.performance_metrics.detailed else {} %}
+                    <div class="text-center p-3 rounded-lg {{ 'bg-green-500/10' if pred_type == 'H' else 'bg-blue-500/10' if pred_type == 'D' else 'bg-orange-500/10' }}">
+                        <div class="text-2xl font-bold {{ 'text-green-400' if pred_type == 'H' else 'text-blue-400' if pred_type == 'D' else 'text-orange-400' }}">
+                            {{ pred_data.accuracy|default(0) }}<span class="text-sm text-slate-500">%</span>
+                        </div>
+                        <div class="text-xs text-slate-400 mt-1">
+                            {{ pred_data.count|default(0) }} {{ 'Home' if pred_type == 'H' else 'Draw' if pred_type == 'D' else 'Away' }} predictions
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Betting Performance -->
+            <div class="glass-card bg-slate-900 rounded-3xl p-6 border border-slate-700">
+                <h4 class="text-lg font-bold text-white mb-4">Betting Performance</h4>
+                <div class="space-y-4">
+                    {% for strategy_name, strategy_key in [('Flat Betting', 'flat_betting'), ('Confidence', 'confidence_betting'), ('Value', 'value_betting')] %}
+                    {% set strategy_data = validation_report.performance_metrics.betting[strategy_key] %}
+                    <div class="p-4 bg-slate-800/50 rounded-xl">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-bold text-white">{{ strategy_name }}</span>
+                            <span class="text-sm px-3 py-1 rounded-full {{ 'bg-green-500/20 text-green-400' if strategy_data.roi > 0 else 'bg-red-500/20 text-red-400' }}">
+                                {{ strategy_data.roi }}% ROI
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-sm">
+                            <div class="text-center">
+                                <div class="text-slate-400">Bets</div>
+                                <div class="font-bold text-white">{{ strategy_data.bets }}</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-slate-400">Win Rate</div>
+                                <div class="font-bold {{ 'text-green-400' if strategy_data.win_rate > 50 else 'text-white' }}">{{ strategy_data.win_rate }}%</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-slate-400">Profit</div>
+                                <div class="font-bold {{ 'text-green-400' if strategy_data.profit > 0 else 'text-red-400' }}">£{{ strategy_data.profit }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Confidence Analysis -->
+            <div class="glass-card bg-slate-900 rounded-3xl p-6 border border-slate-700">
+                <h4 class="text-lg font-bold text-white mb-4">Confidence Analysis</h4>
+                {% set confidence_data = validation_report.performance_metrics.confidence %}
+                {% if confidence_data and confidence_data.bins %}
+                <div class="space-y-3">
+                    {% for bin_name, bin_data in confidence_data.bins.items() %}
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-slate-300">{{ bin_name }}</span>
+                            <span class="{{ 'text-green-400' if bin_data.accuracy > bin_data.avg_confidence else 'text-red-400' }}">
+                                {{ bin_data.accuracy }}% ({{ bin_data.count }})
+                            </span>
+                        </div>
+                        <div class="w-full bg-slate-800 rounded-full h-2">
+                            <div class="h-2 rounded-full {{ 'bg-green-500' if bin_data.accuracy > bin_data.avg_confidence else 'bg-blue-500' }}" 
+                                 style="width: {{ bin_data.accuracy }}%"></div>
+                        </div>
+                        <div class="text-xs text-slate-500 mt-1">
+                            Avg Confidence: {{ bin_data.avg_confidence }}%
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-6 p-4 bg-slate-800/50 rounded-xl">
+                    <div class="text-center">
+                        <div class="text-slate-400 text-sm">Calibration Error</div>
+                        {% set cal_error = confidence_data.calibration.calibration_error %}
+                        <div class="text-2xl font-bold {{ 'text-green-400' if cal_error < 10 else 'text-yellow-400' if cal_error < 20 else 'text-red-400' }}">
+                            {{ cal_error }}<span class="text-sm">%</span>
+                        </div>
+                        <div class="text-xs text-slate-500 mt-1">
+                            Model {{ 'overconfident' if confidence_data.calibration.avg_confidence > confidence_data.calibration.actual_accuracy else 'underconfident' }}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-8 text-slate-500">
+                    <i class="fas fa-chart-line text-3xl mb-2"></i>
+                    <p>No confidence data available</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recommendations & Actions -->
+        <div class="glass-card bg-slate-900 rounded-3xl p-8 border border-slate-700">
+            <h3 class="text-2xl font-bold text-white mb-6">Recommendations & Actions</h3>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Recommendations -->
+                <div class="bg-slate-950 rounded-xl p-6">
+                    <h4 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fas fa-lightbulb text-yellow-400"></i> Recommendations
+                    </h4>
+                    <div class="space-y-3">
+                        {% for rec in validation_report.recommendations %}
+                        <div class="flex items-start gap-3 p-3 bg-slate-800/50 rounded-lg">
+                            <i class="fas fa-chevron-right text-brand-accent mt-1"></i>
+                            <span class="text-slate-300">{{ rec }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Retraining Actions -->
+                <div class="bg-slate-950 rounded-xl p-6 {{ 'border border-red-500' if validation_report.retraining_analysis.needed else 'border border-green-500' }}">
+                    <h4 class="text-lg font-bold {{ 'text-red-400' if validation_report.retraining_analysis.needed else 'text-green-400' }} mb-4 flex items-center gap-2">
+                        <i class="fas fa-robot"></i> Model Retraining
+                    </h4>
+                    
+                    {% if validation_report.retraining_analysis.needed %}
+                    <div class="space-y-4">
+                        <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                            <div class="font-bold text-red-400 mb-2">Retraining Required</div>
+                            <ul class="space-y-2 text-sm text-red-300">
+                                {% for reason in validation_report.retraining_analysis.reasons %}
+                                <li class="flex items-center gap-2">
+                                    <i class="fas fa-exclamation-circle"></i> {{ reason }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <div class="font-bold text-white mb-2">Suggested Actions:</div>
+                            <ul class="space-y-2 text-sm text-slate-300">
+                                {% for action in validation_report.retraining_analysis.suggested_actions %}
+                                <li class="flex items-center gap-2">
+                                    <i class="fas fa-check-circle text-green-400"></i> {{ action }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        
+                        <button onclick="triggerRetraining()" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition">
+                            <i class="fas fa-bolt mr-2"></i> Trigger Immediate Retraining
+                        </button>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-6">
+                        <div class="inline-block p-3 bg-green-500/20 rounded-full mb-4">
+                            <i class="fas fa-check text-3xl text-green-400"></i>
+                        </div>
+                        <h5 class="text-xl font-bold text-green-400 mb-2">Model Healthy</h5>
+                        <p class="text-slate-400">No retraining required at this time.</p>
+                        <button onclick="scheduleRetraining()" class="mt-4 px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition">
+                            Schedule Weekly Retraining
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Validation Details Table -->
+        <div class="glass-card bg-slate-900 rounded-3xl overflow-hidden border border-slate-700">
+            <div class="p-6 border-b border-slate-800">
+                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fas fa-table text-brand-accent"></i> Validation Details
+                </h3>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-950/50 text-slate-500 text-xs uppercase font-bold tracking-wider">
+                        <tr>
+                            <th class="p-4">Report ID</th>
+                            <th class="p-4">Date Range</th>
+                            <th class="p-4">Matches</th>
+                            <th class="p-4">Accuracy</th>
+                            <th class="p-4">ROI</th>
+                            <th class="p-4">Status</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-slate-300 divide-y divide-slate-800">
+                        {% for report in performance_history[:10] %}
+                        <tr class="hover:bg-slate-800/50">
+                            <td class="p-4 font-mono text-brand-accent">{{ report.report_id }}</td>
+                            <td class="p-4">{{ report.data_summary.date_range.start }} to {{ report.data_summary.date_range.end }}</td>
+                            <td class="p-4">{{ report.data_summary.validated_matches }}</td>
+                            <td class="p-4">
+                                <span class="px-2 py-1 rounded-full text-xs {{ 'bg-green-500/20 text-green-400' if report.performance_metrics.basic.accuracy > 50 else 'bg-red-500/20 text-red-400' }}">
+                                    {{ report.performance_metrics.basic.accuracy }}%
+                                </span>
+                            </td>
+                            <td class="p-4">
+                                {% set report_roi = report.performance_metrics.betting.overall.roi|default(0) %}
+                                <span class="px-2 py-1 rounded-full text-xs {{ 'bg-green-500/20 text-green-400' if report_roi > 0 else 'bg-red-500/20 text-red-400' }}">
+                                    {{ report_roi }}%
+                                </span>
+                            </td>
+                            <td class="p-4">
+                                {% if report.retraining_analysis.needed %}
+                                <span class="px-2 py-1 bg-red-500/10 text-red-400 rounded-full text-xs">
+                                    Needs Retraining
+                                </span>
+                                {% else %}
+                                <span class="px-2 py-1 bg-green-500/10 text-green-400 rounded-full text-xs">
+                                    Healthy
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="p-4 text-right">
+                                <button onclick="loadReport('{{ report.report_id }}')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm">
+                                    View Details
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% else %}
+        
+        <!-- No Validation Data State -->
+        <div class="glass-card bg-slate-900 rounded-3xl p-12 text-center border border-slate-700">
+            <div class="inline-block p-6 rounded-full bg-slate-800 mb-6">
+                <i class="fas fa-chart-bar text-4xl text-slate-600"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-4">No Validation Data Available</h3>
+            <p class="text-slate-400 max-w-md mx-auto mb-8">
+                Run a validation to analyze AI model performance against actual results.
+                Upload your results.csv file and run validation to see detailed analytics.
+            </p>
+            <div class="flex justify-center gap-4">
+                <button onclick="uploadResults()" class="px-8 py-3 bg-brand-accent hover:bg-white text-slate-900 font-bold rounded-lg transition">
+                    <i class="fas fa-upload mr-2"></i> Upload Results.csv
+                </button>
+                <button onclick="runFirstValidation()" class="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-lg transition">
+                    <i class="fas fa-play mr-2"></i> Run First Validation
+                </button>
+            </div>
+        </div>
+        
+        {% endif %}
+
+    </div>
+</div>
+
+<script>
+// Function to refresh validation data
+async function refreshValidation() {
+    const loadingToast = showToast('Refreshing validation data...', 'info');
+    
+    try {
+        const response = await fetch('/api/refresh_validation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            showToast('Validation data refreshed!', 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            throw new Error('Refresh failed');
+        }
+    } catch (error) {
+        showToast('Failed to refresh validation data', 'error');
+    } finally {
+        hideToast(loadingToast);
+    }
+}
+
+// Function to run new validation
+async function runNewValidation() {
+    if (!confirm('Run new validation? This will process the latest results.csv file.')) {
+        return;
+    }
+    
+    const loadingToast = showToast('Running validation... This may take a moment.', 'info');
+    
+    try {
+        const response = await fetch('/api/run_validation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            showToast('Validation completed successfully!', 'success');
+            setTimeout(() => {
+                window.location.href = '/validation_results';
+            }, 2000);
+        } else {
+            throw new Error('Validation failed');
+        }
+    } catch (error) {
+        showToast('Validation failed. Please check your files.', 'error');
+    } finally {
+        hideToast(loadingToast);
+    }
+}
+
+// Function to trigger model retraining
+async function triggerRetraining() {
+    if (!confirm('Trigger immediate model retraining? This may take several minutes.')) {
+        return;
+    }
+    
+    const loadingToast = showToast('Starting model retraining...', 'info');
+    
+    try {
+        const response = await fetch('/api/trigger_retraining', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (response.ok) {
+            showToast('Model retraining started! You will be notified when complete.', 'success');
+        } else {
+            throw new Error('Retraining failed to start');
+        }
+    } catch (error) {
+        showToast('Failed to start retraining', 'error');
+    } finally {
+        hideToast(loadingToast);
+    }
+}
+
+// Function to schedule weekly retraining
+async function scheduleRetraining() {
+    if (!confirm('Schedule weekly model retraining every Sunday at 2 AM?')) {
+        return;
+    }
+    
+    const loadingToast = showToast('Scheduling retraining...', 'info');
+    
+    try {
+        const response = await fetch('/api/schedule_retraining', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'schedule': 'weekly'
+            }
+        });
+        
+        if (response.ok) {
+            showToast('Weekly retraining scheduled!', 'success');
+        } else {
+            throw new Error('Scheduling failed');
+        }
+    } catch (error) {
+        showToast('Failed to schedule retraining', 'error');
+    } finally {
+        hideToast(loadingToast);
+    }
+}
+
+// Function to load specific report
+async function loadReport(reportId) {
+    const loadingToast = showToast(`Loading report ${reportId}...`, 'info');
+    
+    try {
+        const response = await fetch(`/api/load_report/${reportId}`);
+        
+        if (response.ok) {
+            const report = await response.json();
+            // Update page with report data
+            showToast('Report loaded!', 'success');
+            // In a real implementation, you would update the page content
+            console.log('Loaded report:', report);
+        } else {
+            throw new Error('Report not found');
+        }
+    } catch (error) {
+        showToast('Failed to load report', 'error');
+    } finally {
+        hideToast(loadingToast);
+    }
+}
+
+// Function to upload results.csv
+async function uploadResults() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+    
+    input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const loadingToast = showToast('Uploading results file...', 'info');
+        
+        const formData = new FormData();
+        formData.append('results', file);
+        
+        try {
+            const response = await fetch('/api/upload_results', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                showToast('Results uploaded successfully!', 'success');
+                // Refresh the page to show new data
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                throw new Error('Upload failed');
+            }
+        } catch (error) {
+            showToast('Upload failed. Please try again.', 'error');
+        } finally {
+            hideToast(loadingToast);
+        }
+    };
+    
+    input.click();
+}
+
+// Function to run first validation
+async function runFirstValidation() {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+        <div class="bg-slate-900 rounded-2xl p-8 max-w-md w-full mx-4 border border-slate-700">
+            <h3 class="text-xl font-bold text-white mb-4">First Time Setup</h3>
+            <p class="text-slate-400 mb-6">
+                Before running validation, ensure you have:
+                <ol class="list-decimal list-inside mt-2 space-y-1 text-sm">
+                    <li>incoming_matches.csv with AI predictions</li>
+                    <li>results.csv with actual match outcomes</li>
+                    <li>Both files in the data/ folder</li>
+                </ol>
+            </p>
+            <div class="flex gap-4">
+                <button onclick="this.closest('.fixed').remove()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg">
+                    Cancel
+                </button>
+                <button onclick="startFirstValidation()" class="flex-1 py-2 bg-brand-accent hover:bg-white text-slate-900 font-bold rounded-lg">
+                    Continue
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+async function startFirstValidation() {
+    document.querySelector('.fixed').remove();
+    
+    const loadingToast = showToast('Starting first validation...', 'info');
+    
+    try {
+        const response = await fetch('/api/first_validation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (response.ok) {
+            showToast('First validation completed!', 'success');
+            setTimeout(() => {
+                window.location.href = '/validation_results';
+            }, 2000);
+        } else {
+            const error = await response.text();
+            throw new Error(error || 'Validation failed');
+        }
+    } catch (error) {
+        showToast(`Setup failed: ${error.message}`, 'error');
+    } finally {
+        hideToast(loadingToast);
+    }
+}
+
+// Toast notification functions
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
+        type === 'info' ? 'bg-blue-500/90 text-white' :
+        type === 'success' ? 'bg-green-500/90 text-white' :
+        'bg-red-500/90 text-white'
+    }`;
+    toast.textContent = message;
+    toast.id = 'toast-' + Date.now();
+    
+    document.body.appendChild(toast);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 5000);
+    
+    return toast.id;
+}
+
+function hideToast(toastId) {
+    const toast = document.getElementById(toastId);
+    if (toast && toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+    }
+}
+</script>
+{% endblock %}

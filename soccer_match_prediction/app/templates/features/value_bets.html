@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Value Bets - ScorePulse AI{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-white gradient-text">Value Bets</h1>
+            <p class="text-brand-muted mt-2">Today's best value betting opportunities</p>
+        </div>
+        
+        <div class="flex gap-3 flex-wrap">
+            <select class="bg-brand-dark/60 border border-brand-muted/50 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-accent">
+                <option>All Leagues</option>
+                <option>Premier League</option>
+                <option>La Liga</option>
+                <option>Serie A</option>
+                <option>Bundesliga</option>
+            </select>
+            <button class="px-5 py-2 bg-gradient-to-r from-brand-accent to-cyan-600 hover:from-cyan-500 hover:to-brand-accent text-white rounded-lg transition-all duration-300 flex items-center gap-2">
+                <i class="fas fa-filter"></i> Filter
+            </button>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="mb-6 p-4 rounded-xl {% if category == 'success' %}bg-green-900/40 border border-green-500/30{% elif category == 'danger' %}bg-red-900/40 border border-red-500/30{% else %}bg-blue-900/40 border border-brand-accent/30{% endif %} text-white">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if value_bets and value_bets|length > 0 %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for bet in value_bets %}
+            <div class="glass-dark rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 border border-slate-700 hover:border-brand-accent/50">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-white">{{ bet.home_team }} vs {{ bet.away_team }}</h3>
+                            <p class="text-brand-muted text-sm mt-1">{{ bet.league }} • {{ bet.match_time }}</p>
+                        </div>
+                        <span class="px-3 py-1 bg-gradient-to-r from-brand-accent to-cyan-600 rounded-full text-xs font-bold text-white">
+                            +{{ bet.value_percent|round(1) }}% Value
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 mb-6 text-center">
+                        <div>
+                            <p class="text-sm text-brand-muted">Market</p>
+                            <p class="text-xl font-bold text-white">{{ bet.market }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-brand-muted">Book Odds</p>
+                            <p class="text-xl font-bold text-brand-orange">{{ bet.book_odds|round(2) }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-brand-muted">True Odds</p>
+                            <p class="text-xl font-bold text-brand-accent">{{ bet.true_odds|round(2) }}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm">
+                            <span class="text-brand-muted">Edge:</span>
+                            <span class="font-bold text-brand-accent">{{ (bet.value_percent)|round(1) }}%</span>
+                        </div>
+                        <a href="#" class="px-5 py-2 bg-gradient-to-r from-brand-accent to-cyan-600 hover:from-cyan-500 hover:to-brand-accent text-white rounded-lg transition-all duration-300 flex items-center gap-2 text-sm">
+                            <i class="fas fa-bullseye"></i> Bet Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="glass-dark rounded-2xl p-12 text-center">
+            <i class="fas fa-search text-6xl text-brand-muted opacity-50 mb-6"></i>
+            <h3 class="text-2xl font-bold text-white mb-3">No Value Bets Found</h3>
+            <p class="text-brand-muted mb-6 max-w-md mx-auto">
+                We're scanning markets right now. Value opportunities appear when our models find mispriced odds.
+            </p>
+            <p class="text-sm text-brand-muted">Check back soon or try different filters</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

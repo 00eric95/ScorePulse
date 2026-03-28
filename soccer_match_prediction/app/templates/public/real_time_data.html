@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Data Sync | ScorePulse AI</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0a1128',
+                            card: 'rgba(28, 43, 75, 0.6)',
+                            accent: '#00f2c3',
+                            orange: '#ff6b35',
+                            text: '#e6f1ff',
+                            muted: '#a0a8b8',
+                            danger: '#ef4444',
+                            success: '#10b981'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'shimmer': 'shimmer 2s infinite',
+                        'slide-in': 'slideIn 0.3s ease-out',
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'bounce-slow': 'bounce 2s infinite',
+                        'wave': 'wave 1.5s ease-in-out infinite',
+                        'gradient': 'gradient 3s ease infinite',
+                        'data-flow': 'dataFlow 2s linear infinite',
+                        'pulse-green': 'pulseGreen 2s ease-in-out infinite',
+                        'live-pulse': 'livePulse 1s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        shimmer: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(100%)' }
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateX(-100%)', opacity: '0' },
+                            '100%': { transform: 'translateX(0)', opacity: '1' }
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        wave: {
+                            '0%, 100%': { transform: 'rotate(0deg)' },
+                            '25%': { transform: 'rotate(5deg)' },
+                            '75%': { transform: 'rotate(-5deg)' }
+                        },
+                        gradient: {
+                            '0%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' },
+                            '100%': { backgroundPosition: '0% 50%' }
+                        },
+                        dataFlow: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(100%)' }
+                        },
+                        pulseGreen: {
+                            '0%, 100%': { opacity: '0.6', transform: 'scale(1)' },
+                            '50%': { opacity: '1', transform: 'scale(1.1)' }
+                        },
+                        livePulse: {
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(16, 185, 129, 0.4)' },
+                            '50%': { boxShadow: '0 0 40px rgba(16, 185, 129, 0.8)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0a1128 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .live-bg {
+            background:
+                radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(5, 150, 105, 0.1) 0%, transparent 50%),
+                linear-gradient(45deg, #0a1128 0%, #1e293b 100%);
+            position: relative;
+        }
+
+        .live-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 25% 25%, rgba(16, 185, 129, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(5, 150, 105, 0.05) 0%, transparent 50%);
+            animation: pulse-green 4s ease-in-out infinite;
+        }
+
+        .data-flow-line {
+            position: relative;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.6), transparent);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .data-flow-line::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 1), transparent);
+            animation: data-flow 2s linear infinite;
+        }
+
+        .live-indicator {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 20px;
+            color: #10b981;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .live-indicator::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: live-pulse 1s ease-in-out infinite;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 24px;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(45deg, #10b981, #059669);
+            border-radius: 50%;
+            border: 3px solid #0f172a;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 40px;
+            width: 2px;
+            height: calc(100% - 16px);
+            background: linear-gradient(to bottom, rgba(16, 185, 129, 0.5), transparent);
+        }
+
+        .timeline-item.last::after {
+            display: none;
+        }
+
+        .glass-card {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(16, 185, 129, 0.5);
+        }
+
+        .metric-badge {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .live-demo {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .clock-face {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .clock-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #10b981;
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Navigation -->
+    <nav class="bg-slate-900/80 backdrop-blur-lg border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <a href="{{ url_for('home') }}" class="flex items-center space-x-2">
+                    <i class="fas fa-bolt text-green-400 text-2xl"></i>
+                    <span class="text-xl font-bold text-white">ScorePulse AI</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <a href="{{ url_for('home') }}" class="text-slate-300 hover:text-white transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="live-bg min-h-[70vh] flex items-center justify-center relative overflow-hidden">
+        <!-- Live Data Flow Animation -->
+        <div class="absolute inset-0 opacity-20">
+            <div class="data-flow-line absolute top-1/4 left-0 right-0"></div>
+            <div class="data-flow-line absolute top-1/2 left-0 right-0" style="animation-delay: 0.5s;"></div>
+            <div class="data-flow-line absolute top-3/4 left-0 right-0" style="animation-delay: 1s;"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="text-center z-10 max-w-5xl mx-auto px-4">
+            <!-- Live Indicator -->
+            <div class="mb-8">
+                <div class="live-indicator inline-flex items-center">
+                    <span>LIVE DATA SYNC</span>
+                </div>
+            </div>
+
+            <!-- Main Message -->
+            <div class="mb-8">
+                <h1 class="text-5xl md:text-7xl font-black mb-6 animate-fade-in">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-emerald-300 to-green-500">
+                        Live Football
+                    </span>
+                    <br>
+                    <span class="text-white">Intelligence</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-slate-300 max-w-4xl mx-auto animate-fade-in animation-delay-300">
+                    Data refreshed every 60 seconds during live matches from trusted global sources
+                </p>
+            </div>
+
+            <!-- Live Clock -->
+            <div class="mb-8 animate-fade-in animation-delay-600">
+                <div class="clock-face">
+                    <div class="clock-time" id="live-clock">00:00:00</div>
+                </div>
+                <p class="text-slate-400 mt-4">Last updated: <span id="last-update">Just now</span></p>
+            </div>
+
+            <!-- Key Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto animate-fade-in animation-delay-900">
+                <div class="glass-card rounded-xl p-6">
+                    <div class="text-3xl font-black text-green-400 mb-2">60s</div>
+                    <div class="text-sm text-slate-400 uppercase tracking-widest">Update Frequency</div>
+                </div>
+                <div class="glass-card rounded-xl p-6">
+                    <div class="text-3xl font-black text-emerald-400 mb-2">99.8%</div>
+                    <div class="text-sm text-slate-400 uppercase tracking-widest">Uptime</div>
+                </div>
+                <div class="glass-card rounded-xl p-6">
+                    <div class="text-3xl font-black text-cyan-400 mb-2">15s</div>
+                    <div class="text-sm text-slate-400 uppercase tracking-widest">Live Match Updates</div>
+                </div>
+                <div class="glass-card rounded-xl p-6">
+                    <div class="text-3xl font-black text-blue-400 mb-2">5+</div>
+                    <div class="text-sm text-slate-400 uppercase tracking-widest">Data Sources</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Pipeline Timeline -->
+    <div class="py-20 bg-gradient-to-b from-slate-900 to-slate-950">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">Real-Time Pipeline</span>
+                </h2>
+                <p class="text-xl text-slate-400 max-w-3xl mx-auto">
+                    From stadium to screen: How live data powers your predictions
+                </p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <!-- Pre-match Phase -->
+                <div class="timeline-item mb-12">
+                    <div class="feature-card rounded-2xl p-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-500/20 flex items-center justify-center mr-4">
+                                <i class="fas fa-clock text-blue-400 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Pre-Match Phase (24h → Kickoff)</h3>
+                                <p class="text-slate-400">Building the foundation with comprehensive data</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="metric-badge">
+                                <div class="text-lg font-bold text-blue-400 mb-1">Odds Tracking</div>
+                                <div class="text-xs text-slate-500">Movement from 5+ bookmakers</div>
+                            </div>
+                            <div class="metric-badge">
+                                <div class="text-lg font-bold text-blue-400 mb-1">Team News</div>
+                                <div class="text-xs text-slate-500">Last-minute lineup changes</div>
+                            </div>
+                            <div class="metric-badge">
+                                <div class="text-lg font-bold text-blue-400 mb-1">Conditions</div>
+                                <div class="text-xs text-slate-500">Weather & pitch updates</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Match Phase -->
+                <div class="timeline-item mb-12">
+                    <div class="feature-card rounded-2xl p-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500/20 to-green-500/5 border border-green-500/20 flex items-center justify-center mr-4">
+                                <i class="fas fa-play-circle text-green-400 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Live Match Phase</h3>
+                                <p class="text-slate-400">Real-time updates every 15 seconds</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="metric-badge">
+                                <div class="text-lg font-bold text-green-400 mb-1">In-Play Stats</div>
+                                <div class="text-xs text-slate-500">xG, shots, possession, cards</div>
+                            </div>
+                            <div class="metric-badge">
+                                <div class="text-lg font-bold text-green-400 mb-1">Live Probabilities</div>
+                                <div class="text-xs text-slate-500">Win/draw/lose % updates</div>
+                            </div>
+                            <div class="metric-badge">
+                                <div class="text-lg font-bold text-green-400 mb-1">What-If Calculator</div>
+                                <div class="text-xs text-slate-500">Scenario analysis</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post-Match Phase -->
+                <div class="timeline-item last">
+                    <div class="feature-card rounded-2xl p-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 border border-purple-500/20 flex items-center justify-center mr-4">
+                                <i class="fas fa-check-circle text-purple-400 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Post-Match Phase</h3>
+                                <p class="text-slate-400">Learning and improvement cycle</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="metric-badge">
+                                <div class="text-lg font-bold text-purple-400 mb-1">Result Finalization</div>
+                                <div class="text-xs text-slate-500">Instant stats confirmation</div>
+                            </div>
+                            <div class="metric-badge">
+                                <div class="text-lg font-bold text-purple-400 mb-1">AI Learning</div>
+                                <div class="text-xs text-slate-500">Neural network updates</div>
+                            </div>
+                            <div class="metric-badge">
+                                <div class="text-lg font-bold text-purple-400 mb-1">Quality Check</div>
+                                <div class="text-xs text-slate-500">Anomaly detection</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technical Excellence -->
+    <div class="py-20 bg-gradient-to-b from-slate-950 to-slate-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">Technical Excellence</span>
+                </h2>
+                <p class="text-xl text-slate-400 max-w-3xl mx-auto">
+                    Enterprise-grade infrastructure ensuring reliability and speed
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Multi-Source Aggregation -->
+                <div class="feature-card rounded-2xl p-8 text-center">
+                    <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-green-500/20 to-green-500/5 border border-green-500/20 flex items-center justify-center mb-6 mx-auto">
+                        <i class="fas fa-network-wired text-green-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-4">Multi-Source Aggregation</h3>
+                    <p class="text-slate-400 mb-6">
+                        Official APIs combined with trusted data providers for comprehensive coverage and redundancy.
+                    </p>
+                    <div class="metric-badge">
+                        <div class="text-sm font-medium text-green-400 mb-1">5+ Sources</div>
+                        <div class="text-xs text-slate-500">Official + Trusted Partners</div>
+                    </div>
+                </div>
+
+                <!-- Conflict Resolution -->
+                <div class="feature-card rounded-2xl p-8 text-center">
+                    <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-500/20 flex items-center justify-center mb-6 mx-auto">
+                        <i class="fas fa-balance-scale text-blue-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-4">Conflict Resolution Engine</h3>
+                    <p class="text-slate-400 mb-6">
+                        Intelligent algorithms resolve discrepancies between data sources using historical accuracy patterns.
+                    </p>
+                    <div class="metric-badge">
+                        <div class="text-sm font-medium text-blue-400 mb-1">98.5%</div>
+                        <div class="text-xs text-slate-500">Resolution Accuracy</div>
+                    </div>
+                </div>
+
+                <!-- Tournament Uptime -->
+                <div class="feature-card rounded-2xl p-8 text-center">
+                    <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 border border-purple-500/20 flex items-center justify-center mb-6 mx-auto">
+                        <i class="fas fa-trophy text-purple-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-4">Tournament Reliability</h3>
+                    <p class="text-slate-400 mb-6">
+                        99.8% uptime during major competitions with redundant systems and failover protection.
+                    </p>
+                    <div class="metric-badge">
+                        <div class="text-sm font-medium text-purple-400 mb-1">99.8%</div>
+                        <div class="text-xs text-slate-500">Major Tournament Uptime</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Demo Widget -->
+    <div class="py-20 bg-gradient-to-b from-slate-900 to-slate-950">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                    Experience <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">Live Updates</span>
+                </h2>
+                <p class="text-xl text-slate-400 max-w-3xl mx-auto">
+                    See how probabilities change in real-time during a simulated match
+                </p>
+            </div>
+
+            <div class="live-demo max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <div class="live-indicator mb-4">
+                        <span>SIMULATED LIVE MATCH</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Manchester City vs Arsenal</h3>
+                    <p class="text-slate-400">Premier League - Etihad Stadium</p>
+                </div>
+
+                <!-- Match Probabilities -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="text-center">
+                        <div class="text-4xl font-black text-blue-400 mb-2" id="home-prob">68%</div>
+                        <div class="text-sm text-slate-400">Manchester City</div>
+                        <div class="w-full bg-slate-700 rounded-full h-2 mt-2">
+                            <div class="bg-blue-500 h-2 rounded-full transition-all duration-1000" id="home-bar" style="width: 68%"></div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-black text-gray-400 mb-2" id="draw-prob">22%</div>
+                        <div class="text-sm text-slate-400">Draw</div>
+                        <div class="w-full bg-slate-700 rounded-full h-2 mt-2">
+                            <div class="bg-gray-500 h-2 rounded-full transition-all duration-1000" id="draw-bar" style="width: 22%"></div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-black text-red-400 mb-2" id="away-prob">10%</div>
+                        <div class="text-sm text-slate-400">Arsenal</div>
+                        <div class="w-full bg-slate-700 rounded-full h-2 mt-2">
+                            <div class="bg-red-500 h-2 rounded-full transition-all duration-1000" id="away-bar" style="width: 10%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Match Events -->
+                <div class="glass-card rounded-lg p-6">
+                    <h4 class="font-bold text-white mb-4">Live Match Events</h4>
+                    <div class="space-y-3 max-h-48 overflow-y-auto">
+                        <div class="flex items-center space-x-3 text-sm">
+                            <span class="text-slate-500 w-12">45'</span>
+                            <div class="flex-1 text-slate-300" id="latest-event">Match started - City pressing high</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enable Live Mode CTA -->
+                <div class="text-center mt-8">
+                    <p class="text-slate-400 mb-4">Want to see real matches with live probability updates?</p>
+                    <a href="{{ url_for('register') }}" class="bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-play-circle mr-2"></i>Enable Live Mode
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="py-20 bg-gradient-to-b from-slate-950 to-slate-900">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                Stay Ahead with <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">Live Intelligence</span>
+            </h2>
+            <p class="text-xl text-slate-400 mb-8 max-w-2xl mx-auto">
+                Get real-time predictions that update as matches unfold, powered by live data streams.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ url_for('predict') }}" class="bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    <i class="fas fa-bolt mr-2"></i>View Live Matches
+                </a>
+                <a href="{{ url_for('home') }}" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300">
+                    <i class="fas fa-home mr-2"></i>Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Live clock and demo simulation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update live clock
+            function updateClock() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('en-US', {
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                document.getElementById('live-clock').textContent = timeString;
+                document.getElementById('last-update').textContent = 'Just now';
+            }
+
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            // Simulate live match probability updates
+            let matchTime = 0;
+            const events = [
+                { time: 5, event: "City wins corner, pressure building", home: 72, draw: 18, away: 10 },
+                { time: 15, event: "Arsenal counter-attack, chance missed", home: 65, draw: 25, away: 10 },
+                { time: 25, event: "City goal! Haaland scores from close range", home: 78, draw: 15, away: 7 },
+                { time: 35, event: "Arsenal substitution - fresh attacker on", home: 75, draw: 18, away: 7 },
+                { time: 45, event: "Half-time whistle - City leading 1-0", home: 80, draw: 12, away: 8 }
+            ];
+
+            function updateProbabilities(homeProb, drawProb, awayProb, eventText) {
+                document.getElementById('home-prob').textContent = homeProb + '%';
+                document.getElementById('draw-prob').textContent = drawProb + '%';
+                document.getElementById('away-prob').textContent = awayProb + '%';
+
+                document.getElementById('home-bar').style.width = homeProb + '%';
+                document.getElementById('draw-bar').style.width = drawProb + '%';
+                document.getElementById('away-bar').style.width = awayProb + '%';
+
+                document.getElementById('latest-event').textContent = eventText;
+            }
+
+            // Simulate match progression
+            let eventIndex = 0;
+            const matchInterval = setInterval(() => {
+                matchTime += 5;
+
+                if (eventIndex < events.length && matchTime >= events[eventIndex].time) {
+                    const event = events[eventIndex];
+                    updateProbabilities(event.home, event.draw, event.away, event.event);
+                    eventIndex++;
+                }
+
+                if (matchTime >= 45) {
+                    clearInterval(matchInterval);
+                    updateProbabilities(82, 10, 8, "Full-time: Manchester City 2-0 Arsenal");
+                }
+            }, 3000); // Update every 3 seconds for demo
+
+            // Smooth scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html></content>
+<parameter name="filePath">c:\Users\LENOVO\OneDrive\Desktop\SCORE_PULSEAIv2\soccer_match_prediction\app\templates\real_time_data.html

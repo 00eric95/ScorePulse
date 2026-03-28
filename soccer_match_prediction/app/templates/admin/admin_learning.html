@@ -1,0 +1,524 @@
+<!-- templates/admin/learning.html -->
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-white mb-2">AI Learning Dashboard</h1>
+            <p class="text-slate-400">Real-time ML model training insights and performance metrics</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="status-indicator {% if insights %}status-online{% else %}status-offline{% endif %}">
+                <i class="fas fa-circle"></i>
+                {% if insights %}Active{% else %}Inactive{% endif %}
+            </span>
+            <button onclick="startTraining()" class="px-4 py-2 bg-gradient-to-r from-brand-primary to-brand-secondary hover:opacity-90 rounded-lg text-white transition flex items-center gap-2">
+                <i class="fas fa-play"></i> Start Training
+            </button>
+        </div>
+    </div>
+    
+    <!-- System Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- System Status -->
+        <div class="stat-card">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <p class="text-sm text-slate-400 mb-1">System Status</p>
+                    <h3 class="text-xl font-bold text-white">
+                        {% if insights %}Active{% else %}Inactive{% endif %}
+                    </h3>
+                </div>
+                <div class="stat-icon bg-gradient-to-br from-brand-primary to-brand-secondary text-white">
+                    <i class="fas fa-brain"></i>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill bg-gradient-to-r from-brand-primary to-brand-secondary" style="width: {% if insights %}85{% else %}0{% endif %}%"></div>
+            </div>
+            <p class="text-xs text-slate-400 mt-2">
+                <i class="fas fa-microchip mr-1"></i>
+                CPU: {{ insights.cpu_usage|default('0') }}% | RAM: {{ insights.ram_usage|default('0') }}%
+            </p>
+        </div>
+        
+        <!-- Last Training -->
+        <div class="stat-card">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <p class="text-sm text-slate-400 mb-1">Last Training</p>
+                    <h3 class="text-xl font-bold text-white">
+                        {{ insights.last_training|default('Never') }}
+                    </h3>
+                </div>
+                <div class="stat-icon bg-gradient-to-br from-orange-500 to-red-600 text-white">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+            <p class="text-sm text-slate-400">
+                <i class="fas fa-history mr-1"></i>
+                Duration: {{ insights.training_duration|default('0') }} minutes
+            </p>
+            {% if insights and insights.last_training != 'Never' %}
+            <div class="flex items-center mt-3">
+                <i class="fas fa-sync-alt text-xs text-brand-primary mr-2"></i>
+                <span class="text-xs text-brand-primary">Scheduled: Every 24 hours</span>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Models Trained -->
+        <div class="stat-card">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <p class="text-sm text-slate-400 mb-1">Models Trained</p>
+                    <h3 class="text-xl font-bold text-white">
+                        {{ insights.models_trained|default(0) }}
+                    </h3>
+                </div>
+                <div class="stat-icon bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+                    <i class="fas fa-cogs"></i>
+                </div>
+            </div>
+            <div class="flex justify-between text-sm mt-4">
+                <div>
+                    <p class="font-bold text-white">{{ insights.active_models|default(0) }}</p>
+                    <p class="text-slate-400 text-xs">Active</p>
+                </div>
+                <div>
+                    <p class="font-bold text-white">{{ insights.archived_models|default(0) }}</p>
+                    <p class="text-slate-400 text-xs">Archived</p>
+                </div>
+                <div>
+                    <p class="font-bold text-white">{{ insights.failed_models|default(0) }}</p>
+                    <p class="text-slate-400 text-xs">Failed</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Data Points -->
+        <div class="stat-card">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <p class="text-sm text-slate-400 mb-1">Training Data</p>
+                    <h3 class="text-xl font-bold text-white">
+                        {{ insights.data_points|default(0) }}
+                    </h3>
+                </div>
+                <div class="stat-icon bg-gradient-to-br from-purple-500 to-pink-600 text-white">
+                    <i class="fas fa-database"></i>
+                </div>
+            </div>
+            <p class="text-sm text-slate-400">
+                <i class="fas fa-calendar-alt mr-1"></i>
+                Updated: {{ insights.data_updated|default('N/A') }}
+            </p>
+            <div class="progress-bar mt-3">
+                <div class="progress-fill bg-gradient-to-r from-purple-500 to-pink-600" style="width: {{ insights.data_coverage|default(0) }}%"></div>
+            </div>
+            <p class="text-xs text-slate-400 mt-2">
+                Coverage: {{ insights.data_coverage|default(0) }}% complete
+            </p>
+        </div>
+    </div>
+    
+    <!-- Model Performance -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Model Accuracy -->
+        <div class="lg:col-span-2 glass-card p-6">
+            <h3 class="text-lg font-bold text-white mb-6">Model Performance Metrics</h3>
+            
+            {% if insights %}
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="metric-card">
+                    <p class="text-sm text-slate-400 mb-2">Accuracy</p>
+                    <div class="metric-value">{{ insights.accuracy|default(0)|round(1) }}%</div>
+                    <div class="progress-bar mt-2">
+                        <div class="progress-fill bg-gradient-to-r from-brand-primary to-brand-secondary" style="width: {{ insights.accuracy|default(0) }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <p class="text-sm text-slate-400 mb-2">Precision</p>
+                    <div class="metric-value">{{ insights.precision|default(0)|round(1) }}%</div>
+                    <div class="progress-bar mt-2">
+                        <div class="progress-fill bg-gradient-to-r from-green-500 to-emerald-600" style="width: {{ insights.precision|default(0) }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <p class="text-sm text-slate-400 mb-2">Recall</p>
+                    <div class="metric-value">{{ insights.recall|default(0)|round(1) }}%</div>
+                    <div class="progress-bar mt-2">
+                        <div class="progress-fill bg-gradient-to-r from-blue-500 to-cyan-600" style="width: {{ insights.recall|default(0) }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <p class="text-sm text-slate-400 mb-2">F1 Score</p>
+                    <div class="metric-value">{{ insights.f1_score|default(0)|round(2) }}</div>
+                    <div class="progress-bar mt-2">
+                        <div class="progress-fill bg-gradient-to-r from-purple-500 to-pink-600" style="width: {{ insights.f1_score|default(0) * 100 }}%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Feature Importance -->
+            <div class="mt-8">
+                <h4 class="text-md font-bold text-white mb-4">Feature Importance</h4>
+                <div class="space-y-3">
+                    {% for feature, importance in insights.feature_importance|default({'Form': 85, 'xG': 78, 'Injuries': 65, 'Weather': 42, 'Home/Away': 38}).items() %}
+                    <div class="feature-importance">
+                        <span class="text-sm text-white w-24 truncate">{{ feature }}</span>
+                        <div class="feature-bar">
+                            <div class="feature-fill" style="width: {{ importance }}%"></div>
+                        </div>
+                        <span class="feature-value">{{ importance }}%</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="flex flex-col items-center justify-center py-12">
+                <i class="fas fa-brain text-4xl text-slate-700 mb-4"></i>
+                <p class="text-slate-400">No model insights available</p>
+                <p class="text-sm text-slate-400 mt-2">Start training to see performance metrics</p>
+                <button onclick="startTraining()" class="px-4 py-2 bg-gradient-to-r from-brand-primary to-brand-secondary hover:opacity-90 rounded-lg text-white transition mt-4">
+                    <i class="fas fa-play mr-2"></i> Start Training Session
+                </button>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Current Model -->
+        <div class="glass-card p-6">
+            <h3 class="text-lg font-bold text-white mb-6">Current Model</h3>
+            
+            <div class="flex flex-col items-center justify-center mb-6">
+                <div class="model-accuracy" style="--accuracy-percent: {{ insights.accuracy|default(0) }}%">
+                    <div class="model-accuracy-inner">
+                        <span class="text-white font-bold">{{ insights.accuracy|default(0)|round(1) }}%</span>
+                    </div>
+                </div>
+                <p class="text-sm text-slate-400 mt-4">Overall Accuracy</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-slate-400">Model Version</span>
+                    <span class="text-sm font-bold text-white">{{ insights.model_version|default('v2.5.1') }}</span>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-slate-400">Training Epochs</span>
+                    <span class="text-sm font-bold text-white">{{ insights.training_epochs|default(150) }}</span>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-slate-400">Loss</span>
+                    <span class="text-sm font-bold text-white">{{ insights.loss|default(0.24)|round(3) }}</span>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-slate-400">Learning Rate</span>
+                    <span class="text-sm font-bold text-white">{{ insights.learning_rate|default(0.001) }}</span>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-slate-400">Last Improved</span>
+                    <span class="text-sm font-bold text-white">{{ insights.last_improved|default('3 days ago') }}</span>
+                </div>
+            </div>
+            
+            <div class="mt-6 pt-6 border-t border-white/10">
+                <div class="flex gap-3">
+                    <button onclick="exportModel()" class="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-white transition">
+                        <i class="fas fa-download mr-2"></i> Export
+                    </button>
+                    <button onclick="retrainModel()" class="flex-1 px-4 py-2 bg-gradient-to-r from-brand-primary to-brand-secondary hover:opacity-90 rounded-lg text-white transition">
+                        <i class="fas fa-sync-alt mr-2"></i> Retrain
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Training History -->
+    <div class="glass-card p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-white">Training History</h3>
+            <button onclick="window.location.href='{{ url_for('admin_training_history') }}'" 
+                    class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-white transition">
+                <i class="fas fa-filter mr-2"></i> View Full History
+            </button>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-white/10">
+                        <th class="pb-3 text-left text-sm text-slate-400">Model ID</th>
+                        <th class="pb-3 text-left text-sm text-slate-400">Accuracy</th>
+                        <th class="pb-3 text-left text-sm text-slate-400">Data Points</th>
+                        <th class="pb-3 text-left text-sm text-slate-400">Training Time</th>
+                        <th class="pb-3 text-left text-sm text-slate-400">Status</th>
+                        <th class="pb-3 text-left text-sm text-slate-400">Date</th>
+                        <th class="pb-3 text-left text-sm text-slate-400">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for model in training_history|default([]) %}
+                    <tr class="border-b border-white/5 hover:bg-white/5">
+                        <td class="py-3">
+                            <span class="text-sm font-medium text-white">{{ model.id }}</span>
+                        </td>
+                        <td class="py-3">
+                            <div class="flex items-center">
+                                <div class="progress-bar mr-2" style="width: 60px;">
+                                    <div class="progress-fill bg-gradient-to-r from-brand-primary to-brand-secondary" style="width: {{ model.accuracy }}%"></div>
+                                </div>
+                                <span class="text-sm text-white">{{ model.accuracy }}%</span>
+                            </div>
+                        </td>
+                        <td class="py-3">
+                            <span class="text-sm text-slate-400">{{ model.data_points }}</span>
+                        </td>
+                        <td class="py-3">
+                            <span class="text-sm text-slate-400">{{ model.training_time }}</span>
+                        </td>
+                        <td class="py-3">
+                            <span class="status-indicator {% if model.status == 'active' %}status-online{% elif model.status == 'training' %}status-warning{% else %}status-offline{% endif %}">
+                                {{ model.status|title }}
+                            </span>
+                        </td>
+                        <td class="py-3">
+                            <span class="text-sm text-slate-400">{{ model.date }}</span>
+                        </td>
+                        <td class="py-3">
+                            <div class="flex gap-2">
+                                <button onclick="viewModel('{{ model.id }}')" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition">
+                                    <i class="fas fa-eye text-xs"></i>
+                                </button>
+                                <button onclick="exportModel('{{ model.id }}')" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition">
+                                    <i class="fas fa-download text-xs"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if not training_history %}
+        <div class="text-center py-8">
+            <i class="fas fa-history text-3xl text-slate-700 mb-3"></i>
+            <p class="text-slate-400">No training history available</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.metric-card {
+    padding: 16px;
+    border-radius: 12px;
+    background: rgba(28, 43, 75, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.metric-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.model-accuracy {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.5rem;
+    position: relative;
+}
+
+.model-accuracy::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: conic-gradient(var(--brand-primary) var(--accuracy-percent, 0%), rgba(255, 255, 255, 0.1) 0%);
+    z-index: 1;
+}
+
+.model-accuracy-inner {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: rgba(10, 17, 40, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    position: relative;
+}
+
+.feature-importance {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.feature-bar {
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    flex-grow: 1;
+    margin-left: 16px;
+    overflow: hidden;
+}
+
+.feature-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
+    transition: width 1s ease-in-out;
+}
+
+.feature-value {
+    width: 48px;
+    text-align: right;
+    font-size: 12px;
+    color: #94a3b8;
+}
+</style>
+
+<script>
+async function startTraining() {
+    const button = event.target.closest('button');
+    const originalText = button.innerHTML;
+    
+    // Show loading state
+    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Training...';
+    button.disabled = true;
+    
+    try {
+        const data = await AdminUtils.fetchAPI('/api/admin/training/start', {
+            method: 'POST'
+        });
+        
+        if (data.success) {
+            AdminUtils.showToast('Training started successfully', 'success');
+            
+            // Update button state
+            button.innerHTML = '<i class="fas fa-check mr-2"></i> Training Started';
+            button.classList.remove('bg-gradient-to-r', 'from-brand-primary', 'to-brand-secondary');
+            button.classList.add('bg-green-600');
+            
+            // Reload after 5 seconds to show updated data
+            setTimeout(() => {
+                window.location.reload();
+            }, 5000);
+        }
+    } catch (error) {
+        console.error('Failed to start training:', error);
+        button.innerHTML = originalText;
+        button.disabled = false;
+    }
+}
+
+async function retrainModel() {
+    if (!confirm('Are you sure you want to retrain the model? This may take several minutes.')) return;
+    
+    try {
+        const data = await AdminUtils.fetchAPI('/api/admin/training/retrain', {
+            method: 'POST'
+        });
+        
+        if (data.success) {
+            AdminUtils.showToast('Model retraining started', 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+        }
+    } catch (error) {
+        console.error('Failed to retrain model:', error);
+    }
+}
+
+async function exportModel(modelId = null) {
+    try {
+        const url = modelId ? `/api/admin/models/${modelId}/export` : '/api/admin/models/current/export';
+        const data = await AdminUtils.fetchAPI(url);
+        
+        if (data.success && data.download_url) {
+            window.open(data.download_url, '_blank');
+            AdminUtils.showToast('Model exported successfully', 'success');
+        }
+    } catch (error) {
+        console.error('Failed to export model:', error);
+    }
+}
+
+async function viewModel(modelId) {
+    try {
+        const data = await AdminUtils.fetchAPI(`/api/admin/models/${modelId}`);
+        
+        if (data.success) {
+            // Open model details modal or page
+            AdminUtils.showToast(`Viewing model ${modelId}`, 'info');
+        }
+    } catch (error) {
+        console.error('Failed to view model:', error);
+    }
+}
+
+// Animate progress bars on scroll
+document.addEventListener('DOMContentLoaded', function() {
+    const observerOptions = {
+        threshold: 0.2,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Animate progress bars
+                const progressBars = entry.target.querySelectorAll('.progress-fill');
+                progressBars.forEach(bar => {
+                    const targetWidth = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = targetWidth;
+                    }, 300);
+                });
+                
+                // Animate feature bars
+                const featureBars = entry.target.querySelectorAll('.feature-fill');
+                featureBars.forEach((bar, index) => {
+                    const targetWidth = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = targetWidth;
+                    }, 300 + (index * 100));
+                });
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all cards
+    document.querySelectorAll('.stat-card, .glass-card, .metric-card').forEach(card => {
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %}

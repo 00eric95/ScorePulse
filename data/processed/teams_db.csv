@@ -1,0 +1,1507 @@
+Country,Division,Team
+Belgium,B1,Aalst
+Belgium,B1,Anderlecht
+Belgium,B1,Antwerp
+Belgium,B1,Beerschot VA
+Belgium,B1,Bergen
+Belgium,B1,Beveren
+Belgium,B1,Cercle Brugge
+Belgium,B1,Charleroi
+Belgium,B1,Club Brugge
+Belgium,B1,Dender
+Belgium,B1,Eupen
+Belgium,B1,FC Brussels
+Belgium,B1,Genk
+Belgium,B1,Gent
+Belgium,B1,Germinal
+Belgium,B1,Harelbeke
+Belgium,B1,Heusden Zolder
+Belgium,B1,Kortrijk
+Belgium,B1,Lierse
+Belgium,B1,Lokeren
+Belgium,B1,Lommel
+Belgium,B1,Louvieroise
+Belgium,B1,Mechelen
+Belgium,B1,Molenbeek
+Belgium,B1,Mouscron
+Belgium,B1,Mouscron-Peruwelz
+Belgium,B1,Oostende
+Belgium,B1,Oud-Heverlee Leuven
+Belgium,B1,Roeselare
+Belgium,B1,St Truiden
+Belgium,B1,Standard
+Belgium,B1,Tubize
+Belgium,B1,Waasland-Beveren
+Belgium,B1,Waregem
+Belgium,B1,Westerlo
+England,E0,Arsenal
+England,E0,Aston Villa
+England,E0,Birmingham
+England,E0,Blackburn
+England,E0,Blackpool
+England,E0,Bolton
+England,E0,Bournemouth
+England,E0,Bradford
+England,E0,Brighton
+England,E0,Burnley
+England,E0,Cardiff
+England,E0,Charlton
+England,E0,Chelsea
+England,E0,Coventry
+England,E0,Crystal Palace
+England,E0,Derby
+England,E0,Everton
+England,E0,Fulham
+England,E0,Huddersfield
+England,E0,Hull
+England,E0,Ipswich
+England,E0,Leeds
+England,E0,Leicester
+England,E0,Liverpool
+England,E0,Man City
+England,E0,Man United
+England,E0,Middlesbrough
+England,E0,Newcastle
+England,E0,Norwich
+England,E0,Portsmouth
+England,E0,QPR
+England,E0,Reading
+England,E0,Sheffield United
+England,E0,Southampton
+England,E0,Stoke
+England,E0,Sunderland
+England,E0,Swansea
+England,E0,Tottenham
+England,E0,Watford
+England,E0,West Brom
+England,E0,West Ham
+England,E0,Wigan
+England,E0,Wolves
+England,E1,Aston Villa
+England,E1,Barnsley
+England,E1,Birmingham
+England,E1,Blackburn
+England,E1,Blackpool
+England,E1,Bolton
+England,E1,Bournemouth
+England,E1,Bradford
+England,E1,Brentford
+England,E1,Brighton
+England,E1,Bristol City
+England,E1,Burnley
+England,E1,Burton
+England,E1,Cardiff
+England,E1,Charlton
+England,E1,Colchester
+England,E1,Coventry
+England,E1,Crewe
+England,E1,Crystal Palace
+England,E1,Derby
+England,E1,Doncaster
+England,E1,Fulham
+England,E1,Gillingham
+England,E1,Grimsby
+England,E1,Huddersfield
+England,E1,Hull
+England,E1,Ipswich
+England,E1,Leeds
+England,E1,Leicester
+England,E1,Luton
+England,E1,Man City
+England,E1,Middlesbrough
+England,E1,Millwall
+England,E1,Milton Keynes Dons
+England,E1,Newcastle
+England,E1,Norwich
+England,E1,Nottm Forest
+England,E1,Peterboro
+England,E1,Plymouth
+England,E1,Portsmouth
+England,E1,Preston
+England,E1,QPR
+England,E1,Reading
+England,E1,Rotherham
+England,E1,Scunthorpe
+England,E1,Sheffield United
+England,E1,Sheffield Weds
+England,E1,Southampton
+England,E1,Southend
+England,E1,Stockport
+England,E1,Stoke
+England,E1,Sunderland
+England,E1,Swansea
+England,E1,Tranmere
+England,E1,Walsall
+England,E1,Watford
+England,E1,West Brom
+England,E1,West Ham
+England,E1,Wigan
+England,E1,Wimbledon
+England,E1,Wolves
+England,E1,Wycombe
+England,E1,Yeovil
+England,E2,AFC Wimbledon
+England,E2,Accrington
+England,E2,Barnsley
+England,E2,Blackburn
+England,E2,Blackpool
+England,E2,Bolton
+England,E2,Bournemouth
+England,E2,Bradford
+England,E2,Brentford
+England,E2,Brighton
+England,E2,Bristol City
+England,E2,Bristol Rvs
+England,E2,Burton
+England,E2,Bury
+England,E2,Cambridge
+England,E2,Cardiff
+England,E2,Carlisle
+England,E2,Charlton
+England,E2,Cheltenham
+England,E2,Chesterfield
+England,E2,Colchester
+England,E2,Coventry
+England,E2,Crawley Town
+England,E2,Crewe
+England,E2,Dag and Red
+England,E2,Doncaster
+England,E2,Exeter
+England,E2,Fleetwood Town
+England,E2,Gillingham
+England,E2,Grimsby
+England,E2,Hartlepool
+England,E2,Hereford
+England,E2,Huddersfield
+England,E2,Hull
+England,E2,Ipswich
+England,E2,Leeds
+England,E2,Leicester
+England,E2,Leyton Orient
+England,E2,Lincoln
+England,E2,Luton
+England,E2,Mansfield
+England,E2,Millwall
+England,E2,Milton Keynes Dons
+England,E2,Northampton
+England,E2,Norwich
+England,E2,Nottm Forest
+England,E2,Notts County
+England,E2,Oldham
+England,E2,Oxford
+England,E2,Peterboro
+England,E2,Plymouth
+England,E2,Port Vale
+England,E2,Portsmouth
+England,E2,Preston
+England,E2,QPR
+England,E2,Reading
+England,E2,Rochdale
+England,E2,Rotherham
+England,E2,Rushden & D
+England,E2,Scunthorpe
+England,E2,Sheffield United
+England,E2,Sheffield Weds
+England,E2,Shrewsbury
+England,E2,Southampton
+England,E2,Southend
+England,E2,Stevenage
+England,E2,Stockport
+England,E2,Stoke
+England,E2,Sunderland
+England,E2,Swansea
+England,E2,Swindon
+England,E2,Torquay
+England,E2,Tranmere
+England,E2,Walsall
+England,E2,Wigan
+England,E2,Wolves
+England,E2,Wrexham
+England,E2,Wycombe
+England,E2,Yeovil
+England,E3,AFC Wimbledon
+England,E3,Accrington
+England,E3,Aldershot
+England,E3,Barnet
+England,E3,Barrow
+England,E3,Blackpool
+England,E3,Bolton
+England,E3,Boston
+England,E3,Bournemouth
+England,E3,Bradford
+England,E3,Brentford
+England,E3,Brighton
+England,E3,Bristol Rvs
+England,E3,Burton
+England,E3,Bury
+England,E3,Cambridge
+England,E3,Cardiff
+England,E3,Carlisle
+England,E3,Cheltenham
+England,E3,Chester
+England,E3,Chesterfield
+England,E3,Colchester
+England,E3,Coventry
+England,E3,Crawley Town
+England,E3,Crewe
+England,E3,Dag and Red
+England,E3,Darlington
+England,E3,Doncaster
+England,E3,Exeter
+England,E3,Fleetwood Town
+England,E3,Forest Green
+England,E3,Gillingham
+England,E3,Grimsby
+England,E3,Halifax
+England,E3,Harrogate
+England,E3,Hartlepool
+England,E3,Hereford
+England,E3,Huddersfield
+England,E3,Hull
+England,E3,Kidderminster
+England,E3,Leyton Orient
+England,E3,Lincoln
+England,E3,Luton
+England,E3,Macclesfield
+England,E3,Mansfield
+England,E3,Milton Keynes Dons
+England,E3,Morecambe
+England,E3,Newport County
+England,E3,Northampton
+England,E3,Notts County
+England,E3,Oldham
+England,E3,Oxford
+England,E3,Peterboro
+England,E3,Plymouth
+England,E3,Port Vale
+England,E3,Portsmouth
+England,E3,Rochdale
+England,E3,Rotherham
+England,E3,Rushden & D
+England,E3,Salford
+England,E3,Scunthorpe
+England,E3,Shrewsbury
+England,E3,Southend
+England,E3,Stevenage
+England,E3,Stockport
+England,E3,Swansea
+England,E3,Swindon
+England,E3,Torquay
+England,E3,Tranmere
+England,E3,Walsall
+England,E3,Wrexham
+England,E3,Wycombe
+England,E3,Yeovil
+England,E3,York
+England,EC,AFC Telford United
+England,EC,Aldershot
+England,EC,Alfreton Town
+England,EC,Altrincham
+England,EC,Barnet
+England,EC,Barrow
+England,EC,Bath City
+England,EC,Boreham Wood
+England,EC,Braintree Town
+England,EC,Bristol Rvs
+England,EC,Bromley
+England,EC,Cambridge
+England,EC,Cheltenham
+England,EC,Chester
+England,EC,Chesterfield
+England,EC,Chorley
+England,EC,Dag and Red
+England,EC,Darlington
+England,EC,Dartford
+England,EC,Dover Athletic
+England,EC,Eastleigh
+England,EC,Ebbsfleet
+England,EC,Fleetwood Town
+England,EC,Forest Green
+England,EC,Fylde
+England,EC,Gateshead
+England,EC,Grimsby
+England,EC,Guiseley
+England,EC,Halifax
+England,EC,Harrogate
+England,EC,Hartlepool
+England,EC,Havant & Waterlooville
+England,EC,Hayes & Yeading
+England,EC,Hereford
+England,EC,Hyde United
+England,EC,Kettering Town
+England,EC,Kidderminster
+England,EC,KingÂs Lynn
+England,EC,Leyton Orient
+England,EC,Lincoln
+England,EC,Luton
+England,EC,Macclesfield
+England,EC,Maidenhead
+England,EC,Maidstone
+England,EC,Mansfield
+England,EC,Newport County
+England,EC,North Ferriby
+England,EC,Notts County
+England,EC,Nuneaton Town
+England,EC,Salford
+England,EC,Salisbury
+England,EC,Solihull
+England,EC,Southport
+England,EC,Stockport
+England,EC,Sutton
+England,EC,Tamworth
+England,EC,Telford United
+England,EC,Torquay
+England,EC,Tranmere
+England,EC,Wealdstone
+England,EC,Welling United
+England,EC,Weymouth
+England,EC,Woking
+England,EC,Wrexham
+England,EC,Yeovil
+England,EC,York
+France,F1,Ajaccio
+France,F1,Ajaccio GFCO
+France,F1,Amiens
+France,F1,Angers
+France,F1,Arles
+France,F1,Auxerre
+France,F1,Bastia
+France,F1,Bordeaux
+France,F1,Boulogne
+France,F1,Brest
+France,F1,Caen
+France,F1,Dijon
+France,F1,Evian Thonon Gaillard
+France,F1,Grenoble
+France,F1,Guingamp
+France,F1,Istres
+France,F1,Le Havre
+France,F1,Le Mans
+France,F1,Lens
+France,F1,Lille
+France,F1,Lorient
+France,F1,Lyon
+France,F1,Marseille
+France,F1,Metz
+France,F1,Monaco
+France,F1,Montpellier
+France,F1,Nancy
+France,F1,Nantes
+France,F1,Nice
+France,F1,Nimes
+France,F1,Paris SG
+France,F1,Reims
+France,F1,Rennes
+France,F1,Sedan
+France,F1,Sochaux
+France,F1,St Etienne
+France,F1,Strasbourg
+France,F1,Toulouse
+France,F1,Troyes
+France,F1,Valenciennes
+France,F2,Ajaccio
+France,F2,Ajaccio GFCO
+France,F2,Amiens
+France,F2,Angers
+France,F2,Arles
+France,F2,Auxerre
+France,F2,Bastia
+France,F2,Beauvais
+France,F2,Besancon
+France,F2,Beziers
+France,F2,Boulogne
+France,F2,Bourg Peronnas
+France,F2,Brest
+France,F2,CA Bastia
+France,F2,Caen
+France,F2,Cannes
+France,F2,Chambly
+France,F2,Chateauroux
+France,F2,Clermont
+France,F2,Creteil
+France,F2,Dijon
+France,F2,Dunkerque
+France,F2,Evian Thonon Gaillard
+France,F2,Grenoble
+France,F2,Gueugnon
+France,F2,Guingamp
+France,F2,Istres
+France,F2,Laval
+France,F2,Le Havre
+France,F2,Le Mans
+France,F2,Lens
+France,F2,Libourne
+France,F2,Lorient
+France,F2,Martigues
+France,F2,Metz
+France,F2,Monaco
+France,F2,Montpellier
+France,F2,Nancy
+France,F2,Nantes
+France,F2,Nice
+France,F2,Nimes
+France,F2,Niort
+France,F2,Orleans
+France,F2,Paris FC
+France,F2,Pau FC
+France,F2,Quevilly Rouen
+France,F2,Red Star
+France,F2,Reims
+France,F2,Rodez
+France,F2,Rouen
+France,F2,Sedan
+France,F2,Sete
+France,F2,Sochaux
+France,F2,St Etienne
+France,F2,Strasbourg
+France,F2,Toulouse
+France,F2,Tours
+France,F2,Troyes
+France,F2,Valence
+France,F2,Valenciennes
+France,F2,Vannes
+France,F2,Wasquehal
+Germany,D1,Aachen
+Germany,D1,Augsburg
+Germany,D1,Bayern Munich
+Germany,D1,Bielefeld
+Germany,D1,Bochum
+Germany,D1,Braunschweig
+Germany,D1,Cottbus
+Germany,D1,Darmstadt
+Germany,D1,Dortmund
+Germany,D1,Duisburg
+Germany,D1,Ein Frankfurt
+Germany,D1,FC Koln
+Germany,D1,Fortuna Dusseldorf
+Germany,D1,Freiburg
+Germany,D1,Greuther Furth
+Germany,D1,Hamburg
+Germany,D1,Hannover
+Germany,D1,Hansa Rostock
+Germany,D1,Hertha
+Germany,D1,Hoffenheim
+Germany,D1,Ingolstadt
+Germany,D1,Kaiserslautern
+Germany,D1,Karlsruhe
+Germany,D1,Leverkusen
+Germany,D1,MGladbach
+Germany,D1,Mainz
+Germany,D1,Munich 1860
+Germany,D1,Nurnberg
+Germany,D1,Paderborn
+Germany,D1,RB Leipzig
+Germany,D1,Schalke 04
+Germany,D1,St Pauli
+Germany,D1,Stuttgart
+Germany,D1,Union Berlin
+Germany,D1,Unterhaching
+Germany,D1,Werder Bremen
+Germany,D1,Wolfsburg
+Germany,D2,Aachen
+Germany,D2,Aalen
+Germany,D2,Ahlen
+Germany,D2,Augsburg
+Germany,D2,Babelsberg
+Germany,D2,Bielefeld
+Germany,D2,Bochum
+Germany,D2,Braunschweig
+Germany,D2,Burghausen
+Germany,D2,CZ Jena
+Germany,D2,Chemnitz
+Germany,D2,Cottbus
+Germany,D2,Darmstadt
+Germany,D2,Dresden
+Germany,D2,Duisburg
+Germany,D2,Ein Frankfurt
+Germany,D2,Ein Trier
+Germany,D2,Erfurt
+Germany,D2,Erzgebirge Aue
+Germany,D2,Essen
+Germany,D2,FC Koln
+Germany,D2,Fortuna Dusseldorf
+Germany,D2,Frankfurt FSV
+Germany,D2,Freiburg
+Germany,D2,Greuther Furth
+Germany,D2,Hamburg
+Germany,D2,Hannover
+Germany,D2,Hansa Rostock
+Germany,D2,Heidenheim
+Germany,D2,Hertha
+Germany,D2,Hoffenheim
+Germany,D2,Holstein Kiel
+Germany,D2,Ingolstadt
+Germany,D2,Kaiserslautern
+Germany,D2,Kaiserslautern 
+Germany,D2,Karlsruhe
+Germany,D2,Koblenz
+Germany,D2,Lubeck
+Germany,D2,MGladbach
+Germany,D2,Magdeburg
+Germany,D2,Mainz
+Germany,D2,Mannheim
+Germany,D2,Munich 1860
+Germany,D2,Nurnberg
+Germany,D2,Oberhausen
+Germany,D2,Offenbach
+Germany,D2,Osnabruck
+Germany,D2,Paderborn
+Germany,D2,RB Leipzig
+Germany,D2,Regensburg
+Germany,D2,Reutlingen
+Germany,D2,Saarbrucken
+Germany,D2,Sandhausen
+Germany,D2,Schweinfurt
+Germany,D2,Siegen
+Germany,D2,St Pauli
+Germany,D2,Stuttgart
+Germany,D2,Stuttgarter K
+Germany,D2,Ulm
+Germany,D2,Union Berlin
+Germany,D2,Unterhaching
+Germany,D2,Wehen
+Germany,D2,Wurzburger Kickers
+Greece,G1,AEK
+Greece,G1,Akratitos
+Greece,G1,Apollon
+Greece,G1,Aris
+Greece,G1,Asteras Tripolis
+Greece,G1,Atromitos
+Greece,G1,Egaleo
+Greece,G1,Ergotelis
+Greece,G1,Giannina
+Greece,G1,Ionikos
+Greece,G1,Iraklis
+Greece,G1,Kalamaria
+Greece,G1,Kallithea
+Greece,G1,Kallonis
+Greece,G1,Kavala
+Greece,G1,Kerkyra
+Greece,G1,Lamia
+Greece,G1,Larisa
+Greece,G1,Levadeiakos
+Greece,G1,Niki Volos
+Greece,G1,OFI
+Greece,G1,OFI Crete
+Greece,G1,Olympiakos
+Greece,G1,Olympiakos Volou
+Greece,G1,PAOK
+Greece,G1,Panathinaikos
+Greece,G1,Panetolikos
+Greece,G1,Panionios
+Greece,G1,Panserraikos
+Greece,G1,Panthrakikos
+Greece,G1,Platanias
+Greece,G1,Thrasyvoulos
+Greece,G1,Veria
+Greece,G1,Volos NFC
+Greece,G1,Xanthi
+Italy,I1,Ancona
+Italy,I1,Ascoli
+Italy,I1,Atalanta
+Italy,I1,Bari
+Italy,I1,Benevento
+Italy,I1,Bologna
+Italy,I1,Brescia
+Italy,I1,Cagliari
+Italy,I1,Carpi
+Italy,I1,Catania
+Italy,I1,Cesena
+Italy,I1,Chievo
+Italy,I1,Como
+Italy,I1,Crotone
+Italy,I1,Empoli
+Italy,I1,Fiorentina
+Italy,I1,Frosinone
+Italy,I1,Genoa
+Italy,I1,Inter
+Italy,I1,Juventus
+Italy,I1,Lazio
+Italy,I1,Lecce
+Italy,I1,Livorno
+Italy,I1,Messina
+Italy,I1,Milan
+Italy,I1,Modena
+Italy,I1,Napoli
+Italy,I1,Novara
+Italy,I1,Palermo
+Italy,I1,Parma
+Italy,I1,Perugia
+Italy,I1,Pescara
+Italy,I1,Piacenza
+Italy,I1,Reggina
+Italy,I1,Roma
+Italy,I1,Sampdoria
+Italy,I1,Sassuolo
+Italy,I1,Siena
+Italy,I1,Spal
+Italy,I1,Spezia
+Italy,I1,Torino
+Italy,I1,Treviso
+Italy,I1,Udinese
+Italy,I1,Venezia
+Italy,I1,Verona
+Italy,I1,Vicenza
+Italy,I2,Albinoleffe
+Italy,I2,Ancona
+Italy,I2,Arezzo
+Italy,I2,Ascoli
+Italy,I2,Atalanta
+Italy,I2,Avellino
+Italy,I2,Bari
+Italy,I2,Benevento
+Italy,I2,Bologna
+Italy,I2,Brescia
+Italy,I2,Cagliari
+Italy,I2,Carpi
+Italy,I2,Catania
+Italy,I2,Catanzaro
+Italy,I2,Cesena
+Italy,I2,Chievo
+Italy,I2,Cittadella
+Italy,I2,Como
+Italy,I2,Cosenza
+Italy,I2,Cremonese
+Italy,I2,Crotone
+Italy,I2,Empoli
+Italy,I2,Fiorentina
+Italy,I2,Foggia
+Italy,I2,Frosinone
+Italy,I2,Gallipoli
+Italy,I2,Genoa
+Italy,I2,Grosseto
+Italy,I2,Gubbio
+Italy,I2,Juve Stabia
+Italy,I2,Juventus
+Italy,I2,Latina
+Italy,I2,Lecce
+Italy,I2,Livorno
+Italy,I2,Mantova
+Italy,I2,Messina
+Italy,I2,Modena
+Italy,I2,Monza
+Italy,I2,Napoli
+Italy,I2,Nocerina
+Italy,I2,Novara
+Italy,I2,Padova
+Italy,I2,Palermo
+Italy,I2,Parma
+Italy,I2,Perugia
+Italy,I2,Pescara
+Italy,I2,Piacenza
+Italy,I2,Piacenza 
+Italy,I2,Pisa
+Italy,I2,Pistoiese
+Italy,I2,Pordenone
+Italy,I2,Portogruaro
+Italy,I2,Pro Vercelli
+Italy,I2,Ravenna
+Italy,I2,Reggiana
+Italy,I2,Reggina
+Italy,I2,Rimini
+Italy,I2,Salernitana
+Italy,I2,Sampdoria
+Italy,I2,Sassuolo
+Italy,I2,Siena
+Italy,I2,Spal
+Italy,I2,Spezia
+Italy,I2,Ternana
+Italy,I2,Torino
+Italy,I2,Trapani
+Italy,I2,Treviso
+Italy,I2,Triestina
+Italy,I2,Varese
+Italy,I2,Venezia
+Italy,I2,Verona
+Italy,I2,Vicenza
+Italy,I2,Virtus Entella
+Italy,I2,Virtus Lanciano
+Netherlands,N1,AZ Alkmaar
+Netherlands,N1,Ajax
+Netherlands,N1,Ajax 
+Netherlands,N1,Cambuur
+Netherlands,N1,Den Bosch
+Netherlands,N1,Den Haag
+Netherlands,N1,Dordrecht
+Netherlands,N1,Excelsior
+Netherlands,N1,FC Emmen
+Netherlands,N1,Feyenoord
+Netherlands,N1,Feyenoord 
+Netherlands,N1,For Sittard
+Netherlands,N1,Go Ahead Eagles
+Netherlands,N1,Graafschap
+Netherlands,N1,Graafschap 
+Netherlands,N1,Groningen
+Netherlands,N1,Groningen 
+Netherlands,N1,Heerenveen
+Netherlands,N1,Heracles
+Netherlands,N1,Heracles 
+Netherlands,N1,NAC Breda
+Netherlands,N1,Nijmegen
+Netherlands,N1,PSV Eindhoven
+Netherlands,N1,Roda
+Netherlands,N1,Roda 
+Netherlands,N1,Roda JC
+Netherlands,N1,Roosendaal
+Netherlands,N1,Sparta
+Netherlands,N1,Sparta Rotterdam
+Netherlands,N1,Twente
+Netherlands,N1,Utrecht
+Netherlands,N1,Utrecht 
+Netherlands,N1,VVV Venlo
+Netherlands,N1,Vitesse
+Netherlands,N1,Vitesse 
+Netherlands,N1,Volendam
+Netherlands,N1,Waalwijk
+Netherlands,N1,Willem II
+Netherlands,N1,Willem II 
+Netherlands,N1,Zwolle
+Other,ARG,Aldosivi
+Other,ARG,All Boys
+Other,ARG,Argentinos Jrs
+Other,ARG,Arsenal Sarandi
+Other,ARG,Atl. Rafaela
+Other,ARG,Atl. Tucuman
+Other,ARG,Banfield
+Other,ARG,Belgrano
+Other,ARG,Boca Juniors
+Other,ARG,Central Cordoba
+Other,ARG,Chacarita Juniors
+Other,ARG,Colon Santa FE
+Other,ARG,Crucero del Norte
+Other,ARG,Defensa y Justicia
+Other,ARG,Estudiantes L.P.
+Other,ARG,Gimnasia L.P.
+Other,ARG,Godoy Cruz
+Other,ARG,Huracan
+Other,ARG,Independiente
+Other,ARG,Lanus
+Other,ARG,Newells Old Boys
+Other,ARG,Nueva Chicago
+Other,ARG,Olimpo Bahia Blanca
+Other,ARG,Patronato
+Other,ARG,Platense
+Other,ARG,Quilmes
+Other,ARG,Racing Club
+Other,ARG,River Plate
+Other,ARG,Rosario Central
+Other,ARG,San Lorenzo
+Other,ARG,San Martin S.J.
+Other,ARG,San Martin T.
+Other,ARG,Sarmiento Junin
+Other,ARG,Talleres Cordoba
+Other,ARG,Temperley
+Other,ARG,Tigre
+Other,ARG,Union de Santa Fe
+Other,ARG,Velez Sarsfield
+Other,AUT,A. Klagenfurt
+Other,AUT,Admira
+Other,AUT,Altach
+Other,AUT,Austria Vienna
+Other,AUT,Grodig
+Other,AUT,Hartberg
+Other,AUT,LASK
+Other,AUT,Mattersburg
+Other,AUT,Neustadt
+Other,AUT,Ried
+Other,AUT,SK Rapid
+Other,AUT,Salzburg
+Other,AUT,St. Polten
+Other,AUT,Sturm Graz
+Other,AUT,Tirol
+Other,AUT,Wacker Innsbruck
+Other,AUT,Wolfsberger AC
+Other,BRA,America MG
+Other,BRA,Athletico-PR
+Other,BRA,Atletico GO
+Other,BRA,Atletico-MG
+Other,BRA,Avai
+Other,BRA,Bahia
+Other,BRA,Botafogo RJ
+Other,BRA,Bragantino
+Other,BRA,CSA
+Other,BRA,Ceara
+Other,BRA,Chapecoense-SC
+Other,BRA,Corinthians
+Other,BRA,Coritiba
+Other,BRA,Criciuma
+Other,BRA,Cruzeiro
+Other,BRA,Cuiaba
+Other,BRA,Figueirense
+Other,BRA,Flamengo RJ
+Other,BRA,Fluminense
+Other,BRA,Fortaleza
+Other,BRA,Goias
+Other,BRA,Gremio
+Other,BRA,Internacional
+Other,BRA,Joinville
+Other,BRA,Juventude
+Other,BRA,Nautico
+Other,BRA,Palmeiras
+Other,BRA,Parana
+Other,BRA,Ponte Preta
+Other,BRA,Portuguesa
+Other,BRA,Santa Cruz
+Other,BRA,Santos
+Other,BRA,Sao Paulo
+Other,BRA,Sport Recife
+Other,BRA,Vasco
+Other,BRA,Vitoria
+Other,CHN,Beijing Guoan
+Other,CHN,Beijing Renhe
+Other,CHN,Cangzhou
+Other,CHN,Changchun Yatai
+Other,CHN,Chongqing Liangjiang Athletic
+Other,CHN,Dalian Pro
+Other,CHN,Dalian Yifang F.C.
+Other,CHN,Guangzhou City
+Other,CHN,Guangzhou Evergrande
+Other,CHN,Guangzhou FC
+Other,CHN,Guangzhou R&F
+Other,CHN,Guizhou Zhicheng
+Other,CHN,Hangzhou Greentown
+Other,CHN,Hebei
+Other,CHN,Henan Songshan Longmen
+Other,CHN,Jiangsu Suning
+Other,CHN,Liaoning
+Other,CHN,Qingdao FC
+Other,CHN,Shandong Luneng
+Other,CHN,Shandong Taishan
+Other,CHN,Shanghai Port
+Other,CHN,Shanghai SIPG
+Other,CHN,Shanghai Shenhua
+Other,CHN,Shanghai Shenxin
+Other,CHN,Shenzhen
+Other,CHN,Shijiazhuang
+Other,CHN,Tianjin Jinmen Tiger
+Other,CHN,Tianjin Quanjian
+Other,CHN,Tianjin Tianhai
+Other,CHN,Wuhan FC
+Other,CHN,Yanbian
+Other,CHN,Zhejiang Greentown
+Other,CHN,Zhejiang Yiteng
+Other,DEN,Aalborg
+Other,DEN,Aarhus
+Other,DEN,Brondby
+Other,DEN,Esbjerg
+Other,DEN,FC Copenhagen
+Other,DEN,Helsingor
+Other,DEN,Hobro
+Other,DEN,Horsens
+Other,DEN,Lyngby
+Other,DEN,Midtjylland
+Other,DEN,Nordsjaelland
+Other,DEN,Odense
+Other,DEN,Randers FC
+Other,DEN,Silkeborg
+Other,DEN,Sonderjyske
+Other,DEN,Vejle
+Other,DEN,Vendsyssel
+Other,DEN,Vestsjaelland
+Other,DEN,Viborg
+Other,FIN,AC Oulu
+Other,FIN,HIFK
+Other,FIN,HJK
+Other,FIN,Haka
+Other,FIN,Honka
+Other,FIN,Ilves
+Other,FIN,Inter Turku
+Other,FIN,JJK Jyvaskyla
+Other,FIN,Jaro
+Other,FIN,KPV Kokkola
+Other,FIN,KTP
+Other,FIN,KuPS
+Other,FIN,Lahti
+Other,FIN,Mariehamn
+Other,FIN,MyPa
+Other,FIN,PK-35 Vantaa
+Other,FIN,PS Kemi
+Other,FIN,Rovaniemi
+Other,FIN,SJK
+Other,FIN,TPS
+Other,FIN,VPS
+Other,IRL,Athlone
+Other,IRL,Bohemians
+Other,IRL,Bray
+Other,IRL,Cabinteely
+Other,IRL,Cobh Ramblers
+Other,IRL,Cork City
+Other,IRL,Derry City
+Other,IRL,Drogheda
+Other,IRL,Dundalk
+Other,IRL,Finn Harps
+Other,IRL,Galway
+Other,IRL,Limerick
+Other,IRL,Longford
+Other,IRL,Mervue
+Other,IRL,Monaghan
+Other,IRL,Shamrock Rovers
+Other,IRL,Shelbourne
+Other,IRL,Sligo Rovers
+Other,IRL,St. Patricks
+Other,IRL,Treaty United
+Other,IRL,UC Dublin
+Other,IRL,Waterford
+Other,IRL,Wexford
+Other,JAP,Albirex Niigata
+Other,JAP,Avispa Fukuoka
+Other,JAP,Cerezo Osaka
+Other,JAP,FC Tokyo
+Other,JAP,Gamba Osaka
+Other,JAP,Hokkaido Consadole Sapporo
+Other,JAP,Iwata
+Other,JAP,Kashima Antlers
+Other,JAP,Kashiwa Reysol
+Other,JAP,Kawasaki Frontale
+Other,JAP,Kofu
+Other,JAP,Montedio Yamagata
+Other,JAP,Nagoya Grampus
+Other,JAP,Oita Trinita
+Other,JAP,Omiya Ardija
+Other,JAP,Sagan Tosu
+Other,JAP,Sanfrecce Hiroshima
+Other,JAP,Shimizu S-Pulse
+Other,JAP,Shonan Bellmare
+Other,JAP,Tokushima
+Other,JAP,Urawa Reds
+Other,JAP,V-Varen Nagasaki
+Other,JAP,Vegalta Sendai
+Other,JAP,Verdy
+Other,JAP,Vissel Kobe
+Other,JAP,Yamaga
+Other,JAP,Yokohama F. Marinos
+Other,JAP,Yokohama FC
+Other,MEX,Atl. San Luis
+Other,MEX,Atlante
+Other,MEX,Atlas
+Other,MEX,Chiapas
+Other,MEX,Club America
+Other,MEX,Club Leon
+Other,MEX,Club Tijuana
+Other,MEX,Cruz Azul
+Other,MEX,Dorados de Sinaloa
+Other,MEX,Guadalajara Chivas
+Other,MEX,Juarez
+Other,MEX,Leones Negros
+Other,MEX,Lobos BUAP
+Other,MEX,Mazatlan FC
+Other,MEX,Monarcas
+Other,MEX,Monterrey
+Other,MEX,Necaxa
+Other,MEX,Pachuca
+Other,MEX,Puebla
+Other,MEX,Queretaro
+Other,MEX,Santos Laguna
+Other,MEX,Toluca
+Other,MEX,U.A.N.L.- Tigres
+Other,MEX,U.N.A.M.- Pumas
+Other,MEX,Veracruz
+Other,NOR,Aalesund
+Other,NOR,Bodo/Glimt
+Other,NOR,Brann
+Other,NOR,Fredrikstad
+Other,NOR,Haugesund
+Other,NOR,Honefoss
+Other,NOR,Jerv
+Other,NOR,Kristiansund
+Other,NOR,Lillestrom
+Other,NOR,Mjondalen
+Other,NOR,Molde
+Other,NOR,Odd
+Other,NOR,Ranheim
+Other,NOR,Rosenborg
+Other,NOR,Sandefjord
+Other,NOR,Sandnes
+Other,NOR,Sarpsborg 08
+Other,NOR,Sogndal
+Other,NOR,Stabaek
+Other,NOR,Start
+Other,NOR,Stromsgodset
+Other,NOR,Tromso
+Other,NOR,Ull/Kisa
+Other,NOR,Valerenga
+Other,NOR,Viking
+Other,POL,Arka Gdynia
+Other,POL,Cracovia
+Other,POL,GKS Belchatow
+Other,POL,Gornik Z.
+Other,POL,Jagiellonia
+Other,POL,Korona Kielce
+Other,POL,LKS Lodz
+Other,POL,Lech Poznan
+Other,POL,Lechia Gdansk
+Other,POL,Leczna
+Other,POL,Legia
+Other,POL,Legnica
+Other,POL,Piast Gliwice
+Other,POL,Podbeskidzie
+Other,POL,Pogon Szczecin
+Other,POL,Polonia Warszawa
+Other,POL,Radomiak Radom
+Other,POL,Rakow
+Other,POL,Ruch
+Other,POL,Sandecja Nowy S.
+Other,POL,Slask Wroclaw
+Other,POL,Stal Mielec
+Other,POL,Termalica B-B.
+Other,POL,Warta Poznan
+Other,POL,Widzew Lodz
+Other,POL,Wisla
+Other,POL,Wisla Plock
+Other,POL,Zaglebie
+Other,POL,Zaglebie Sosnowiec
+Other,POL,Zawisza
+Other,ROM,Academica Clinceni
+Other,ROM,Astra
+Other,ROM,Bistrita
+Other,ROM,CFR Cluj
+Other,ROM,CS Turnu Severin
+Other,ROM,Calarasi
+Other,ROM,Ceahlaul
+Other,ROM,Chindia Targoviste
+Other,ROM,Concordia
+Other,ROM,Corona Brasov
+Other,ROM,Daco-Getica Bucuresti
+Other,ROM,Din. Bucuresti
+Other,ROM,FC Arges
+Other,ROM,FC Botosani
+Other,ROM,FC Brasov
+Other,ROM,FC Hermannstadt
+Other,ROM,FC Rapid Bucuresti
+Other,ROM,FC Voluntari
+Other,ROM,FCSB
+Other,ROM,Farul Constanta
+Other,ROM,Gaz Metan Medias
+Other,ROM,Mioveni
+Other,ROM,Navodari
+Other,ROM,Otelul
+Other,ROM,Pandurii
+Other,ROM,Petrolul
+Other,ROM,Poli Iasi
+Other,ROM,Poli Timisoara
+Other,ROM,Sepsi Sf. Gheorghe
+Other,ROM,Targu Mures
+Other,ROM,U Craiova
+Other,ROM,U Craiova 1948
+Other,ROM,U. Cluj
+Other,ROM,UTA Arad
+Other,ROM,Univ. Craiova
+Other,ROM,Vaslui
+Other,ROM,Viitorul Constanta
+Other,RUS,Akhmat Grozny
+Other,RUS,Amkar
+Other,RUS,Arsenal Tula
+Other,RUS,CSKA Moscow
+Other,RUS,Dynamo Moscow
+Other,RUS,FK Anzi Makhackala
+Other,RUS,FK Rostov
+Other,RUS,Khimki
+Other,RUS,Krasnodar
+Other,RUS,Krylya Sovetov
+Other,RUS,Kuban
+Other,RUS,Lokomotiv Moscow
+Other,RUS,M. Saransk
+Other,RUS,Orenburg
+Other,RUS,Pari NN
+Other,RUS,R. Volgograd
+Other,RUS,Rubin Kazan
+Other,RUS,SKA Khabarovsk
+Other,RUS,Sochi
+Other,RUS,Spartak Moscow
+Other,RUS,Spartak Nalchik
+Other,RUS,T. Moscow
+Other,RUS,Tambov
+Other,RUS,Tomsk
+Other,RUS,Tosno
+Other,RUS,Ufa
+Other,RUS,Ural
+Other,RUS,Vladikavkaz
+Other,RUS,Volga N. Novgorod
+Other,RUS,Volgar-Astrakhan
+Other,RUS,Yenisey
+Other,RUS,Zenit
+Other,SUI,Aarau
+Other,SUI,Basel
+Other,SUI,Grasshoppers
+Other,SUI,Lausanne
+Other,SUI,Lugano
+Other,SUI,Luzern
+Other,SUI,Servette
+Other,SUI,Sion
+Other,SUI,St. Gallen
+Other,SUI,Thun
+Other,SUI,Vaduz
+Other,SUI,Xamax
+Other,SUI,Young Boys
+Other,SUI,Zurich
+Other,SWE,AFC Eskilstuna
+Other,SWE,AIK
+Other,SWE,Atvidabergs
+Other,SWE,Brage
+Other,SWE,Brommapojkarna
+Other,SWE,Dalkurd
+Other,SWE,Degerfors
+Other,SWE,Djurgarden
+Other,SWE,Elfsborg
+Other,SWE,Falkenbergs
+Other,SWE,GAIS
+Other,SWE,Gefle
+Other,SWE,Goteborg
+Other,SWE,Hacken
+Other,SWE,Halmstad
+Other,SWE,Hammarby
+Other,SWE,Helsingborg
+Other,SWE,Jonkopings
+Other,SWE,Kalmar
+Other,SWE,Ljungskile
+Other,SWE,Malmo FF
+Other,SWE,Mjallby
+Other,SWE,Norrkoping
+Other,SWE,Orebro
+Other,SWE,Osters
+Other,SWE,Ostersunds
+Other,SWE,Sirius
+Other,SWE,Sundsvall
+Other,SWE,Syrianska
+Other,SWE,Trelleborgs
+Other,SWE,Varberg
+Other,USA,Atlanta Utd
+Other,USA,Austin FC
+Other,USA,CF Montreal
+Other,USA,Chicago Fire
+Other,USA,Chivas USA
+Other,USA,Colorado Rapids
+Other,USA,Columbus Crew
+Other,USA,DC United
+Other,USA,FC Cincinnati
+Other,USA,FC Dallas
+Other,USA,Houston Dynamo
+Other,USA,Inter Miami
+Other,USA,Los Angeles FC
+Other,USA,Los Angeles Galaxy
+Other,USA,Minnesota United
+Other,USA,Nashville SC
+Other,USA,New England Revolution
+Other,USA,New York City
+Other,USA,New York Red Bulls
+Other,USA,Orlando City
+Other,USA,Philadelphia Union
+Other,USA,Portland Timbers
+Other,USA,Real Salt Lake
+Other,USA,San Jose Earthquakes
+Other,USA,Seattle Sounders
+Other,USA,Sporting Kansas City
+Other,USA,Toronto FC
+Other,USA,Vancouver Whitecaps
+Portugal,P1,Academica
+Portugal,P1,Alverca
+Portugal,P1,Arouca
+Portugal,P1,Aves
+Portugal,P1,Beira Mar
+Portugal,P1,Belenenses
+Portugal,P1,Benfica
+Portugal,P1,Boavista
+Portugal,P1,Campomaiorense
+Portugal,P1,Chaves
+Portugal,P1,Est Amadora
+Portugal,P1,Estoril
+Portugal,P1,Famalicao
+Portugal,P1,Farense
+Portugal,P1,Feirense
+Portugal,P1,Gil Vicente
+Portugal,P1,Guimaraes
+Portugal,P1,Leiria
+Portugal,P1,Leixoes
+Portugal,P1,Maritimo
+Portugal,P1,Moreirense
+Portugal,P1,Nacional
+Portugal,P1,Naval
+Portugal,P1,Olhanense
+Portugal,P1,Pacos Ferreira
+Portugal,P1,Penafiel
+Portugal,P1,Portimonense
+Portugal,P1,Porto
+Portugal,P1,Rio Ave
+Portugal,P1,Salgueiros
+Portugal,P1,Santa Clara
+Portugal,P1,Setubal
+Portugal,P1,Sp Braga
+Portugal,P1,Sp Lisbon
+Portugal,P1,Tondela
+Portugal,P1,Trofense
+Portugal,P1,Uniao Madeira
+Portugal,P1,Varzim
+Scotland,SC0,Aberdeen
+Scotland,SC0,Celtic
+Scotland,SC0,Dundee
+Scotland,SC0,Dundee United
+Scotland,SC0,Dunfermline
+Scotland,SC0,Falkirk
+Scotland,SC0,Gretna
+Scotland,SC0,Hamilton
+Scotland,SC0,Hearts
+Scotland,SC0,Hibernian
+Scotland,SC0,Inverness C
+Scotland,SC0,Kilmarnock
+Scotland,SC0,Livingston
+Scotland,SC0,Motherwell
+Scotland,SC0,Partick
+Scotland,SC0,Rangers
+Scotland,SC0,Ross County
+Scotland,SC0,St Johnstone
+Scotland,SC0,St Mirren
+Scotland,SC1,Airdrie
+Scotland,SC1,Airdrie Utd
+Scotland,SC1,Alloa
+Scotland,SC1,Arbroath
+Scotland,SC1,Ayr
+Scotland,SC1,Brechin
+Scotland,SC1,Clyde
+Scotland,SC1,Cowdenbeath
+Scotland,SC1,Dumbarton
+Scotland,SC1,Dundee
+Scotland,SC1,Dundee United
+Scotland,SC1,Dunfermline
+Scotland,SC1,Falkirk
+Scotland,SC1,Gretna
+Scotland,SC1,Hamilton
+Scotland,SC1,Hearts
+Scotland,SC1,Hibernian
+Scotland,SC1,Inverness C
+Scotland,SC1,Livingston
+Scotland,SC1,Morton
+Scotland,SC1,Partick
+Scotland,SC1,Queen of Sth
+Scotland,SC1,Raith
+Scotland,SC1,Raith Rvs
+Scotland,SC1,Rangers
+Scotland,SC1,Ross County
+Scotland,SC1,St Johnstone
+Scotland,SC1,St Mirren
+Scotland,SC1,Stirling
+Scotland,SC1,Stranraer
+Scotland,SC2,Airdrie Utd
+Scotland,SC2,Albion Rvs
+Scotland,SC2,Alloa
+Scotland,SC2,Arbroath
+Scotland,SC2,Ayr
+Scotland,SC2,Berwick
+Scotland,SC2,Brechin
+Scotland,SC2,Clyde
+Scotland,SC2,Clydebank
+Scotland,SC2,Cove Rangers
+Scotland,SC2,Cowdenbeath
+Scotland,SC2,Dumbarton
+Scotland,SC2,Dunfermline
+Scotland,SC2,East Fife
+Scotland,SC2,Falkirk
+Scotland,SC2,Forfar
+Scotland,SC2,Gretna
+Scotland,SC2,Hamilton
+Scotland,SC2,Livingston
+Scotland,SC2,Montrose
+Scotland,SC2,Morton
+Scotland,SC2,Partick
+Scotland,SC2,Peterhead
+Scotland,SC2,Queen of Sth
+Scotland,SC2,Queens Park
+Scotland,SC2,Raith Rvs
+Scotland,SC2,Rangers
+Scotland,SC2,Ross County
+Scotland,SC2,Stenhousemuir
+Scotland,SC2,Stirling
+Scotland,SC2,Stranraer
+Scotland,SC3,Albion Rvs
+Scotland,SC3,Alloa
+Scotland,SC3,Annan Athletic
+Scotland,SC3,Arbroath
+Scotland,SC3,Berwick
+Scotland,SC3,Brechin
+Scotland,SC3,Clyde
+Scotland,SC3,Cove Rangers
+Scotland,SC3,Cowdenbeath
+Scotland,SC3,Dumbarton
+Scotland,SC3,East Fife
+Scotland,SC3,East Stirling
+Scotland,SC3,Edinburgh City
+Scotland,SC3,Elgin
+Scotland,SC3,Forfar
+Scotland,SC3,Gretna
+Scotland,SC3,Livingston
+Scotland,SC3,Montrose
+Scotland,SC3,Morton
+Scotland,SC3,Peterhead
+Scotland,SC3,Queens Park
+Scotland,SC3,Rangers
+Scotland,SC3,Stenhousemuir
+Scotland,SC3,Stirling
+Scotland,SC3,Stranraer
+Spain,SP1,Alaves
+Spain,SP1,Albacete
+Spain,SP1,Almeria
+Spain,SP1,Ath Bilbao
+Spain,SP1,Ath Madrid
+Spain,SP1,Barcelona
+Spain,SP1,Betis
+Spain,SP1,Cadiz
+Spain,SP1,Celta
+Spain,SP1,Cordoba
+Spain,SP1,Eibar
+Spain,SP1,Elche
+Spain,SP1,Espanol
+Spain,SP1,Getafe
+Spain,SP1,Girona
+Spain,SP1,Granada
+Spain,SP1,Hercules
+Spain,SP1,Huesca
+Spain,SP1,La Coruna
+Spain,SP1,Las Palmas
+Spain,SP1,Leganes
+Spain,SP1,Levante
+Spain,SP1,Malaga
+Spain,SP1,Mallorca
+Spain,SP1,Murcia
+Spain,SP1,Numancia
+Spain,SP1,Osasuna
+Spain,SP1,Oviedo
+Spain,SP1,Real Madrid
+Spain,SP1,Recreativo
+Spain,SP1,Santander
+Spain,SP1,Sevilla
+Spain,SP1,Sociedad
+Spain,SP1,Sp Gijon
+Spain,SP1,Tenerife
+Spain,SP1,Valencia
+Spain,SP1,Valladolid
+Spain,SP1,Vallecano
+Spain,SP1,Villarreal
+Spain,SP1,Xerez
+Spain,SP1,Zaragoza
+Spain,SP2,Alaves
+Spain,SP2,Albacete
+Spain,SP2,Alcorcon
+Spain,SP2,Alcoyano
+Spain,SP2,Algeciras
+Spain,SP2,Alicante
+Spain,SP2,Almeria
+Spain,SP2,Ath Bilbao B
+Spain,SP2,Ath Madrid
+Spain,SP2,Badajoz
+Spain,SP2,Barcelona B
+Spain,SP2,Betis
+Spain,SP2,Burgos
+Spain,SP2,Cadiz
+Spain,SP2,Cartagena
+Spain,SP2,Castellon
+Spain,SP2,Celta
+Spain,SP2,Ciudad de Murcia
+Spain,SP2,Compostela
+Spain,SP2,Cordoba
+Spain,SP2,Eibar
+Spain,SP2,Elche
+Spain,SP2,Espanol
+Spain,SP2,Extremadura
+Spain,SP2,Extremadura UD
+Spain,SP2,Ferrol
+Spain,SP2,Fuenlabrada
+Spain,SP2,Getafe
+Spain,SP2,Gimnastic
+Spain,SP2,Girona
+Spain,SP2,Granada
+Spain,SP2,Granada 74
+Spain,SP2,Guadalajara
+Spain,SP2,Hercules
+Spain,SP2,Huesca
+Spain,SP2,Jaen
+Spain,SP2,La Coruna
+Spain,SP2,Las Palmas
+Spain,SP2,Leganes
+Spain,SP2,Leonesa
+Spain,SP2,Levante
+Spain,SP2,Llagostera
+Spain,SP2,Lleida
+Spain,SP2,Logrones
+Spain,SP2,Lorca
+Spain,SP2,Lugo
+Spain,SP2,Malaga
+Spain,SP2,Malaga B
+Spain,SP2,Mallorca
+Spain,SP2,Mirandes
+Spain,SP2,Murcia
+Spain,SP2,Numancia
+Spain,SP2,Osasuna
+Spain,SP2,Oviedo
+Spain,SP2,Poli Ejido
+Spain,SP2,Ponferradina
+Spain,SP2,Pontevedra
+Spain,SP2,Rayo Majadahonda
+Spain,SP2,Real Madrid B
+Spain,SP2,Real Union
+Spain,SP2,Recreativo
+Spain,SP2,Reus Deportiu
+Spain,SP2,Sabadell
+Spain,SP2,Salamanca
+Spain,SP2,Santander
+Spain,SP2,Sevilla
+Spain,SP2,Sevilla B
+Spain,SP2,Sociedad
+Spain,SP2,Sp Gijon
+Spain,SP2,Tenerife
+Spain,SP2,Terrassa
+Spain,SP2,U.Las Palmas
+Spain,SP2,UCAM Murcia
+Spain,SP2,Valladolid
+Spain,SP2,Vallecano
+Spain,SP2,Villarreal
+Spain,SP2,Villarreal B
+Spain,SP2,Xerez
+Spain,SP2,Zaragoza
+Turkey,T1,A. Sebatspor
+Turkey,T1,Adanaspor
+Turkey,T1,Akhisar Belediyespor
+Turkey,T1,Alanyaspor
+Turkey,T1,Altay
+Turkey,T1,Ankaragucu
+Turkey,T1,Ankaraspor
+Turkey,T1,Antalyaspor
+Turkey,T1,Balikesirspor
+Turkey,T1,Besiktas
+Turkey,T1,Bucaspor
+Turkey,T1,Bursaspor
+Turkey,T1,Buyuksehyr
+Turkey,T1,Denizlispor
+Turkey,T1,Diyarbakirspor
+Turkey,T1,Elazigspor
+Turkey,T1,Erciyesspor
+Turkey,T1,Erzurum BB
+Turkey,T1,Erzurumspor
+Turkey,T1,Eskisehirspor
+Turkey,T1,Fenerbahce
+Turkey,T1,Galatasaray
+Turkey,T1,Gaziantep
+Turkey,T1,Gaziantepspor
+Turkey,T1,Genclerbirligi
+Turkey,T1,Goztep
+Turkey,T1,Hacettepespor
+Turkey,T1,Hatayspor
+Turkey,T1,Istanbulspor
+Turkey,T1,Karabukspor
+Turkey,T1,Karagumruk
+Turkey,T1,Kasimpasa
+Turkey,T1,Kayserispor
+Turkey,T1,Kocaelispor
+Turkey,T1,Konyaspor
+Turkey,T1,Malatyaspor
+Turkey,T1,Manisaspor
+Turkey,T1,Mersin Idman Yurdu
+Turkey,T1,Oftasspor
+Turkey,T1,Orduspor
+Turkey,T1,Osmanlispor
+Turkey,T1,Rizespor
+Turkey,T1,Sakaryaspor
+Turkey,T1,Samsunspor
+Turkey,T1,Siirt Jet-PA
+Turkey,T1,Sivasspor
+Turkey,T1,Trabzonspor
+Turkey,T1,Yeni Malatyaspor
+Turkey,T1,Yozgatspor

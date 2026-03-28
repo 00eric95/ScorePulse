@@ -1,0 +1,777 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+
+{% block extra_css %}
+    <style>
+        /* Password Generator Modal */
+        .password-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 17, 40, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .password-modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .password-modal-content {
+            background: rgba(28, 43, 75, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 242, 195, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 242, 195, 0.2);
+        }
+        
+        /* Strength Meter */
+        .strength-meter {
+            height: 6px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+        
+        .strength-weak { background: linear-gradient(90deg, #ef4444, #f87171); }
+        .strength-fair { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .strength-good { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .strength-strong { background: linear-gradient(90deg, #10b981, #34d399); }
+        
+        /* Password Criteria */
+        .criteria-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 1rem;
+        }
+        
+        .criteria-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+        
+        .criteria-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+        
+        .criteria-met {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .criteria-unmet {
+            background: rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+        }
+        
+        /* Copy Button */
+        .copy-btn {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .copy-btn:hover {
+            color: #00f2c3;
+        }
+        
+        .copy-btn.copied {
+            color: #10b981;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="min-h-screen flex items-center justify-center py-20 px-4">
+        <div class="glass-card w-full max-w-md p-8 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
+            
+            <!-- Background effects -->
+            <div class="absolute -top-10 -left-10 w-40 h-40 bg-brand-accent/10 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-brand-orange/5 rounded-full blur-3xl"></div>
+
+            <div class="text-center mb-8 relative z-10">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-brand-accent to-blue-600 flex items-center justify-center text-brand-dark font-bold text-2xl shadow-[0_0_20px_rgba(0,242,195,0.4)] animate-pulse-slow">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-white">Join ScorePulse AI</h2>
+                <p class="text-slate-400 mt-2 text-sm">Start predicting with AI-powered insights</p>
+            </div>
+
+            <!-- Google Sign-In Option -->
+            {% if google_oauth_enabled %}
+            <!-- Google Sign-In Button -->
+            <a href="{{ url_for('google_login') }}" 
+               class="w-full mb-6 bg-white hover:bg-gray-100 text-gray-800 font-medium py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 group border border-gray-300 hover:border-gray-400 hover:shadow-lg">
+                <img src="https://www.google.com/favicon.ico" alt="Google" class="w-5 h-5">
+                <span>Sign up with Google</span>
+            </a>
+
+            <!-- Divider (only shown if Google OAuth is enabled) -->
+            <div class="relative mb-6">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-white/10"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-4 bg-brand-card text-slate-400">or sign up with email</span>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Email Registration Form -->
+            <form method="POST" class="space-y-6">
+                {{ form.hidden_tag() }}
+                
+                <!-- Form Errors Display -->
+                {% if form.errors %}
+                    <div class="bg-red-500/10 border border-red-500 text-red-400 p-3 rounded-lg text-sm">
+                        {% for field, errors in form.errors.items() %}
+                            {% for error in errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <!-- Username field -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                        <i class="fas fa-user text-xs"></i>
+                        Username
+                    </label>
+                    {{ form.username(class="w-full glass bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-accent focus:border-transparent outline-none transition placeholder-slate-500 text-sm", placeholder="Choose a username", pattern="^[A-Za-z0-9][A-Za-z0-9 ._-]*$", title="Letters, numbers, spaces, dots, underscores and hyphens only") }}
+                </div>
+
+                <!-- Email field -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                        <i class="fas fa-envelope text-xs"></i>
+                        Email
+                    </label>
+                    {{ form.email(class="w-full glass bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-accent focus:border-transparent outline-none transition placeholder-slate-500 text-sm", placeholder="your.email@example.com") }}
+                </div>
+
+                <!-- Password field with generator -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fas fa-lock text-xs"></i>
+                            Password
+                        </label>
+                        <button type="button" id="generate-password-btn" class="text-xs text-brand-accent hover:text-white transition flex items-center gap-1">
+                            <i class="fas fa-magic"></i>
+                            Generate Secure Password
+                        </button>
+                    </div>
+                    
+                    <div class="relative">
+                        {{ form.password(class="w-full glass bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-accent focus:border-transparent outline-none transition placeholder-slate-500 text-sm pr-10", placeholder="Create a strong password", id="password") }}
+                        <button type="button" onclick="togglePassword('password')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white">
+                            <i class="fas fa-eye" id="toggleIcon1"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Password Strength Meter -->
+                    <div class="mt-3">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-xs text-slate-400">Password Strength:</span>
+                            <span class="text-xs font-medium" id="strength-text">None</span>
+                        </div>
+                        <div class="strength-meter">
+                            <div class="strength-bar" id="strength-bar"></div>
+                        </div>
+                        
+                        <!-- Password Criteria -->
+                        <div class="criteria-list mt-3">
+                            <div class="criteria-item">
+                                <div class="criteria-icon criteria-unmet" id="criteria-length">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                                <span class="text-slate-400">8+ characters</span>
+                            </div>
+                            <div class="criteria-item">
+                                <div class="criteria-icon criteria-unmet" id="criteria-uppercase">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                                <span class="text-slate-400">Uppercase letter</span>
+                            </div>
+                            <div class="criteria-item">
+                                <div class="criteria-icon criteria-unmet" id="criteria-lowercase">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                                <span class="text-slate-400">Lowercase letter</span>
+                            </div>
+                            <div class="criteria-item">
+                                <div class="criteria-icon criteria-unmet" id="criteria-number">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                                <span class="text-slate-400">Number (0-9)</span>
+                            </div>
+                            <div class="criteria-item">
+                                <div class="criteria-icon criteria-unmet" id="criteria-special">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                                <span class="text-slate-400">Special character</span>
+                            </div>
+                            <div class="criteria-item">
+                                <div class="criteria-icon criteria-unmet" id="criteria-length12">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                                <span class="text-slate-400">12+ characters</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                        <i class="fas fa-lock text-xs"></i>
+                        Confirm Password
+                    </label>
+                    <div class="relative">
+                        {{ form.confirm_password(class="w-full glass bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-accent focus:border-transparent outline-none transition placeholder-slate-500 text-sm pr-10", placeholder="Re-enter your password", id="confirmPassword") }}
+                        <button type="button" onclick="togglePassword('confirmPassword')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white">
+                            <i class="fas fa-eye" id="toggleIcon2"></i>
+                        </button>
+                    </div>
+                    <div class="mt-2" id="password-match">
+                        <!-- Match indicator will appear here -->
+                    </div>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="flex items-start gap-3">
+                    {{ form.terms(class="w-4 h-4 mt-1") }}
+                    <label class="text-xs text-slate-400">
+                        I agree to the Terms of Service and Privacy Policy
+                    </label>
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-brand-accent to-emerald-400 hover:from-emerald-400 hover:to-brand-accent text-brand-dark font-bold py-3.5 rounded-xl transition-all duration-300 shadow-lg shadow-brand-accent/20 hover:shadow-brand-accent/30 hover:-translate-y-0.5 group">
+                    <span class="flex items-center justify-center gap-2">
+                        <i class="fas fa-user-plus group-hover:rotate-12 transition-transform"></i>
+                        Create Free Account
+                    </span>
+                </button>
+            </form>
+
+            <!-- Password Generator Modal -->
+            <div class="password-modal" id="passwordModal">
+                <div class="password-modal-content">
+                    <div class="text-center mb-6">
+                        <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-brand-accent to-blue-600 flex items-center justify-center">
+                            <i class="fas fa-key text-brand-dark"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Generate Secure Password</h3>
+                        <p class="text-slate-400 text-sm">ScorePulse AI can generate a strong, secure password for you.</p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm text-slate-400 mb-2">Your New Password:</label>
+                        <div class="relative">
+                            <input type="text" id="generatedPassword" 
+                                   class="w-full glass bg-white/5 border border-brand-accent/30 text-white rounded-xl px-4 py-3 pr-24 text-center font-mono text-lg tracking-wider"
+                                   readonly>
+                            <button id="copyPassword" class="copy-btn">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-center gap-4 mt-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-white" id="passwordLength">16</div>
+                                <div class="text-xs text-slate-400">Length</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold" id="passwordStrengthColor">Strong</div>
+                                <div class="text-xs text-slate-400">Strength</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <button id="regeneratePassword" class="flex-1 glass border border-white/10 text-white py-3 rounded-xl hover:bg-white/5 transition">
+                            <i class="fas fa-redo mr-2"></i> Regenerate
+                        </button>
+                        <button id="usePassword" class="flex-1 bg-gradient-to-r from-brand-accent to-blue-600 text-brand-dark font-bold py-3 rounded-xl hover:shadow-lg transition">
+                            <i class="fas fa-check mr-2"></i> Use This Password
+                        </button>
+                    </div>
+                    
+                    <div class="mt-6 pt-6 border-t border-white/10">
+                        <div class="flex items-center justify-center gap-2 text-slate-400 text-sm">
+                            <i class="fas fa-shield-alt text-green-500"></i>
+                            <span>This password will be securely hashed and stored</span>
+                        </div>
+                    </div>
+                    
+                    <button id="closeModal" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Already have account -->
+            <div class="mt-8 text-center">
+                <p class="text-slate-500 text-sm">
+                    Already have an account? 
+                    <a href="{{ url_for('login') }}" class="text-brand-accent hover:text-white font-medium transition ml-1 group">
+                        <span class="group-hover:underline">Sign in here</span>
+                        <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password Generator System with Throttling
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateBtn = document.getElementById('generate-password-btn');
+            const passwordModal = document.getElementById('passwordModal');
+            const closeModal = document.getElementById('closeModal');
+            const regenerateBtn = document.getElementById('regeneratePassword');
+            const usePasswordBtn = document.getElementById('usePassword');
+            const copyPasswordBtn = document.getElementById('copyPassword');
+            const generatedPasswordInput = document.getElementById('generatedPassword');
+            const passwordLengthSpan = document.getElementById('passwordLength');
+            const passwordStrengthSpan = document.getElementById('passwordStrengthColor');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            
+            // Throttling variables
+            let passwordCheckTimeout = null;
+            let lastPasswordCheck = 0;
+            const THROTTLE_DELAY = 500; // 500ms delay between server checks
+            
+            let currentGeneratedPassword = '';
+            
+            // Open password generator modal
+            if (generateBtn) {
+                generateBtn.addEventListener('click', function() {
+                    generateNewPassword();
+                    passwordModal.classList.add('active');
+                });
+            }
+            
+            // Close modal
+            if (closeModal) {
+                closeModal.addEventListener('click', function() {
+                    passwordModal.classList.remove('active');
+                });
+            }
+            
+            // Regenerate password
+            if (regenerateBtn) {
+                regenerateBtn.addEventListener('click', generateNewPassword);
+            }
+            
+            // Use generated password
+            if (usePasswordBtn) {
+                usePasswordBtn.addEventListener('click', function() {
+                    if (currentGeneratedPassword) {
+                        if (passwordInput) {
+                            passwordInput.value = currentGeneratedPassword;
+                        }
+                        if (confirmPasswordInput) {
+                            confirmPasswordInput.value = currentGeneratedPassword;
+                        }
+                        if (passwordInput) {
+                            updatePasswordStrength(currentGeneratedPassword);
+                        }
+                        updatePasswordMatch();
+                        passwordModal.classList.remove('active');
+                        
+                        // Show success message
+                        showToast('Password applied successfully!', 'success');
+                    }
+                });
+            }
+            
+            // Copy password to clipboard
+            if (copyPasswordBtn) {
+                copyPasswordBtn.addEventListener('click', function() {
+                    if (currentGeneratedPassword) {
+                        navigator.clipboard.writeText(currentGeneratedPassword).then(() => {
+                            const icon = copyPasswordBtn.querySelector('i');
+                            icon.className = 'fas fa-check';
+                            copyPasswordBtn.classList.add('copied');
+                            
+                            setTimeout(() => {
+                                icon.className = 'fas fa-copy';
+                                copyPasswordBtn.classList.remove('copied');
+                            }, 2000);
+                        });
+                    }
+                });
+            }
+            
+            // THROTTLED Real-time password strength checking
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function() {
+                    const password = this.value;
+                    
+                    // Immediate local feedback
+                    updateLocalCriteria(password);
+                    
+                    // Throttled server check
+                    clearTimeout(passwordCheckTimeout);
+                    
+                    // Only check if password is not empty
+                    if (password.length > 0) {
+                        const now = Date.now();
+                        if (now - lastPasswordCheck > THROTTLE_DELAY) {
+                            // Check immediately if enough time has passed
+                            updatePasswordStrength(password);
+                            lastPasswordCheck = now;
+                        } else {
+                            // Schedule check after delay
+                            passwordCheckTimeout = setTimeout(() => {
+                                updatePasswordStrength(password);
+                                lastPasswordCheck = Date.now();
+                            }, THROTTLE_DELAY);
+                        }
+                    } else {
+                        // Clear strength indicators if empty
+                        updateStrengthUI(0, 'None', []);
+                        resetCriteria();
+                    }
+                    
+                    updatePasswordMatch();
+                });
+            }
+            
+            // Throttled confirm password check
+            if (confirmPasswordInput) {
+                confirmPasswordInput.addEventListener('input', function() {
+                    clearTimeout(passwordCheckTimeout);
+                    passwordCheckTimeout = setTimeout(() => {
+                        updatePasswordMatch();
+                    }, 300);
+                });
+            }
+            
+            // Generate new password
+            function generateNewPassword() {
+                fetch('/generate-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        currentGeneratedPassword = data.password;
+                        generatedPasswordInput.value = currentGeneratedPassword;
+                        passwordLengthSpan.textContent = data.length;
+                        
+                        // Update strength display
+                        const strengthMap = {
+                            'very_strong': { text: 'Very Strong', color: '#10b981' },
+                            'strong': { text: 'Strong', color: '#3b82f6' },
+                            'good': { text: 'Good', color: '#f59e0b' }
+                        };
+                        
+                        const strength = strengthMap[data.strength] || { text: 'Strong', color: '#3b82f6' };
+                        passwordStrengthSpan.textContent = strength.text;
+                        passwordStrengthSpan.style.color = strength.color;
+                        
+                        // Check password strength locally too
+                        updateLocalCriteria(currentGeneratedPassword);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error generating password:', error);
+                    // Fallback to local generation
+                    const fallbackPassword = generatePasswordLocally();
+                    currentGeneratedPassword = fallbackPassword;
+                    generatedPasswordInput.value = currentGeneratedPassword;
+                    passwordLengthSpan.textContent = fallbackPassword.length;
+                    updateLocalCriteria(fallbackPassword);
+                });
+            }
+            
+            // Local password generation fallback
+            function generatePasswordLocally() {
+                const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+                const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                const numbers = '0123456789';
+                const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+                const allChars = lowercase + uppercase + numbers + symbols;
+                
+                let password = '';
+                
+                // Ensure at least one of each type
+                password += lowercase[Math.floor(Math.random() * lowercase.length)];
+                password += uppercase[Math.floor(Math.random() * uppercase.length)];
+                password += numbers[Math.floor(Math.random() * numbers.length)];
+                password += symbols[Math.floor(Math.random() * symbols.length)];
+                
+                // Add remaining characters
+                for (let i = 0; i < 12; i++) {
+                    password += allChars[Math.floor(Math.random() * allChars.length)];
+                }
+                
+                // Shuffle the password
+                return password.split('').sort(() => Math.random() - 0.5).join('');
+            }
+            
+            // Check password strength (server-side) with throttling
+            function updatePasswordStrength(password) {
+                if (!password) {
+                    updateStrengthUI(0, 'None', []);
+                    resetCriteria();
+                    return;
+                }
+                
+                // Abort previous request if still pending
+                if (window.passwordStrengthAbortController) {
+                    window.passwordStrengthAbortController.abort();
+                }
+                
+                // Create new AbortController
+                window.passwordStrengthAbortController = new AbortController();
+                
+                fetch('/check-password-strength', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ password: password }),
+                    signal: window.passwordStrengthAbortController.signal
+                })
+                .then(response => response.json())
+                .then(data => {
+                    updateStrengthUI(data.score, data.strength, data.feedback);
+                    updateServerCriteria(password);
+                })
+                .catch(error => {
+                    if (error.name !== 'AbortError') {
+                        console.error('Error checking password strength:', error);
+                        // Fallback to local checking
+                        const localResult = checkPasswordStrengthLocally(password);
+                        updateStrengthUI(localResult.score, localResult.strength, localResult.feedback);
+                        updateLocalCriteria(password);
+                    }
+                });
+            }
+            
+            // Local password strength checking fallback
+            function checkPasswordStrengthLocally(password) {
+                let score = 0;
+                const feedback = [];
+                
+                // Check criteria
+                const hasLower = /[a-z]/.test(password);
+                const hasUpper = /[A-Z]/.test(password);
+                const hasNumber = /[0-9]/.test(password);
+                const hasSpecial = /[^A-Za-z0-9]/.test(password);
+                const length = password.length;
+                
+                // Calculate score
+                if (length >= 8) score += 1;
+                if (length >= 12) score += 1;
+                if (hasLower) score += 1;
+                if (hasUpper) score += 1;
+                if (hasNumber) score += 1;
+                if (hasSpecial) score += 1;
+                
+                // Determine strength
+                let strength;
+                if (score <= 2) strength = 'weak';
+                else if (score <= 4) strength = 'fair';
+                else if (score <= 6) strength = 'good';
+                else strength = 'strong';
+                
+                return { score, strength, feedback };
+            }
+            
+            // Update strength UI
+            function updateStrengthUI(score, strength, feedback) {
+                const strengthBar = document.getElementById('strength-bar');
+                const strengthText = document.getElementById('strength-text');
+                const maxScore = 7;
+                
+                if (!strengthBar || !strengthText) return;
+                
+                const percentage = (score / maxScore) * 100;
+                strengthBar.style.width = percentage + '%';
+                
+                // Remove all classes
+                strengthBar.className = 'strength-bar';
+                
+                // Add appropriate class
+                switch(strength) {
+                    case 'weak':
+                        strengthBar.classList.add('strength-weak');
+                        strengthText.textContent = 'Weak';
+                        strengthText.className = 'text-xs font-medium text-red-400';
+                        break;
+                    case 'fair':
+                        strengthBar.classList.add('strength-fair');
+                        strengthText.textContent = 'Fair';
+                        strengthText.className = 'text-xs font-medium text-yellow-400';
+                        break;
+                    case 'good':
+                        strengthBar.classList.add('strength-good');
+                        strengthText.textContent = 'Good';
+                        strengthText.className = 'text-xs font-medium text-blue-400';
+                        break;
+                    case 'strong':
+                        strengthBar.classList.add('strength-strong');
+                        strengthText.textContent = 'Strong';
+                        strengthText.className = 'text-xs font-medium text-green-400';
+                        break;
+                    default:
+                        strengthBar.style.background = 'rgba(255, 255, 255, 0.1)';
+                        strengthText.textContent = 'None';
+                        strengthText.className = 'text-xs font-medium text-slate-400';
+                }
+            }
+            
+            // Update criteria checkmarks (local immediate feedback)
+            function updateLocalCriteria(password) {
+                const criteria = {
+                    'length': password.length >= 8,
+                    'length12': password.length >= 12,
+                    'uppercase': /[A-Z]/.test(password),
+                    'lowercase': /[a-z]/.test(password),
+                    'number': /[0-9]/.test(password),
+                    'special': /[^A-Za-z0-9]/.test(password)
+                };
+                
+                for (const [key, met] of Object.entries(criteria)) {
+                    const icon = document.getElementById(`criteria-${key}`);
+                    if (icon) {
+                        if (met) {
+                            icon.className = 'criteria-icon criteria-met';
+                            icon.innerHTML = '<i class="fas fa-check"></i>';
+                        } else {
+                            icon.className = 'criteria-icon criteria-unmet';
+                            icon.innerHTML = '<i class="fas fa-times"></i>';
+                        }
+                    }
+                }
+            }
+            
+            // Update criteria with server feedback
+            function updateServerCriteria(password) {
+                // Server may have more accurate criteria checking
+                updateLocalCriteria(password);
+            }
+            
+            // Reset criteria to initial state
+            function resetCriteria() {
+                const criteriaIds = ['length', 'length12', 'uppercase', 'lowercase', 'number', 'special'];
+                criteriaIds.forEach(id => {
+                    const icon = document.getElementById(`criteria-${id}`);
+                    if (icon) {
+                        icon.className = 'criteria-icon criteria-unmet';
+                        icon.innerHTML = '<i class="fas fa-times"></i>';
+                    }
+                });
+            }
+            
+            // Check if passwords match
+            function updatePasswordMatch() {
+                const matchDiv = document.getElementById('password-match');
+                const password = passwordInput ? passwordInput.value : '';
+                const confirm = confirmPasswordInput ? confirmPasswordInput.value : '';
+                
+                if (!matchDiv || !confirm) {
+                    matchDiv.innerHTML = '';
+                    return;
+                }
+                
+                if (password === confirm) {
+                    matchDiv.innerHTML = `
+                        <div class="flex items-center gap-2 text-green-400 text-xs">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Passwords match</span>
+                        </div>
+                    `;
+                } else {
+                    matchDiv.innerHTML = `
+                        <div class="flex items-center gap-2 text-red-400 text-xs">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Passwords don't match</span>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Toggle password visibility
+            window.togglePassword = function(fieldId) {
+                const passwordInput = document.getElementById(fieldId);
+                const toggleIcon = document.getElementById(fieldId === 'password' ? 'toggleIcon1' : 'toggleIcon2');
+                
+                if (!passwordInput || !toggleIcon) return;
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    toggleIcon.className = 'fas fa-eye-slash';
+                } else {
+                    passwordInput.type = 'password';
+                    toggleIcon.className = 'fas fa-eye';
+                }
+            };
+            
+            // Show toast notification
+            function showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = `fixed top-4 right-4 glass px-4 py-3 rounded-lg flex items-center gap-3 animate-slide-in z-50 ${
+                    type === 'success' ? 'border-l-4 border-green-500' :
+                    type === 'warning' ? 'border-l-4 border-yellow-500' :
+                    'border-l-4 border-blue-500'
+                }`;
+                toast.innerHTML = `
+                    <i class="fas ${
+                        type === 'success' ? 'fa-check-circle text-green-500' :
+                        type === 'warning' ? 'fa-exclamation-triangle text-yellow-500' :
+                        'fa-info-circle text-blue-500'
+                    }"></i>
+                    <span>${message}</span>
+                `;
+                document.body.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+        });
+    </script>
+{% endblock %}

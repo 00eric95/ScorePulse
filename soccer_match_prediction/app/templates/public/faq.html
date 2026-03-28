@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}Frequently Asked Questions | ScorePulse AI{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Frequently Asked Questions</h1>
+        <p class="text-slate-300">Find answers to common questions about ScorePulse AI</p>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="glass-card p-6 rounded-2xl border border-slate-800 mb-8">
+        <div class="relative">
+            <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" 
+                   id="faqSearch" 
+                   placeholder="Search for questions..."
+                   class="w-full pl-12 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/20">
+        </div>
+    </div>
+
+    <!-- FAQ Categories -->
+    <div class="mb-8">
+        <div class="flex flex-wrap gap-2 justify-center">
+            <button class="faq-category px-4 py-2 bg-brand-accent text-white rounded-lg font-medium" data-category="all">All Questions</button>
+            <button class="faq-category px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-lg transition" data-category="general">General</button>
+            <button class="faq-category px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-lg transition" data-category="predictions">Predictions</button>
+            <button class="faq-category px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-lg transition" data-category="account">Account & Billing</button>
+            <button class="faq-category px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-lg transition" data-category="technical">Technical</button>
+        </div>
+    </div>
+
+    <!-- FAQ List -->
+    <div class="space-y-4">
+        {% for faq in faqs %}
+        <div class="faq-item glass-card border border-slate-800 rounded-2xl overflow-hidden hover:border-slate-700 transition" 
+             data-categories="{% if loop.index <= 2 %}general{% elif loop.index <= 4 %}predictions{% elif loop.index <= 6 %}account{% else %}technical{% endif %}">
+            <button class="faq-question w-full text-left p-6 flex justify-between items-center focus:outline-none">
+                <h3 class="text-lg font-semibold text-white pr-8">{{ faq.question }}</h3>
+                <svg class="faq-icon w-6 h-6 text-slate-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+            <div class="faq-answer hidden px-6 pb-6">
+                <div class="pt-4 border-t border-slate-800">
+                    <p class="text-slate-300">{{ faq.answer }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Still Have Questions? -->
+    <div class="mt-12 glass-card p-8 rounded-2xl border border-slate-800 text-center">
+        <h3 class="text-2xl font-bold text-white mb-4">Still have questions?</h3>
+        <p class="text-slate-300 mb-6 max-w-2xl mx-auto">
+            Can't find the answer you're looking for? Our support team is here to help.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{{ url_for('contact') }}" class="bg-gradient-to-r from-brand-accent to-blue-500 hover:from-brand-accent/90 hover:to-blue-600 text-white font-semibold px-6 py-3 rounded-xl transition">
+                Contact Support
+            </a>
+            <a href="mailto:support@scorepulse.ai" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-6 py-3 rounded-xl border border-slate-700 transition">
+                Email Us
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // FAQ Toggle Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const faqItems = document.querySelectorAll('.faq-item');
+        const searchInput = document.getElementById('faqSearch');
+        const categoryButtons = document.querySelectorAll('.faq-category');
+        
+        // Toggle FAQ answers
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            const answer = item.querySelector('.faq-answer');
+            const icon = item.querySelector('.faq-icon');
+            
+            question.addEventListener('click', () => {
+                const isOpen = answer.classList.contains('hidden');
+                
+                // Close all other FAQs
+                faqItems.forEach(otherItem => {
+                    if (otherItem !== item) {
+                        otherItem.querySelector('.faq-answer').classList.add('hidden');
+                        otherItem.querySelector('.faq-icon').classList.remove('rotate-180');
+                    }
+                });
+                
+                // Toggle current FAQ
+                answer.classList.toggle('hidden');
+                icon.classList.toggle('rotate-180', !isOpen);
+                icon.classList.toggle('rotate-180', isOpen);
+            });
+        });
+        
+        // FAQ Search
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            faqItems.forEach(item => {
+                const question = item.querySelector('h3').textContent.toLowerCase();
+                const answer = item.querySelector('.faq-answer p').textContent.toLowerCase();
+                
+                if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+        
+        // FAQ Category Filter
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const category = this.dataset.category;
+                
+                // Update active button
+                categoryButtons.forEach(btn => {
+                    if (btn.dataset.category === category) {
+                        btn.classList.add('bg-brand-accent', 'text-white');
+                        btn.classList.remove('bg-slate-800', 'text-slate-300', 'hover:bg-slate-700');
+                    } else {
+                        btn.classList.remove('bg-brand-accent', 'text-white');
+                        btn.classList.add('bg-slate-800', 'text-slate-300', 'hover:bg-slate-700');
+                    }
+                });
+                
+                // Filter FAQs
+                faqItems.forEach(item => {
+                    if (category === 'all' || item.dataset.categories === category) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                
+                // Clear search
+                searchInput.value = '';
+            });
+        });
+    });
+</script>
+
+<style>
+    .rotate-180 {
+        transform: rotate(180deg);
+    }
+    
+    .faq-item {
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock %}

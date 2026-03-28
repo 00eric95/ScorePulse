@@ -1,0 +1,389 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Feedback{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-slate-950 py-12 px-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-10">
+            <div class="inline-block px-6 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-500/20 mb-4">
+                <i class="fas fa-comment-dots text-blue-400 mr-2"></i>
+                <span class="text-blue-400 font-bold uppercase tracking-widest">Help Us Improve</span>
+            </div>
+            <h1 class="text-4xl font-bold text-white mb-4">Share Your Feedback</h1>
+            <p class="text-slate-400 text-lg">Help us improve ScorePulse AI with your suggestions and bug reports</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Info Panel -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Feedback Types -->
+                <div class="glass-card bg-slate-900/50 rounded-2xl p-6 border border-slate-700">
+                    <h3 class="text-lg font-bold text-white mb-4">Feedback Types</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-3 p-3 bg-blue-500/10 rounded-lg">
+                            <i class="fas fa-lightbulb text-blue-400 mt-1"></i>
+                            <div>
+                                <div class="text-white font-medium">Feature Request</div>
+                                <div class="text-sm text-slate-400">Suggest new features or improvements</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3 bg-red-500/10 rounded-lg">
+                            <i class="fas fa-bug text-red-400 mt-1"></i>
+                            <div>
+                                <div class="text-white font-medium">Bug Report</div>
+                                <div class="text-sm text-slate-400">Report issues or unexpected behavior</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3 bg-green-500/10 rounded-lg">
+                            <i class="fas fa-chart-line text-green-400 mt-1"></i>
+                            <div>
+                                <div class="text-white font-medium">Performance</div>
+                                <div class="text-sm text-slate-400">Share thoughts on AI accuracy</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3 bg-purple-500/10 rounded-lg">
+                            <i class="fas fa-cog text-purple-400 mt=1"></i>
+                            <div>
+                                <div class="text-white font-medium">General Feedback</div>
+                                <div class="text-sm text-slate-400">Any other comments or suggestions</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Response Time -->
+                <div class="glass-card bg-slate-900/50 rounded-2xl p-6 border border-slate-700">
+                    <h3 class="text-lg font-bold text-white mb-4">What Happens Next?</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                                <span class="text-blue-400 text-sm font-bold">1</span>
+                            </div>
+                            <div>
+                                <div class="text-white text-sm">Review by our team</div>
+                                <div class="text-slate-500 text-xs">Within 48 hours</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                                <span class="text-green-400 text-sm font-bold">2</span>
+                            </div>
+                            <div>
+                                <div class="text-white text-sm">Status update</div>
+                                <div class="text-slate-500 text-xs">Via email or notifications</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+                                <span class="text-purple-400 text-sm font-bold">3</span>
+                            </div>
+                            <div>
+                                <div class="text-white text-sm">Implementation</div>
+                                <div class="text-slate-500 text-xs">If approved, in future updates</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Common Issues -->
+                <div class="glass-card bg-slate-900/50 rounded-2xl p-6 border border-slate-700">
+                    <h3 class="text-lg font-bold text-white mb-4">Common Issues</h3>
+                    <div class="space-y-3">
+                        <a href="#" class="flex items-center justify-between text-sm p-2 hover:bg-slate-800/50 rounded-lg">
+                            <span class="text-slate-300">Prediction accuracy concerns</span>
+                            <i class="fas fa-chevron-right text-slate-500"></i>
+                        </a>
+                        <a href="#" class="flex items-center justify-between text-sm p-2 hover:bg-slate-800/50 rounded-lg">
+                            <span class="text-slate-300">Payment or subscription issues</span>
+                            <i class="fas fa-chevron-right text-slate-500"></i>
+                        </a>
+                        <a href="#" class="flex items-center justify-between text-sm p-2 hover:bg-slate-800/50 rounded-lg">
+                            <span class="text-slate-300">Mobile app problems</span>
+                            <i class="fas fa-chevron-right text-slate-500"></i>
+                        </a>
+                        <a href="#" class="flex items-center justify-between text-sm p-2 hover:bg-slate-800/50 rounded-lg">
+                            <span class="text-slate-300">Data loading errors</span>
+                            <i class="fas fa-chevron-right text-slate-500"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Form -->
+            <div class="lg:col-span-2">
+                <div class="glass-card bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 border border-slate-700">
+                    <form method="POST" class="space-y-8">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Feedback Type -->
+                        <div>
+                            <label class="block text-sm font-bold text-slate-300 mb-4">What type of feedback is this?</label>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                {% for value, label in form.feedback_type.choices %}
+                                <label class="relative">
+                                    <input type="radio" name="feedback_type" value="{{ value }}" 
+                                           class="sr-only peer" {{ 'checked' if loop.first }}>
+                                    <div class="p-4 text-center border-2 border-slate-700 rounded-xl peer-checked:border-blue-500 cursor-pointer transition">
+                                        {% if value == 'feature' %}
+                                        <i class="fas fa-lightbulb text-2xl text-blue-400 mb-2"></i>
+                                        {% elif value == 'bug' %}
+                                        <i class="fas fa-bug text-2xl text-red-400 mb-2"></i>
+                                        {% elif value == 'performance' %}
+                                        <i class="fas fa-chart-line text-2xl text-green-400 mb-2"></i>
+                                        {% else %}
+                                        <i class="fas fa-comment text-2xl text-purple-400 mb-2"></i>
+                                        {% endif %}
+                                        <div class="text-white font-medium">{{ label }}</div>
+                                    </div>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Subject -->
+                        <div>
+                            <label class="block text-sm font-bold text-slate-300 mb-2">Subject</label>
+                            {{ form.subject(class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none", placeholder="Brief summary of your feedback") }}
+                        </div>
+
+                        <!-- Message -->
+                        <div>
+                            <label class="block text-sm font-bold text-slate-300 mb-2">Detailed Description</label>
+                            {{ form.message(class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none min-h-[200px]", placeholder="Please provide as much detail as possible...") }}
+                            <div class="flex justify-between text-xs text-slate-500 mt-2">
+                                <span>Be specific and include steps to reproduce if reporting a bug</span>
+                                <span id="char-count">0/2000</span>
+                            </div>
+                        </div>
+
+                        <!-- Priority -->
+                        <div>
+                            <label class="block text-sm font-bold text-slate-300 mb-4">Priority Level</label>
+                            <div class="grid grid-cols-3 gap-3">
+                                {% for value, label in form.priority.choices %}
+                                <label class="relative">
+                                    <input type="radio" name="priority" value="{{ value }}" 
+                                           class="sr-only peer" {{ 'checked' if loop.first }}>
+                                    <div class="p-4 text-center border-2 border-slate-700 rounded-xl peer-checked:border-blue-500 cursor-pointer transition">
+                                        {% if value == 'low' %}
+                                        <div class="text-green-400 font-bold text-lg">{{ label }}</div>
+                                        <div class="text-xs text-slate-400">Minor issue</div>
+                                        {% elif value == 'medium' %}
+                                        <div class="text-yellow-400 font-bold text-lg">{{ label }}</div>
+                                        <div class="text-xs text-slate-400">Important feedback</div>
+                                        {% else %}
+                                        <div class="text-red-400 font-bold text-lg">{{ label }}</div>
+                                        <div class="text-xs text-slate-400">Critical problem</div>
+                                        {% endif %}
+                                    </div>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Attachments -->
+                        <div>
+                            <label class="block text-sm font-bold text-slate-300 mb-2">Attachments (Optional)</label>
+                            <div class="border-2 border-dashed border-slate-700 rounded-xl p-8 text-center hover:border-blue-500/50 transition">
+                                <i class="fas fa-cloud-upload-alt text-3xl text-slate-600 mb-4"></i>
+                                <div class="text-white font-medium mb-2">Drop files here or click to upload</div>
+                                <div class="text-sm text-slate-400 mb-4">Screenshots, logs, or other relevant files (max 10MB each)</div>
+                                <input type="file" id="file-upload" class="hidden" multiple>
+                                <button type="button" onclick="document.getElementById('file-upload').click()" 
+                                        class="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg">
+                                    Choose Files
+                                </button>
+                            </div>
+                            <div id="file-list" class="mt-4 space-y-2"></div>
+                        </div>
+
+                        <!-- Email Notification -->
+                        <div class="flex items-center gap-3">
+                            {{ form.email_notification(class="w-5 h-5 text-blue-500 bg-slate-900 rounded") }}
+                            <label class="text-slate-300">
+                                Send me email updates about this feedback
+                            </label>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="pt-6">
+                            <button type="submit" class="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-lg rounded-xl transition transform hover:-translate-y-1">
+                                <i class="fas fa-paper-plane mr-2"></i>
+                                Submit Feedback
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Recent Feedback -->
+                {% if recent_feedback %}
+                <div class="mt-8">
+                    <h3 class="text-xl font-bold text-white mb-4">Your Recent Feedback</h3>
+                    <div class="space-y-4">
+                        {% for fb in recent_feedback %}
+                        <div class="glass-card bg-slate-900/50 rounded-2xl p-6 border border-slate-700">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <div class="text-white font-bold">{{ fb.subject }}</div>
+                                    <div class="text-slate-400 text-sm">{{ fb.created_at|relative_time }}</div>
+                                </div>
+                                <span class="px-3 py-1 rounded-full text-xs font-bold {{ 'bg-blue-500/20 text-blue-400' if fb.feedback_type == 'feature' else 'bg-red-500/20 text-red-400' if fb.feedback_type == 'bug' else 'bg-green-500/20 text-green-400' }}">
+                                    {{ fb.feedback_type|title }}
+                                </span>
+                            </div>
+                            <p class="text-slate-300 text-sm mb-4 line-clamp-2">{{ fb.message[:150] }}...</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-slate-500">
+                                    Status: <span class="{{ 'text-green-400' if fb.status == 'resolved' else 'text-yellow-400' if fb.status == 'in_progress' else 'text-slate-400' }}">
+                                        {{ fb.status|title }}
+                                    </span>
+                                </span>
+                                <button onclick="viewFeedback({{ fb.id }})" class="text-sm text-blue-400 hover:text-blue-300">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Character count for message
+    const messageInput = document.querySelector('textarea[name="message"]');
+    const charCount = document.getElementById('char-count');
+    
+    if (messageInput) {
+        messageInput.addEventListener('input', function() {
+            charCount.textContent = `${this.value.length}/2000`;
+            
+            if (this.value.length > 1800) {
+                charCount.classList.add('text-red-400');
+            } else if (this.value.length > 1500) {
+                charCount.classList.add('text-yellow-400');
+            } else {
+                charCount.classList.remove('text-red-400', 'text-yellow-400');
+                charCount.classList.add('text-slate-500');
+            }
+        });
+    }
+    
+    // File upload handling
+    const fileInput = document.getElementById('file-upload');
+    const fileList = document.getElementById('file-list');
+    
+    if (fileInput) {
+        fileInput.addEventListener('change', function() {
+            fileList.innerHTML = '';
+            
+            Array.from(this.files).forEach((file, index) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between p-3 bg-slate-800/50 rounded-lg';
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-file text-slate-400"></i>
+                        <div>
+                            <div class="text-white text-sm">${file.name}</div>
+                            <div class="text-slate-500 text-xs">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="removeFile(${index})" class="text-red-400 hover:text-red-300">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                fileList.appendChild(div);
+            });
+        });
+    }
+    
+    function removeFile(index) {
+        const dt = new DataTransfer();
+        const files = Array.from(fileInput.files);
+        files.splice(index, 1);
+        
+        files.forEach(file => dt.items.add(file));
+        fileInput.files = dt.files;
+        
+        // Update file list display
+        fileList.innerHTML = '';
+        Array.from(fileInput.files).forEach((file, idx) => {
+            const div = document.createElement('div');
+            div.className = 'flex items-center justify-between p-3 bg-slate-800/50 rounded-lg';
+            div.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-file text-slate-400"></i>
+                    <div>
+                        <div class="text-white text-sm">${file.name}</div>
+                        <div class="text-slate-500 text-xs">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                    </div>
+                </div>
+                <button type="button" onclick="removeFile(${idx})" class="text-red-400 hover:text-red-300">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            fileList.appendChild(div);
+        });
+    }
+    
+    // View feedback details
+    function viewFeedback(feedbackId) {
+        window.location.href = `/feedback/${feedbackId}`;
+    }
+    
+    // Form submission handling
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const message = document.querySelector('textarea[name="message"]').value;
+            if (message.length < 10) {
+                e.preventDefault();
+                alert('Please provide a more detailed description (at least 10 characters).');
+                return;
+            }
+            
+            // Show loading state
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Submitting...';
+            submitButton.disabled = true;
+        });
+    }
+</script>
+
+<style>
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    /* Custom scrollbar for textarea */
+    textarea::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    textarea::-webkit-scrollbar-track {
+        background: rgba(30, 41, 59, 0.5);
+        border-radius: 4px;
+    }
+    
+    textarea::-webkit-scrollbar-thumb {
+        background: #3b82f6;
+        border-radius: 4px;
+    }
+    
+    /* File upload hover effect */
+    [type="file"] + div {
+        transition: all 0.3s ease;
+    }
+    
+    [type="file"]:focus + div {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+</style>
+{% endblock %}

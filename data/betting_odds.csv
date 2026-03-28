@@ -1,0 +1,328 @@
+match_id,home_team,away_team,home_odds,draw_odds,away_odds,league,bookmaker,timestamp
+1,Melbourne City FC,Brisbane Roar FC,3.06,4.45,1.45,Africa Cup of Nations,Bet365,2026-01-20 05:23:07.946808
+2,Melbourne City FC,Brisbane Roar FC,1.85,3.5,4.45,A-League,BetPawa,2026-01-19 22:54:04.824447
+3,Pisa SC,Como 1907,5.77,4.16,4.29,Africa Cup of Nations,Bet365,2026-01-19 13:20:11.921614
+4,Pisa SC,Como 1907,5.5,3.7,1.8,Serie A,BetPawa,2026-01-19 22:54:04.827671
+5,Algeria,Congo DR,4.74,4.41,2.78,A-League,Bet365,2026-01-19 11:03:52.691209
+6,Algeria,Congo DR,2.08,3.25,4.5,Africa Cup of Nations,BetPawa,2026-01-19 22:54:04.828669
+7,US Lecce,AS Roma,4.11,4.34,3.69,Premier League,Bet365,2026-01-19 19:20:02.492748
+8,US Lecce,AS Roma,5.5,3.65,1.81,Serie A,BetPawa,2026-01-19 22:54:04.829667
+9,Ivory Coast,Burkina Faso,2.03,3.9,5.57,Africa Cup of Nations,BetPawa,2026-01-20 07:14:33.973495
+10,Sassuolo Calcio,Juventus Turin,2.03,4.38,2.47,Africa Cup of Nations,Pinnacle,2026-01-19 13:23:47.349719
+11,Sassuolo Calcio,Juventus Turin,5.25,4.0,1.76,Serie A,BetPawa,2026-01-19 22:54:04.831669
+12,Livingston FC,St Mirren FC,1.57,3.13,3.23,Serie A,Bet365,2026-01-19 23:43:06.285556
+13,Livingston FC,St Mirren FC,2.9,3.3,2.45,Premiership,BetPawa,2026-01-19 22:54:04.831669
+14,West Ham United,Nottingham Forest,5.37,3.29,4.85,Africa Cup of Nations,Pinnacle,2026-01-20 01:51:57.709024
+15,West Ham United,Nottingham Forest,3.25,3.5,2.4,Premier League,BetPawa,2026-01-19 22:54:04.832664
+16,Glasgow Rangers,Aberdeen FC,4.13,3.07,2.38,Africa Cup of Nations,Pinnacle,2026-01-19 13:17:25.658061
+17,Glasgow Rangers,Aberdeen FC,1.51,4.35,6.0,Premiership,BetPawa,2026-01-19 22:54:04.832664
+18,Bologna FC,Atalanta BC,2.75,3.35,2.6,Serie A,BetPawa,2026-01-19 22:54:04.833659
+19,Manchester United,Liverpool,4.63,3.49,1.66,Serie A,Bet365,2026-01-20 01:03:51.666780
+20,SSC Napoli,Hellas Verona,1.32,5.0,11.5,Serie A,BetPawa,2026-01-19 22:54:04.833659
+21,Manchester City,Brighton & Hove Albion,1.42,5.75,7.5,Premier League,BetPawa,2026-01-19 22:54:04.834657
+22,Everton FC,Wolverhampton Wanderers,1.77,3.6,4.8,Premier League,BetPawa,2026-01-19 22:54:04.834657
+23,Crystal Palace,Aston Villa,3.2,3.5,2.4,Premier League,BetPawa,2026-01-19 22:54:04.834657
+24,Brentford FC,Sunderland AFC,1.83,3.65,4.35,Premier League,BetPawa,2026-01-19 22:54:04.835655
+25,AFC Bournemouth,Tottenham Hotspur,2.2,3.8,3.4,Premier League,BetPawa,2026-01-19 22:54:04.835655
+26,Fulham FC,Chelsea FC,3.45,3.75,2.19,Premier League,BetPawa,2026-01-19 22:54:04.835655
+27,Lazio Rome,ACF Fiorentina,2.4,3.15,3.2,Serie A,BetPawa,2026-01-19 22:54:04.836653
+28,Parma Calcio,Inter Milano,8.0,5.25,1.36,Serie A,BetPawa,2026-01-19 22:54:04.836653
+29,Torino FC,Udinese Calcio,2.3,3.1,3.4,Serie A,BetPawa,2026-01-19 22:54:04.837651
+30,Burnley FC,Manchester United,4.7,4.05,1.69,Premier League,BetPawa,2026-01-19 22:54:04.837651
+31,Newcastle United,Leeds United,1.67,3.95,5.0,Premier League,BetPawa,2026-01-19 22:54:04.838658
+32,US Cremonese,Cagliari Calcio,2.4,3.15,3.15,Serie A,BetPawa,2026-01-19 22:54:04.838658
+33,AC Milan,Genoa CFC,1.43,4.45,7.75,Serie A,BetPawa,2026-01-19 22:54:04.839654
+34,Arsenal FC,Liverpool FC,1.61,4.25,5.25,Premier League,BetPawa,2026-01-19 22:54:04.844643
+35,Brisbane Roar FC,Auckland FC,2.75,3.55,2.5,A-League,BetPawa,2026-01-19 22:54:04.846642
+36,Mali,Senegal,6.25,3.75,1.59,Africa Cup of Nations,BetPawa,2026-01-19 22:54:04.849636
+37,Cameroon,Morocco,6.75,3.85,1.55,Africa Cup of Nations,BetPawa,2026-01-19 22:54:04.850633
+38,NEC Nijmegen,FC Utrecht,2.06,3.85,3.2,Eredivisie,BetPawa,2026-01-19 22:54:04.850633
+39,Eintracht Frankfurt,Borussia Dortmund,3.3,3.75,2.08,Bundesliga,BetPawa,2026-01-19 22:54:04.851633
+40,Ross County FC,Partick Thistle FC,3.4,3.5,2.13,Championship,BetPawa,2026-01-19 22:54:04.851633
+41,Getafe CF,Real Sociedad San Sebastian,3.1,2.9,2.65,LaLiga,BetPawa,2026-01-19 22:54:04.852631
+42,Mazatlan FC,FC Juarez,2.85,3.25,2.35,"Primera Division, Clausura",BetPawa,2026-01-19 22:54:04.852631
+43,Club Tijuana de Caliente,CF America,3.7,3.7,1.84,"Primera Division, Clausura",BetPawa,2026-01-19 22:54:04.853628
+44,Atlas FC,Club Puebla,2.18,3.35,3.1,"Primera Division, Clausura",BetPawa,2026-01-19 22:54:04.853628
+45,Melbourne Victory,Western Sydney Wanderers,1.85,3.75,4.1,A-League,BetPawa,2026-01-19 22:54:04.854628
+46,Macarthur FC,Sydney FC,2.95,3.75,2.23,A-League,BetPawa,2026-01-19 22:54:04.854628
+47,Perth Glory FC,Central Coast Mariners,1.85,3.75,4.1,A-League,BetPawa,2026-01-19 22:54:04.855626
+48,Real Oviedo,Real Betis Seville,3.95,3.5,1.95,LaLiga,BetPawa,2026-01-19 22:54:04.856354
+49,Como 1907,Bologna FC,2.13,3.3,3.6,Serie A,BetPawa,2026-01-19 22:54:04.856354
+50,Udinese Calcio,Pisa SC,1.95,3.35,4.2,Serie A,BetPawa,2026-01-19 22:54:04.857360
+51,SC Freiburg,Hamburger SV,1.8,3.7,4.4,Bundesliga,BetPawa,2026-01-19 22:54:04.857360
+52,1. FC Heidenheim,1. FC Cologne,2.9,3.55,2.35,Bundesliga,BetPawa,2026-01-19 22:54:04.858353
+53,Union Berlin,FSV Mainz,2.15,3.25,3.6,Bundesliga,BetPawa,2026-01-19 22:54:04.862354
+54,Werder Bremen,TSG Hoffenheim,2.9,3.65,2.3,Bundesliga,BetPawa,2026-01-19 22:54:04.863348
+55,FC St. Pauli,RB Leipzig,3.9,3.7,1.91,Bundesliga,BetPawa,2026-01-19 22:54:04.866343
+56,AE Kifisia FC,AE Larissa FC,1.61,3.8,5.0,Super League 1,BetPawa,2026-01-19 22:54:04.866343
+57,Hibernian FC,Motherwell FC,1.94,3.5,3.8,Premiership,BetPawa,2026-01-19 22:54:04.867341
+58,Greenock Morton FC,Dunfermline Athletic FC,2.75,3.2,2.7,Championship,BetPawa,2026-01-19 22:54:04.868342
+59,Queens Park FC,St. Johnstone FC,9.5,5.25,1.32,Championship,BetPawa,2026-01-19 22:54:04.868342
+60,Livingston FC,Kilmarnock FC,2.16,3.25,3.4,Premiership,BetPawa,2026-01-19 22:54:04.869340
+61,Ayr United FC,Airdrieonians FC,1.61,3.9,5.75,Championship,BetPawa,2026-01-19 22:54:04.869340
+62,St Mirren FC,Falkirk FC,1.99,3.35,3.85,Premiership,BetPawa,2026-01-19 22:54:04.870338
+63,Raith Rovers FC,Arbroath FC,2.04,3.4,3.8,Championship,BetPawa,2026-01-19 22:54:04.870338
+64,Celtic Glasgow,Dundee United,1.31,5.75,8.0,Premiership,BetPawa,2026-01-19 22:54:04.871336
+65,Villarreal CF,Deportivo Alaves,1.54,4.1,6.25,LaLiga,BetPawa,2026-01-19 22:54:04.871336
+66,AZ Alkmaar,FC Volendam,1.2,7.25,11.0,Eredivisie,BetPawa,2026-01-19 22:54:04.872335
+67,AS Roma,Sassuolo Calcio,1.55,4.1,6.25,Serie A,BetPawa,2026-01-19 22:54:04.872335
+68,Panaitolikos Agrinio,PAOK Thessaloniki,7.75,4.5,1.37,Super League 1,BetPawa,2026-01-19 22:54:04.873333
+69,Atromitos Athinon,Olympiacos Piraeus,9.25,5.0,1.29,Super League 1,BetPawa,2026-01-19 22:54:04.874036
+70,Girona FC,CA Osasuna,2.4,3.3,3.05,LaLiga,BetPawa,2026-01-19 22:54:04.877143
+71,Bayer Leverkusen,VfB Stuttgart,1.91,4.0,3.6,Bundesliga,BetPawa,2026-01-19 22:54:04.880137
+72,FC Twente Enschede,PEC Zwolle,1.25,6.25,9.75,Eredivisie,BetPawa,2026-01-19 22:54:04.881131
+73,PSV Eindhoven,Excelsior Rotterdam,1.13,9.0,15.0,Eredivisie,BetPawa,2026-01-19 22:54:04.881131
+74,Atalanta BC,Torino FC,1.64,3.9,5.5,Serie A,BetPawa,2026-01-19 22:54:04.881131
+75,Valencia CF,Elche CF,2.19,3.2,3.55,LaLiga,BetPawa,2026-01-19 22:54:04.882127
+76,FC Groningen,NAC Breda,1.65,3.95,4.95,Eredivisie,BetPawa,2026-01-19 22:54:04.882127
+77,CD Guadalajara,CF Pachuca,1.85,3.45,4.0,"Primera Division, Clausura",BetPawa,2026-01-19 22:54:04.883124
+78,Club Leon,CF Cruz Azul,4.45,3.85,1.67,"Primera Division, Clausura",BetPawa,2026-01-19 22:54:04.883124
+79,Club Santos Laguna,Club Necaxa,3.7,3.9,1.8,"Primera Division, Clausura",BetPawa,2026-01-19 22:54:04.884122
+80,Wellington Phoenix FC,Adelaide United FC,2.3,3.75,2.85,A-League,BetPawa,2026-01-19 22:54:04.884122
+81,CF Monterrey,Deportivo Toluca FC,1.98,3.6,3.35,"Primera Division, Clausura",BetPawa,2026-01-19 22:54:04.884122
+82,Melbourne City FC,Newcastle United Jets,1.76,4.1,4.2,A-League,BetPawa,2026-01-19 22:54:04.885120
+83,SC Heerenveen,Feyenoord Rotterdam,2.95,3.75,2.2,Eredivisie,BetPawa,2026-01-19 22:54:04.885120
+84,US Lecce,Parma Calcio,2.7,3.0,2.9,Serie A,BetPawa,2026-01-19 22:54:04.886119
+85,Rayo Vallecano,RCD Mallorca,1.88,3.3,4.6,LaLiga,BetPawa,2026-01-19 22:54:04.886119
+86,SC Telstar,Ajax Amsterdam,3.65,3.85,1.89,Eredivisie,BetPawa,2026-01-19 22:54:04.886119
+87,Go Ahead Eagles,Fortuna Sittard,2.04,3.75,3.25,Eredivisie,BetPawa,2026-01-19 22:54:04.887117
+88,APO Levadiakos FC,Volos NPS,1.63,3.7,5.0,Super League 1,BetPawa,2026-01-19 22:54:04.887117
+89,Dundee FC,Heart of Midlothian FC,7.0,4.35,1.45,Premiership,BetPawa,2026-01-19 22:54:04.888115
+90,ACF Fiorentina,AC Milan,3.8,3.55,1.98,Serie A,BetPawa,2026-01-19 22:54:04.888115
+91,Borussia Monchengladbach,FC Augsburg,1.99,3.65,3.65,Bundesliga,BetPawa,2026-01-19 22:54:04.888115
+92,Levante UD,Espanyol Barcelona,3.1,3.35,2.3,LaLiga,BetPawa,2026-01-19 22:54:04.889125
+93,OFI Crete,Asteras Tripolis,2.65,3.0,2.65,Super League 1,BetPawa,2026-01-19 22:54:04.889125
+94,Nacional da Madeira,Santa Clara Azores,2.8,3.05,2.7,Liga Portugal,BetPawa,2026-01-19 22:54:04.890116
+95,Sparta Rotterdam,Heracles Almelo,1.82,3.85,3.95,Eredivisie,BetPawa,2026-01-19 22:54:04.890116
+96,Bayern Munich,VfL Wolfsburg,1.13,9.25,16.0,Bundesliga,BetPawa,2026-01-19 22:54:04.891114
+97,Aberdeen FC,Glasgow Rangers,3.15,3.35,2.24,Premiership,BetPawa,2026-01-19 22:54:04.896198
+98,Hellas Verona,Lazio Rome,3.5,3.15,2.23,Serie A,BetPawa,2026-01-19 22:54:04.897194
+99,Aris Thessaloniki,AEK Athens,5.25,3.55,1.64,Super League 1,BetPawa,2026-01-19 22:54:04.897194
+100,Pumas UNAM,Queretaro FC,1.43,4.3,6.5,"Primera Division, Clausura",BetPawa,2026-01-19 22:54:04.898196
+101,Moreirense FC,CD Tondela,2.14,3.25,3.5,Liga Portugal,BetPawa,2026-01-19 22:54:04.899191
+102,Panathinaikos Athens,Panserraikos FC,1.09,9.0,17.5,Super League 1,BetPawa,2026-01-19 22:54:04.900188
+103,Inter Milano,SSC Napoli,1.78,3.55,4.8,Serie A,BetPawa,2026-01-19 22:54:04.900188
+104,Atletico San Luis,Tigres UANL,3.75,3.5,1.89,"Primera Division, Clausura",BetPawa,2026-01-19 22:54:04.901188
+105,Genoa CFC,Cagliari Calcio,2.11,3.05,4.0,Serie A,BetPawa,2026-01-19 22:54:04.901188
+106,Juventus Turin,US Cremonese,1.27,5.75,11.0,Serie A,BetPawa,2026-01-19 22:54:04.901188
+107,Sevilla FC,RC Celta de Vigo,2.5,3.35,2.85,LaLiga,BetPawa,2026-01-19 22:54:04.902186
+108,VfB Stuttgart,Eintracht Frankfurt,1.85,3.9,3.95,Bundesliga,BetPawa,2026-01-19 22:54:04.902186
+109,Borussia Dortmund,Werder Bremen,1.36,5.5,7.5,Bundesliga,BetPawa,2026-01-19 22:54:04.902186
+110,Hamburger SV,Bayer Leverkusen,3.4,3.7,2.05,Bundesliga,BetPawa,2026-01-19 22:54:04.903183
+111,FSV Mainz,1. FC Heidenheim,1.7,3.75,5.0,Bundesliga,BetPawa,2026-01-19 22:54:04.903183
+112,Carrick Rangers,Linfield FC,4.65,3.85,1.62,Premiership,BetPawa,2026-01-19 22:54:04.904181
+113,Ballymena United,Cliftonville FC,3.7,3.35,1.9,Premiership,BetPawa,2026-01-19 22:54:04.904181
+114,Glentoran FC,Larne FC,2.16,3.05,3.3,Premiership,BetPawa,2026-01-19 22:54:04.904181
+115,Newcastle United,Manchester City,3.15,3.7,2.1,EFL Cup,BetPawa,2026-01-19 22:54:04.905180
+116,Club Necaxa,CF Monterrey,2.4,3.65,2.6,"Primera Division, Clausura",BetPawa,2026-01-19 22:54:04.905180
+117,Club Puebla,Mazatlan FC,1.9,3.5,3.7,"Primera Division, Clausura",BetPawa,2026-01-19 22:54:04.906179
+118,CF Pachuca,Club Leon,1.48,4.25,5.75,"Primera Division, Clausura",BetPawa,2026-01-19 22:54:04.906179
+119,FC Juarez,CD Guadalajara,3.55,3.35,1.99,"Primera Division, Clausura",BetPawa,2026-01-19 22:54:04.907182
+120,CF Cruz Azul,Atlas FC,1.3,5.0,8.75,"Primera Division, Clausura",BetPawa,2026-01-19 22:54:04.907182
+121,VfL Wolfsburg,FC St. Pauli,1.87,3.75,4.0,Bundesliga,BetPawa,2026-01-19 22:54:04.908177
+122,TSG Hoffenheim,Borussia Monchengladbach,1.86,3.95,3.85,Bundesliga,BetPawa,2026-01-19 22:54:04.912162
+123,RB Leipzig,SC Freiburg,1.8,4.0,4.0,Bundesliga,BetPawa,2026-01-19 22:54:04.917151
+124,1. FC Cologne,Bayern Munich,8.0,6.5,1.3,Bundesliga,BetPawa,2026-01-19 22:54:04.918150
+125,Heart of Midlothian FC,St Mirren FC,1.31,4.85,11.0,Premiership,BetPawa,2026-01-19 22:54:04.918150
+126,Falkirk FC,Celtic Glasgow,6.25,4.45,1.48,Premiership,BetPawa,2026-01-19 22:54:04.919154
+127,Chelsea FC,Arsenal FC,2.85,3.4,2.4,EFL Cup,BetPawa,2026-01-19 22:54:04.919154
+128,Queretaro FC,Club Tijuana de Caliente,2.6,3.4,2.5,"Primera Division, Clausura",BetPawa,2026-01-19 22:54:04.920149
+129,CF America,Atletico San Luis,1.29,5.0,9.25,"Primera Division, Clausura",BetPawa,2026-01-19 22:54:04.920149
+130,Tigres UANL,Pumas UNAM,1.59,3.65,5.5,"Primera Division, Clausura",BetPawa,2026-01-19 22:54:04.920149
+131,Deportivo Toluca FC,Club Santos Laguna,1.16,7.0,13.5,"Primera Division, Clausura",BetPawa,2026-01-19 22:54:04.921146
+132,FC Augsburg,Union Berlin,2.4,3.25,3.05,Bundesliga,BetPawa,2026-01-19 22:54:04.921146
+133,Melbourne City FC,Auckland FC,2.4,3.5,2.9,A-League,BetPawa,2026-01-19 22:54:04.922143
+134,Perth Glory FC,Brisbane Roar FC,2.4,3.5,2.85,A-League,BetPawa,2026-01-19 22:54:04.922143
+135,AS Monaco,FC Lorient,1.59,4.4,5.25,Ligue 1,BetPawa,2026-01-19 22:54:04.923144
+136,Rodez Aveyron Football,Le Mans FC,2.8,3.3,2.6,Ligue 2,BetPawa,2026-01-19 22:54:04.923144
+137,Stade Lavallois MFC,SC Bastia,2.35,3.0,3.5,Ligue 2,BetPawa,2026-01-19 22:54:04.924141
+138,FC Annecy,Amiens SC,1.64,3.65,6.0,Ligue 2,BetPawa,2026-01-19 22:54:04.924141
+139,US Boulogne,Montpellier HSC,3.5,3.3,2.16,Ligue 2,BetPawa,2026-01-19 22:54:04.924141
+140,USL Dunkerque,Pau FC,1.76,3.75,4.6,Ligue 2,BetPawa,2026-01-19 22:54:04.930131
+141,Club Brugge,RAAL La Louviere,1.38,4.95,7.5,Pro League,BetPawa,2026-01-19 22:54:04.931129
+142,Paris Saint-Germain,Lille OSC,1.49,4.7,6.0,Ligue 1,BetPawa,2026-01-19 22:54:04.932137
+143,West Bromwich Albion,Middlesbrough FC,2.4,3.35,2.9,Championship,BetPawa,2026-01-19 22:54:04.932137
+144,Espanyol Barcelona,Girona FC,1.91,3.55,4.1,LaLiga,BetPawa,2026-01-19 22:54:04.933134
+145,Sporting CP,Casa Pia Lisbon,1.1,8.75,24.5,Liga Portugal,BetPawa,2026-01-19 22:54:04.934133
+146,Western Sydney Wanderers,Newcastle United Jets,1.98,4.1,3.3,A-League,BetPawa,2026-01-19 22:54:04.935130
+147,Central Coast Mariners,Macarthur FC,2.75,3.7,2.4,A-League,BetPawa,2026-01-19 22:54:04.935130
+148,Adelaide United FC,Melbourne Victory,2.9,3.9,2.23,A-League,BetPawa,2026-01-19 22:54:04.936129
+149,Watford FC,Millwall FC,1.9,3.45,4.05,Championship,BetPawa,2026-01-19 22:54:04.937127
+150,Ipswich Town,Blackburn Rovers,1.49,4.25,6.25,Championship,BetPawa,2026-01-19 22:54:04.937127
+151,Manchester United,Manchester City,4.0,4.1,1.79,Premier League,BetPawa,2026-01-19 22:54:04.938124
+152,Coventry City,Leicester City,1.63,4.1,4.95,Championship,BetPawa,2026-01-19 22:54:04.938124
+153,ESTAC Troyes,Stade Reims,2.45,3.3,3.0,Ligue 2,BetPawa,2026-01-19 22:54:04.939119
+154,Grenoble Foot,Red Star FC,2.9,3.2,2.55,Ligue 2,BetPawa,2026-01-19 22:54:04.947270
+155,Real Madrid,Levante UD,1.16,8.5,14.0,LaLiga,BetPawa,2026-01-19 22:54:04.947270
+156,Panserraikos FC,AE Kifisia FC,4.55,3.4,1.76,Super League 1,BetPawa,2026-01-19 22:54:04.950285
+157,Istanbul Basaksehir,Fatih Karagumruk Istanbul,1.49,4.35,6.25,Super Lig,BetPawa,2026-01-19 22:54:04.952271
+158,Sunderland AFC,Crystal Palace,2.85,3.2,2.6,Premier League,BetPawa,2026-01-19 22:54:04.953266
+159,Stoke City,Queens Park Rangers,2.3,3.25,3.15,Championship,BetPawa,2026-01-19 22:54:04.954270
+160,Liverpool FC,Burnley FC,1.21,6.5,13.0,Premier League,BetPawa,2026-01-19 22:54:04.955261
+161,Preston North End,Derby County,2.25,3.1,3.35,Championship,BetPawa,2026-01-19 22:54:04.957515
+162,Oxford United,Bristol City,2.95,3.35,2.35,Championship,BetPawa,2026-01-19 22:54:04.961483
+163,Leeds United,Fulham FC,2.23,3.3,3.35,Premier League,BetPawa,2026-01-19 22:54:04.963480
+164,Wrexham AFC,Norwich City,2.02,3.45,3.6,Championship,BetPawa,2026-01-19 22:54:04.964479
+165,Sheffield Wednesday,Portsmouth FC,3.1,3.25,2.35,Championship,BetPawa,2026-01-19 22:54:04.965477
+166,Chelsea FC,Brentford FC,1.6,4.2,5.25,Premier League,BetPawa,2026-01-19 22:54:04.966474
+167,SV Zulte Waregem,KRC Genk,3.35,3.65,2.04,Pro League,BetPawa,2026-01-19 22:54:04.966474
+168,Charlton Athletic,Sheffield United,3.35,3.3,2.17,Championship,BetPawa,2026-01-19 22:54:04.966474
+169,Tottenham Hotspur,West Ham United,1.7,4.0,4.7,Premier League,BetPawa,2026-01-19 22:54:04.967476
+170,Southampton FC,Hull City,1.61,4.05,5.25,Championship,BetPawa,2026-01-19 22:54:04.968470
+171,RCD Mallorca,Athletic Bilbao,3.7,3.1,2.18,LaLiga,BetPawa,2026-01-19 22:54:04.968470
+172,Gil Vicente Barcelos,Nacional da Madeira,1.74,3.4,5.25,Liga Portugal,BetPawa,2026-01-19 22:54:04.969469
+173,Ajax Amsterdam,Go Ahead Eagles,1.39,4.85,7.25,Eredivisie,BetPawa,2026-01-19 22:54:04.970468
+174,RC Lens,AJ Auxerre,1.47,4.5,6.5,Ligue 1,BetPawa,2026-01-19 22:54:04.970468
+175,Asteras Tripolis,Olympiacos Piraeus,9.0,4.25,1.35,Super League 1,BetPawa,2026-01-19 22:54:04.971466
+176,FC Winterthur,FC St. Gallen 1879,4.2,4.1,1.76,Super League,BetPawa,2026-01-19 22:54:04.972465
+177,FC Luzern,FC Lugano,2.75,3.5,2.45,Super League,BetPawa,2026-01-19 22:54:04.972465
+178,Galatasaray Istanbul,Gaziantep FK,1.18,7.25,13.0,Super Lig,BetPawa,2026-01-19 22:54:04.973462
+179,KVC Westerlo,Cercle Brugge,2.09,3.75,3.2,Pro League,BetPawa,2026-01-19 22:54:04.974464
+180,CA Osasuna,Real Oviedo,1.72,3.5,5.5,LaLiga,BetPawa,2026-01-19 22:54:04.977458
+181,Nottingham Forest,Arsenal FC,5.5,4.2,1.57,Premier League,BetPawa,2026-01-19 22:54:04.978455
+182,Swansea City,Birmingham City,2.85,3.3,2.45,Championship,BetPawa,2026-01-19 22:54:04.979461
+183,PEC Zwolle,AZ Alkmaar,4.65,3.95,1.68,Eredivisie,BetPawa,2026-01-19 22:54:04.980453
+184,FC Alverca SAD,Moreirense FC,2.4,3.05,3.1,Liga Portugal,BetPawa,2026-01-19 22:54:04.981450
+185,Toulouse FC,OGC Nice,1.92,3.65,3.9,Ligue 1,BetPawa,2026-01-19 22:54:04.982455
+186,Excelsior Rotterdam,SC Telstar,2.0,3.65,3.45,Eredivisie,BetPawa,2026-01-19 22:54:04.983455
+187,Fortuna Sittard,PSV Eindhoven,8.0,5.5,1.32,Eredivisie,BetPawa,2026-01-19 22:54:04.984446
+188,Young Boys Bern,Lausanne-Sport,1.87,4.0,3.75,Super League,BetPawa,2026-01-19 22:54:04.985447
+189,Union Saint-Gilloise,Yellow-Red KV Mechelen,1.33,5.25,8.5,Pro League,BetPawa,2026-01-19 22:54:04.985447
+190,AS Saint-Etienne,Clermont Foot 63,1.46,4.4,7.25,Ligue 2,BetPawa,2026-01-19 22:54:04.986446
+191,Real Betis Seville,Villarreal CF,2.25,3.65,3.0,LaLiga,BetPawa,2026-01-19 22:54:04.994157
+192,NAC Breda,NEC Nijmegen,3.05,3.6,2.2,Eredivisie,BetPawa,2026-01-19 22:54:04.995160
+193,Angers SCO,Olympique Marseille,5.5,4.1,1.61,Ligue 1,BetPawa,2026-01-19 22:54:04.996154
+194,Rio Ave FC,SL Benfica,8.25,4.55,1.38,Liga Portugal,BetPawa,2026-01-19 22:54:04.997154
+195,Sydney FC,Wellington Phoenix FC,1.42,4.8,7.25,A-League,BetPawa,2026-01-19 22:54:04.998150
+196,SC Heerenveen,FC Groningen,2.21,3.45,3.1,Eredivisie,BetPawa,2026-01-19 22:54:04.999150
+197,Kasimpasa Istanbul,Antalyaspor,2.15,3.25,3.5,Super Lig,BetPawa,2026-01-19 22:54:04.999150
+198,KAA Gent,RSC Anderlecht,2.85,3.4,2.4,Pro League,BetPawa,2026-01-19 22:54:04.999150
+199,Getafe CF,Valencia CF,2.55,2.85,3.2,LaLiga,BetPawa,2026-01-19 22:54:05.000145
+200,Servette Geneva,FC Zurich,1.83,3.9,4.0,Super League,BetPawa,2026-01-19 22:54:05.000145
+201,FC Volendam,FC Utrecht,3.95,3.75,1.84,Eredivisie,BetPawa,2026-01-19 22:54:05.001142
+202,Heracles Almelo,FC Twente Enschede,4.85,3.95,1.66,Eredivisie,BetPawa,2026-01-19 22:54:05.001142
+203,Kocaelispor,Trabzonspor,2.65,3.25,2.65,Super Lig,BetPawa,2026-01-19 22:54:05.001142
+204,Strasbourg Alsace,FC Metz,1.55,4.4,5.5,Ligue 1,BetPawa,2026-01-19 22:54:05.002140
+205,Genclerbirligi SK,Samsunspor,2.95,3.2,2.45,Super Lig,BetPawa,2026-01-19 22:54:05.002140
+206,Wolverhampton Wanderers,Newcastle United,4.5,3.95,1.74,Premier League,BetPawa,2026-01-19 22:54:05.002140
+207,FCV Dender EH,Royal Antwerp FC,2.9,3.2,2.45,Pro League,BetPawa,2026-01-19 22:54:05.004144
+208,AE Larissa FC,Aris Thessaloniki,4.75,3.15,1.8,Super League 1,BetPawa,2026-01-19 22:54:05.004144
+209,Atletico Madrid,Deportivo Alaves,1.34,4.9,9.5,LaLiga,BetPawa,2026-01-19 22:54:05.005141
+210,FC Basel 1893,FC Sion,1.67,4.0,4.9,Super League,BetPawa,2026-01-19 22:54:05.006141
+211,Grasshopper Club Zurich,FC Thun,2.9,3.65,2.35,Super League,BetPawa,2026-01-19 22:54:05.006141
+212,Santa Clara Azores,FC Famalicao,2.9,2.9,2.75,Liga Portugal,BetPawa,2026-01-19 22:54:05.007145
+213,Feyenoord Rotterdam,Sparta Rotterdam,1.3,5.75,8.5,Eredivisie,BetPawa,2026-01-19 22:54:05.007145
+214,FC Nantes,Paris FC,3.35,3.3,2.22,Ligue 1,BetPawa,2026-01-19 22:54:05.012141
+215,Stade Rennais FC,Le Havre AC,1.68,3.95,4.9,Ligue 1,BetPawa,2026-01-19 22:54:05.012141
+216,Aston Villa,Everton FC,1.77,3.7,4.6,Premier League,BetPawa,2026-01-19 22:54:05.013137
+217,Alanyaspor,Fenerbahce Istanbul,5.75,4.05,1.56,Super Lig,BetPawa,2026-01-19 22:54:05.014139
+218,PAOK Thessaloniki,OFI Crete,1.14,7.0,16.5,Super League 1,BetPawa,2026-01-19 22:54:05.014139
+219,RC Celta de Vigo,Rayo Vallecano,2.17,3.2,3.6,LaLiga,BetPawa,2026-01-19 22:54:05.015134
+220,Royal Charleroi SC,Standard Liege,1.96,3.15,4.25,Pro League,BetPawa,2026-01-19 22:54:05.015134
+221,CD Tondela,SC Braga,5.25,3.55,1.69,Liga Portugal,BetPawa,2026-01-19 22:54:05.016127
+222,St. Truidense VV,Oud-Heverlee Leuven,1.77,3.7,4.5,Pro League,BetPawa,2026-01-19 22:54:05.016127
+223,AEK Athens,Panathinaikos Athens,1.82,3.35,4.25,Super League 1,BetPawa,2026-01-19 22:54:05.016127
+224,Olympique Lyon,Stade Brest 29,1.62,4.1,5.25,Ligue 1,BetPawa,2026-01-19 22:54:05.017125
+225,Real Sociedad San Sebastian,FC Barcelona,5.0,4.6,1.57,LaLiga,BetPawa,2026-01-19 22:54:05.017125
+226,Vitoria SC Guimaraes,FC Porto,6.25,3.95,1.54,Liga Portugal,BetPawa,2026-01-19 22:54:05.017125
+227,Konyaspor,Eyupspor,1.74,3.75,4.55,Super Lig,BetPawa,2026-01-19 22:54:05.018123
+228,Panaitolikos Agrinio,APO Levadiakos FC,4.2,3.1,1.92,Super League 1,BetPawa,2026-01-19 22:54:05.019128
+229,Goztepe Izmir,Caykur Rizespor,1.89,3.4,4.15,Super Lig,BetPawa,2026-01-19 22:54:05.019128
+230,Besiktas Istanbul,Kayserispor,1.38,5.25,7.0,Super Lig,BetPawa,2026-01-19 22:54:05.020131
+231,Volos NPS,Atromitos Athinon,2.06,3.05,3.75,Super League 1,BetPawa,2026-01-19 22:54:05.020131
+232,Nancy-Lorraine,EA Guingamp,2.45,3.3,3.0,Ligue 2,BetPawa,2026-01-19 22:54:05.021120
+233,Elche CF,Sevilla FC,2.3,3.35,3.15,LaLiga,BetPawa,2026-01-19 22:54:05.021120
+234,Brighton & Hove Albion,AFC Bournemouth,2.01,3.75,3.45,Premier League,BetPawa,2026-01-19 22:54:05.021120
+235,Estrela Amadora,Estoril Praia,2.55,3.15,2.8,Liga Portugal,BetPawa,2026-01-19 22:54:05.022117
+236,FC Kairat Almaty,Club Brugge,4.7,4.4,1.63,UEFA Champions League,BetPawa,2026-01-19 22:54:05.022117
+237,Bodoe/Glimt,Manchester City,6.5,5.5,1.41,UEFA Champions League,BetPawa,2026-01-19 22:54:05.022117
+238,Olympiacos Piraeus,Bayer Leverkusen,2.5,3.45,2.75,UEFA Champions League,BetPawa,2026-01-19 22:54:05.023116
+239,Inter Milano,Arsenal FC,2.65,3.35,2.65,UEFA Champions League,BetPawa,2026-01-19 22:54:05.023787
+240,Real Madrid,AS Monaco,1.27,6.25,9.5,UEFA Champions League,BetPawa,2026-01-19 22:54:05.023787
+241,FC Copenhagen,SSC Napoli,4.1,3.65,1.87,UEFA Champions League,BetPawa,2026-01-19 22:54:05.029786
+242,Sporting CP,Paris Saint-Germain,4.1,4.0,1.79,UEFA Champions League,BetPawa,2026-01-19 22:54:05.031789
+243,Tottenham Hotspur,Borussia Dortmund,2.22,3.55,3.15,UEFA Champions League,BetPawa,2026-01-19 22:54:05.033785
+244,Villarreal CF,Ajax Amsterdam,1.59,4.5,5.0,UEFA Champions League,BetPawa,2026-01-19 22:54:05.034778
+245,Qarabag FK,Eintracht Frankfurt,3.1,3.65,2.21,UEFA Champions League,BetPawa,2026-01-19 22:54:05.034778
+246,Galatasaray Istanbul,Atletico Madrid,3.3,3.95,2.02,UEFA Champions League,BetPawa,2026-01-19 22:54:05.035773
+247,Bayern Munich,Union Saint-Gilloise,1.13,9.5,17.0,UEFA Champions League,BetPawa,2026-01-19 22:54:05.036772
+248,Newcastle United,PSV Eindhoven,1.46,5.0,6.0,UEFA Champions League,BetPawa,2026-01-19 22:54:05.037772
+249,Chelsea FC,Pafos FC,1.16,7.75,15.0,UEFA Champions League,BetPawa,2026-01-19 22:54:05.037772
+250,Olympique Marseille,Liverpool FC,3.8,3.9,1.88,UEFA Champions League,BetPawa,2026-01-19 22:54:05.038768
+251,Atalanta BC,Athletic Bilbao,1.85,3.55,4.3,UEFA Champions League,BetPawa,2026-01-19 22:54:05.039884
+252,Juventus Turin,SL Benfica,1.92,3.5,4.1,UEFA Champions League,BetPawa,2026-01-19 22:54:05.039884
+253,Slavia Prague,FC Barcelona,6.5,5.5,1.41,UEFA Champions League,BetPawa,2026-01-19 22:54:05.039884
+254,SC Freiburg,Maccabi Tel Aviv FC,1.19,7.25,14.0,UEFA Europa League,BetPawa,2026-01-19 22:54:05.045146
+255,Malmo FF,FK Crvena Zvezda Belgrade,3.35,3.5,2.13,UEFA Europa League,BetPawa,2026-01-19 22:54:05.046144
+256,FC Viktoria Plzen,FC Porto,3.3,3.5,2.16,UEFA Europa League,BetPawa,2026-01-19 22:54:05.046144
+257,Young Boys Bern,Olympique Lyon,4.1,3.9,1.82,UEFA Europa League,BetPawa,2026-01-19 22:54:05.047142
+258,Feyenoord Rotterdam,SK Sturm Graz,1.42,5.0,6.75,UEFA Europa League,BetPawa,2026-01-19 22:54:05.047142
+259,SK Brann,FC Midtjylland,3.0,3.65,2.25,UEFA Europa League,BetPawa,2026-01-19 22:54:05.048142
+260,PAOK Thessaloniki,Real Betis Seville,2.7,3.55,2.5,UEFA Europa League,BetPawa,2026-01-19 22:54:05.048142
+261,Bologna FC,Celtic Glasgow,1.55,4.3,5.75,UEFA Europa League,BetPawa,2026-01-19 22:54:05.049135
+262,Fenerbahce Istanbul,Aston Villa,2.7,3.5,2.55,UEFA Europa League,BetPawa,2026-01-19 22:54:05.049135
+263,SC Braga,Nottingham Forest,2.75,3.45,2.5,UEFA Europa League,BetPawa,2026-01-19 22:54:05.050138
+264,AS Roma,VfB Stuttgart,1.94,3.65,3.8,UEFA Europa League,BetPawa,2026-01-19 22:54:05.050138
+265,FC Utrecht,KRC Genk,2.7,3.55,2.5,UEFA Europa League,BetPawa,2026-01-19 22:54:05.051133
+266,RC Celta de Vigo,Lille OSC,2.4,3.55,2.85,UEFA Europa League,BetPawa,2026-01-19 22:54:05.051133
+267,GNK Dinamo Zagreb,Fotbal Club FCSB,1.67,3.95,5.0,UEFA Europa League,BetPawa,2026-01-19 22:54:05.052130
+268,OGC Nice,Go Ahead Eagles,1.61,4.2,5.25,UEFA Europa League,BetPawa,2026-01-19 22:54:05.052130
+269,Ferencvarosi Budapest,Panathinaikos Athens,2.3,3.5,3.05,UEFA Europa League,BetPawa,2026-01-19 22:54:05.052130
+270,Glasgow Rangers,PFC Ludogorets 1945 Razgrad,1.82,3.8,4.2,UEFA Europa League,BetPawa,2026-01-19 22:54:05.053128
+271,CA Aldosivi,Defensa y Justicia,2.7,2.8,3.1,Liga Profesional,BetPawa,2026-01-19 22:54:05.053128
+272,FC Salzburg,FC Basel 1893,2.3,3.75,2.85,UEFA Europa League,BetPawa,2026-01-19 22:54:05.053128
+273,CA Banfield,CA Huracan,2.55,2.8,3.35,Liga Profesional,BetPawa,2026-01-19 22:54:05.054126
+274,Union de Santa Fe,CA Platense,2.11,2.75,4.7,Liga Profesional,BetPawa,2026-01-19 22:54:05.054126
+275,CA Central Cordoba SE,Gimnasia y Esgrima Mendoza,2.12,3.05,3.95,Liga Profesional,BetPawa,2026-01-19 22:54:05.055125
+276,Instituto AC Cordoba,Velez Sarsfield,2.65,2.85,3.15,Liga Profesional,BetPawa,2026-01-19 22:54:05.055125
+277,AJ Auxerre,Paris Saint-Germain,8.25,5.5,1.33,Ligue 1,BetPawa,2026-01-19 22:54:05.056125
+278,CA San Lorenzo de Almagro,CA Lanus,2.45,2.75,3.6,Liga Profesional,BetPawa,2026-01-19 22:54:05.057137
+279,CA Independiente Avellaneda,Estudiantes de La Plata,2.23,2.85,4.0,Liga Profesional,BetPawa,2026-01-19 22:54:05.058129
+280,Independiente Rivadavia,Atletico Tucuman,2.23,3.05,3.65,Liga Profesional,BetPawa,2026-01-19 22:54:05.062119
+281,CA Talleres de Cordoba,Newell's Old Boys,1.85,3.3,4.8,Liga Profesional,BetPawa,2026-01-19 22:54:05.063119
+282,Stade Rennais FC,FC Lorient,1.76,3.75,4.6,Ligue 1,BetPawa,2026-01-19 22:54:05.063119
+283,Le Havre AC,AS Monaco,3.6,3.75,1.98,Ligue 1,BetPawa,2026-01-19 22:54:05.064113
+284,CA Barracas Central,CA River Plate (ARG),4.7,3.15,1.92,Liga Profesional,BetPawa,2026-01-19 22:54:05.064113
+285,Olympique Marseille,RC Lens,2.02,3.65,3.55,Ligue 1,BetPawa,2026-01-19 22:54:05.065113
+286,Gimnasia y Esgrima La Plata,Racing Club Avellaneda,3.6,2.9,2.35,Liga Profesional,BetPawa,2026-01-19 22:54:05.065113
+287,CA Rosario Central,CA Belgrano de Cordoba,1.85,3.15,5.25,Liga Profesional,BetPawa,2026-01-19 22:54:05.066110
+288,FC Nantes,OGC Nice,3.2,3.45,2.23,Ligue 1,BetPawa,2026-01-19 22:54:05.066110
+289,Stade Brest 29,Toulouse FC,2.85,3.1,2.65,Ligue 1,BetPawa,2026-01-19 22:54:05.066110
+290,Paris FC,Angers SCO,1.82,3.5,4.6,Ligue 1,BetPawa,2026-01-19 22:54:05.067108
+291,FC Metz,Olympique Lyon,4.7,4.0,1.7,Ligue 1,BetPawa,2026-01-19 22:54:05.067108
+292,Lille OSC,Strasbourg Alsace,1.78,3.8,4.4,Ligue 1,BetPawa,2026-01-19 22:54:05.068108
+293,Boca Juniors,Deportivo Riestra AFBC,1.57,3.7,7.0,Liga Profesional,BetPawa,2026-01-19 22:54:05.068108
+294,CA Tigre,Estudiantes Rio Cuarto,2.08,3.0,4.2,Liga Profesional,BetPawa,2026-01-19 22:54:05.069115
+295,Argentinos Juniors,CA Sarmiento Junin,1.55,3.8,7.0,Liga Profesional,BetPawa,2026-01-19 22:54:05.070108
+296,Sao Paulo FC SP,CR Flamengo RJ,4.2,3.4,1.92,Brasileiro Serie A,BetPawa,2026-01-19 22:54:05.071109
+297,Chapecoense SC,Santos FC SP,3.0,3.2,2.45,Brasileiro Serie A,BetPawa,2026-01-19 22:54:05.072104
+298,Atletico Mineiro MG,SE Palmeiras SP,2.9,3.2,2.55,Brasileiro Serie A,BetPawa,2026-01-19 22:54:05.073105
+299,EC Vitoria BA,Clube do Remo PA,1.82,3.5,4.6,Brasileiro Serie A,BetPawa,2026-01-19 22:54:05.074107
+300,Mirassol FC SP,CR Vasco da Gama RJ,1.83,3.6,4.4,Brasileiro Serie A,BetPawa,2026-01-19 22:54:05.078095
+301,Coritiba FC PR,Red Bull Bragantino SP,2.3,3.15,3.3,Brasileiro Serie A,BetPawa,2026-01-19 22:54:05.080090
+302,SC Corinthians SP,EC Bahia BA,2.25,3.3,3.3,Brasileiro Serie A,BetPawa,2026-01-19 22:54:05.083087
+303,Fluminense FC RJ,Gremio FB Porto Alegrense RS,1.73,3.45,5.5,Brasileiro Serie A,BetPawa,2026-01-19 22:54:05.084083
+304,SC Internacional RS,CA Paranaense PR,1.92,3.35,4.3,Brasileiro Serie A,BetPawa,2026-01-19 22:54:05.087084
+305,Botafogo FR RJ,Cruzeiro EC MG,2.21,3.2,3.5,Brasileiro Serie A,BetPawa,2026-01-19 22:54:05.088077
+306,AGF Aarhus,Odense Boldklub,1.59,4.2,5.5,Superliga,BetPawa,2026-01-19 22:54:05.088077
+307,FC Salzburg,FK Austria Wien,1.85,3.75,4.1,Bundesliga,BetPawa,2026-01-19 22:54:05.094071
+308,SK Rapid,TSV Hartberg,1.79,3.7,4.5,Bundesliga,BetPawa,2026-01-19 22:54:05.095068
+309,LASK Linz,WSG Tirol,1.69,3.85,5.0,Bundesliga,BetPawa,2026-01-19 22:54:05.097069
+310,FC Nordsjaelland,Soenderjyske,1.82,3.7,4.3,Superliga,BetPawa,2026-01-19 22:54:05.098063
+311,SCR Altach,Blau-Weiss Linz,1.92,3.35,4.3,Bundesliga,BetPawa,2026-01-19 22:54:05.099066
+312,Wolfsberger AC,Grazer AK 1902,1.76,3.65,4.8,Bundesliga,BetPawa,2026-01-19 22:54:05.100065
+313,FC Midtjylland,FC Copenhagen,1.89,3.8,3.85,Superliga,BetPawa,2026-01-19 22:54:05.100065
+314,SK Sturm Graz,SV Ried,1.99,3.5,3.8,Bundesliga,BetPawa,2026-01-19 22:54:05.101062
+315,Silkeborg IF,Viborg FF,2.6,3.6,2.6,Superliga,BetPawa,2026-01-19 22:54:05.102061
+316,Broendby IF,Randers FC,1.75,3.9,4.5,Superliga,BetPawa,2026-01-19 22:54:05.102061
+317,Vejle BK,FC Fredericia,1.82,3.85,4.1,Superliga,BetPawa,2026-01-19 22:54:05.103059
+318,FC Copenhagen,Viborg FF,1.45,4.5,7.25,DBU Pokalen,BetPawa,2026-01-19 22:54:05.104058
+319,AGF Aarhus,FC Midtjylland,2.35,3.75,2.8,DBU Pokalen,BetPawa,2026-01-19 22:54:05.105057
+320,FK Zenit Saint Petersburg,FC Baltika Kaliningrad,1.36,4.6,10.0,Premier League,BetPawa,2026-01-19 22:54:05.105057
+321,FC Orenburg,FK Akron Tolyatti,2.4,3.2,3.1,Premier League,BetPawa,2026-01-19 22:54:05.107054
+322,FC Dynamo-Makhachkala,FK Rubin Kazan,2.85,2.85,2.85,Premier League,BetPawa,2026-01-19 22:54:05.107054
+323,Lokomotiv Moscow,FC Pari Nizhny Novgorod,1.36,4.8,9.5,Premier League,BetPawa,2026-01-19 22:54:05.111046
+324,FK Krasnodar,FK Rostov,1.35,4.7,10.0,Premier League,BetPawa,2026-01-19 22:54:05.113046
+325,FK Dinamo Moscow,PFK Krylia Sovetov Samara,1.42,4.5,8.0,Premier League,BetPawa,2026-01-19 22:54:05.114038
+326,FK Sochi,FK Spartak Moscow,5.5,4.0,1.6,Premier League,BetPawa,2026-01-19 22:54:05.115036
+327,RFK Akhmat Grozny,CSKA Moscow,3.2,3.3,2.3,Premier League,BetPawa,2026-01-19 22:54:05.115036

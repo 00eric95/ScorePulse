@@ -1,0 +1,139 @@
+version: '3.9'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: scorepulse-redis
+    ports:
+      - "6379:6379"  # optional: remove in prod or restrict to localhost
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+    env_file:
+      - .env
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scorepulse-web
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    volumes:
+      - ./instance:/app/instance
+      - ./logs:/app/logs
+      - ./static/uploads:/app/static/uploads
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    command: gunicorn --bind 0.0.0.0:5000 --workers 3 --threads 2 --timeout 120 run:app
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scorepulse-celery-worker
+    environment:
+      - FLASK_ENV=production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    volumes:
+      - ./instance:/app/instance
+      - ./logs:/app/logs
+    depends_on:
+      redis:
+        condition: service_healthy
+      web:
+        condition: service_healthy   # wait for web health too if needed
+    restart: unless-stopped
+    command: celery -A app.celery worker --loglevel=info --concurrency=4 --pool=eventlet --queues=default,email,predictions,reports,maintenance
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "celery", "-A", "app.celery", "inspect", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scorepulse-celery-beat
+    environment:
+      - FLASK_ENV=production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    volumes:
+      - ./instance:/app/instance
+      - ./logs:/app/logs
+    depends_on:
+      redis:
+        condition: service_healthy
+      celery-worker:
+        condition: service_started
+    restart: unless-stopped
+    command: celery -A app.celery beat --loglevel=info
+    env_file:
+      - .env
+
+  flower:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scorepulse-flower
+    ports:
+      - "5555:5555"
+    environment:
+      - FLASK_ENV=production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - FLOWER_BASIC_AUTH=${FLOWER_BASIC_AUTH:-admin:change-this-in-prod}
+    volumes:
+      - ./instance:/app/instance
+      - ./logs:/app/logs
+    depends_on:
+      celery-worker:
+        condition: service_healthy
+    restart: unless-stopped
+    command: celery -A app.celery flower --port=5555 --basic_auth=${FLOWER_BASIC_AUTH} --purge_offline_workers=3600
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5555/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  redis_data:
+
+networks:
+  default:
+    driver: bridge

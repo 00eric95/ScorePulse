@@ -1,0 +1,357 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-slate-950 py-12 px-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-10">
+            <div>
+                <h1 class="text-4xl font-bold text-white mb-2">Notifications</h1>
+                <p class="text-slate-400">Stay updated with your prediction activity</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="markAllAsRead()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm">
+                    <i class="fas fa-check-double mr-2"></i>
+                    Mark All Read
+                </button>
+                <button onclick="clearAllNotifications()" class="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg text-sm">
+                    <i class="fas fa-trash mr-2"></i>
+                    Clear All
+                </button>
+            </div>
+        </div>
+
+        <!-- Notification Filters -->
+        <div class="glass-card bg-slate-900/50 rounded-2xl p-4 mb-8 border border-slate-700">
+            <div class="flex flex-wrap gap-2">
+                <button onclick="filterNotifications('all')" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">
+                    All
+                </button>
+                <button onclick="filterNotifications('unread')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm">
+                    <span class="flex items-center gap-2">
+                        Unread
+                        {% if unread_count > 0 %}
+                        <span class="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                            {{ unread_count }}
+                        </span>
+                        {% endif %}
+                    </span>
+                </button>
+                <button onclick="filterNotifications('predictions')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm">
+                    Predictions
+                </button>
+                <button onclick="filterNotifications('system')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm">
+                    System
+                </button>
+                <button onclick="filterNotifications('promotions')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm">
+                    Promotions
+                </button>
+            </div>
+        </div>
+
+        <!-- Notifications List -->
+        <div class="space-y-4">
+            {% for notification in notifications %}
+            <div class="glass-card bg-slate-900/50 rounded-2xl p-6 border {{ 'border-blue-500/30' if not notification.is_read else 'border-slate-700' }} hover:border-blue-500/50 transition group">
+                <div class="flex items-start gap-4">
+                    <!-- Notification Icon -->
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center {{ 'bg-blue-500/20' if notification.notification_type == 'prediction' else 'bg-green-500/20' if notification.notification_type == 'system' else 'bg-purple-500/20' }}">
+                        <i class="{{ 'fas fa-bell text-blue-400' if notification.notification_type == 'prediction' else 'fas fa-cog text-green-400' if notification.notification_type == 'system' else 'fas fa-gift text-purple-400' }} text-xl"></i>
+                    </div>
+                    
+                    <!-- Notification Content -->
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-lg font-bold text-white">{{ notification.title }}</h3>
+                            <span class="text-slate-500 text-sm">{{ notification.created_at|relative_time }}</span>
+                        </div>
+                        <p class="text-slate-300 mb-4">{{ notification.message }}</p>
+                        
+                        <!-- Actions -->
+                        <div class="flex gap-3">
+                            {% if not notification.is_read %}
+                            <button onclick="markAsRead({{ notification.id }})" class="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm">
+                                Mark as Read
+                            </button>
+                            {% endif %}
+                            
+                            {% if notification.action_url %}
+                            <a href="{{ notification.action_url }}" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm">
+                                View Details
+                            </a>
+                            {% endif %}
+                            
+                            <button onclick="deleteNotification({{ notification.id }})" class="px-3 py-1 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg text-sm">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Read Status -->
+                    {% if not notification.is_read %}
+                    <div class="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></div>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <!-- Empty State -->
+            <div class="glass-card bg-slate-900/50 rounded-2xl p-12 text-center border border-slate-700">
+                <div class="inline-block p-6 rounded-full bg-slate-800 mb-6">
+                    <i class="fas fa-bell-slash text-3xl text-slate-600"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-4">No Notifications</h3>
+                <p class="text-slate-400 mb-6">You're all caught up! Check back later for updates.</p>
+                <a href="{{ url_for('home') }}" class="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">
+                    Go to Home
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if notifications.pages > 1 %}
+        <div class="mt-8 flex justify-center">
+            <div class="flex gap-2">
+                {% if notifications.has_prev %}
+                <a href="{{ url_for('notifications', page=notifications.prev_num) }}" 
+                   class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                {% endif %}
+                
+                <span class="px-4 py-2 text-slate-400">
+                    Page {{ notifications.page }} of {{ notifications.pages }}
+                </span>
+                
+                {% if notifications.has_next %}
+                <a href="{{ url_for('notifications', page=notifications.next_num) }}" 
+                   class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Notification Settings -->
+        <div class="glass-card bg-slate-900/50 rounded-2xl p-6 border border-slate-700 mt-12">
+            <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <i class="fas fa-cog text-blue-400"></i>
+                Notification Settings
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <h4 class="text-lg font-bold text-white mb-3">Email Notifications</h4>
+                    <label class="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl hover:bg-slate-800 cursor-pointer">
+                        <div>
+                            <span class="text-white font-medium">Prediction Results</span>
+                            <p class="text-sm text-slate-400">Get notified when your predictions are graded</p>
+                        </div>
+                        <input type="checkbox" class="w-5 h-5 text-blue-500 rounded" checked>
+                    </label>
+                    <label class="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl hover:bg-slate-800 cursor-pointer">
+                        <div>
+                            <span class="text-white font-medium">System Updates</span>
+                            <p class="text-sm text-slate-400">Important announcements and updates</p>
+                        </div>
+                        <input type="checkbox" class="w-5 h-5 text-blue-500 rounded" checked>
+                    </label>
+                </div>
+                <div class="space-y-4">
+                    <h4 class="text-lg font-bold text-white mb-3">Push Notifications</h4>
+                    <label class="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl hover:bg-slate-800 cursor-pointer">
+                        <div>
+                            <span class="text-white font-medium">Live Match Updates</span>
+                            <p class="text-sm text-slate-400">Goals and key events for followed matches</p>
+                        </div>
+                        <input type="checkbox" class="w-5 h-5 text-blue-500 rounded">
+                    </label>
+                    <label class="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl hover:bg-slate-800 cursor-pointer">
+                        <div>
+                            <span class="text-white font-medium">Value Bet Alerts</span>
+                            <p class="text-sm text-slate-400">High-value betting opportunities</p>
+                        </div>
+                        <input type="checkbox" class="w-5 h-5 text-blue-500 rounded" checked>
+                    </label>
+                </div>
+            </div>
+            <div class="mt-6 pt-6 border-t border-slate-800">
+                <button onclick="saveNotificationSettings()" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold rounded-lg transition">
+                    Save Settings
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Filter notifications
+    function filterNotifications(filterType) {
+        // Update active button
+        document.querySelectorAll('.glass-card button').forEach(btn => {
+            btn.classList.remove('bg-blue-600');
+            btn.classList.add('bg-slate-800', 'hover:bg-slate-700');
+        });
+        event.target.classList.remove('bg-slate-800', 'hover:bg-slate-700');
+        event.target.classList.add('bg-blue-600');
+        
+        // Show/hide notifications based on filter
+        const notifications = document.querySelectorAll('.glass-card:not(.bg-slate-900\\/50.p-6)');
+        notifications.forEach(notification => {
+            if (filterType === 'all') {
+                notification.style.display = 'block';
+            } else if (filterType === 'unread') {
+                if (notification.querySelector('.bg-blue-500')) {
+                    notification.style.display = 'block';
+                } else {
+                    notification.style.display = 'none';
+                }
+            }
+        });
+    }
+    
+    // Mark notification as read
+    async function markAsRead(notificationId) {
+        try {
+            const response = await fetch(`/api/notifications/mark-read/${notificationId}`, {
+                method: 'POST'
+            });
+            
+            if (response.ok) {
+                const notification = document.querySelector(`[onclick="markAsRead(${notificationId})"]`).closest('.glass-card');
+                notification.querySelector('.bg-blue-500').remove();
+                notification.querySelector('[onclick="markAsRead(' + notificationId + ')"]').remove();
+                notification.classList.remove('border-blue-500/30');
+                notification.classList.add('border-slate-700');
+                
+                // Update unread count
+                updateUnreadCount(-1);
+            }
+        } catch (error) {
+            console.error('Failed to mark as read:', error);
+        }
+    }
+    
+    // Mark all as read
+    async function markAllAsRead() {
+        if (!confirm('Mark all notifications as read?')) return;
+        
+        try {
+            const response = await fetch('/api/notifications/mark-all-read', {
+                method: 'POST'
+            });
+            
+            if (response.ok) {
+                document.querySelectorAll('.bg-blue-500').forEach(dot => dot.remove());
+                document.querySelectorAll('[onclick^="markAsRead"]').forEach(btn => btn.remove());
+                document.querySelectorAll('.border-blue-500\\/30').forEach(card => {
+                    card.classList.remove('border-blue-500/30');
+                    card.classList.add('border-slate-700');
+                });
+                
+                updateUnreadCount(-999); // Reset to 0
+            }
+        } catch (error) {
+            console.error('Failed to mark all as read:', error);
+        }
+    }
+    
+    // Delete notification
+    async function deleteNotification(notificationId) {
+        if (!confirm('Delete this notification?')) return;
+        
+        try {
+            const response = await fetch(`/api/notifications/delete/${notificationId}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                const notification = document.querySelector(`[onclick="deleteNotification(${notificationId})"]`).closest('.glass-card');
+                notification.remove();
+                
+                // Update count if it was unread
+                if (notification.querySelector('.bg-blue-500')) {
+                    updateUnreadCount(-1);
+                }
+            }
+        } catch (error) {
+            console.error('Failed to delete notification:', error);
+        }
+    }
+    
+    // Clear all notifications
+    async function clearAllNotifications() {
+        if (!confirm('Clear all notifications? This cannot be undone.')) return;
+        
+        try {
+            const response = await fetch('/api/notifications/clear-all', {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                document.querySelectorAll('.glass-card:not(.bg-slate-900\\/50.p-6)').forEach(card => card.remove());
+                updateUnreadCount(-999);
+                
+                // Show empty state
+                const container = document.querySelector('.space-y-4');
+                container.innerHTML = `
+                    <div class="glass-card bg-slate-900/50 rounded-2xl p-12 text-center border border-slate-700">
+                        <div class="inline-block p-6 rounded-full bg-slate-800 mb-6">
+                            <i class="fas fa-bell-slash text-3xl text-slate-600"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4">No Notifications</h3>
+                        <p class="text-slate-400 mb-6">All notifications have been cleared.</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Failed to clear notifications:', error);
+        }
+    }
+    
+    // Update unread count
+    function updateUnreadCount(change) {
+        const unreadBadge = document.querySelector('.bg-red-500');
+        if (unreadBadge) {
+            const current = parseInt(unreadBadge.textContent);
+            const newCount = Math.max(0, current + change);
+            
+            if (newCount > 0) {
+                unreadBadge.textContent = newCount;
+            } else {
+                unreadBadge.remove();
+            }
+        }
+    }
+    
+    // Save notification settings
+    async function saveNotificationSettings() {
+        const settings = {
+            email_predictions: document.querySelector('input[type="checkbox"]:checked') ? true : false,
+            // Add other settings
+        };
+        
+        try {
+            const response = await fetch('/api/notification-settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(settings)
+            });
+            
+            if (response.ok) {
+                showToast('Settings saved successfully!', 'success');
+            }
+        } catch (error) {
+            console.error('Failed to save settings:', error);
+            showToast('Failed to save settings', 'error');
+        }
+    }
+    
+    function showToast(message, type) {
+        // Your toast implementation
+        console.log(`${type}: ${message}`);
+    }
+</script>
+{% endblock %}

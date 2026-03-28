@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+{% block title %}Team Comparison{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-slate-950 py-12 px-4">
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-white mb-4">Team Comparison Tool</h1>
+            <p class="text-slate-400">Compare teams head-to-head with detailed statistics</p>
+        </div>
+
+        <!-- Team Selection -->
+        <div class="glass-card bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 border border-slate-700 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-end">
+                <!-- Team 1 Selection -->
+                <div>
+                    <label class="block text-sm font-bold text-blue-400 mb-2">Team 1</label>
+                    <div class="relative">
+                        <input type="text" id="team1-search" 
+                               class="w-full bg-slate-900 border border-blue-500/30 rounded-xl px-4 py-3 pl-10 text-white focus:outline-none focus:border-blue-500"
+                               placeholder="Search team..." 
+                               oninput="searchTeams('team1')">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400"></i>
+                        <div id="team1-results" class="absolute z-10 w-full bg-slate-900 border border-slate-700 rounded-lg mt-1 max-h-60 overflow-y-auto hidden"></div>
+                    </div>
+                    <div id="team1-selected" class="mt-4 hidden">
+                        <div class="flex items-center gap-3">
+                            <div id="team1-badge" class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-lg">
+                                ?
+                            </div>
+                            <div>
+                                <div id="team1-name" class="text-white font-bold text-lg"></div>
+                                <div id="team1-league" class="text-slate-400 text-sm"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VS Separator -->
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-slate-600">VS</div>
+                    <button onclick="compareTeams()" 
+                            class="mt-4 px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold rounded-xl transition transform hover:-translate-y-1">
+                        Compare
+                    </button>
+                </div>
+
+                <!-- Team 2 Selection -->
+                <div>
+                    <label class="block text-sm font-bold text-red-400 mb-2">Team 2</label>
+                    <div class="relative">
+                        <input type="text" id="team2-search" 
+                               class="w-full bg-slate-900 border border-red-500/30 rounded-xl px-4 py-3 pl-10 text-white focus:outline-none focus:border-red-500"
+                               placeholder="Search team..." 
+                               oninput="searchTeams('team2')">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-red-400"></i>
+                        <div id="team2-results" class="absolute z-10 w-full bg-slate-900 border border-slate-700 rounded-lg mt-1 max-h-60 overflow-y-auto hidden"></div>
+                    </div>
+                    <div id="team2-selected" class="mt-4 hidden">
+                        <div class="flex items-center gap-3">
+                            <div id="team2-badge" class="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg">
+                                ?
+                            </div>
+                            <div>
+                                <div id="team2-name" class="text-white font-bold text-lg"></div>
+                                <div id="team2-league" class="text-slate-400 text-sm"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Results -->
+        <div id="comparison-results" class="hidden">
+            <!-- Head-to-Head Stats -->
+            <div class="glass-card bg-slate-900/50 rounded-2xl p-6 border border-slate-700 mb-8">
+                <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                    <i class="fas fa-history text-blue-400"></i>
+                    Head-to-Head History
+                </h3>
+                <div id="h2h-stats" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Stats will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Stats Comparison -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Team 1 Stats -->
+                <div class="glass-card bg-gradient-to-br from-blue-900/20 to-blue-900/5 rounded-2xl p-6 border border-blue-500/20">
+                    <h3 class="text-lg font-bold text-white mb-6 flex items-center justify-between">
+                        <span id="team1-title" class="text-blue-400"></span>
+                        <span id="team1-rating" class="text-2xl font-black"></span>
+                    </h3>
+                    <div id="team1-stats" class="space-y-4">
+                        <!-- Stats will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Team 2 Stats -->
+                <div class="glass-card bg-gradient-to-br from-red-900/20 to-red-900/5 rounded-2xl p-6 border border-red-500/20">
+                    <h3 class="text-lg font-bold text-white mb-6 flex items-center justify-between">
+                        <span id="team2-title" class="text-red-400"></span>
+                        <span id="team2-rating" class="text-2xl font-black"></span>
+                    </h3>
+                    <div id="team2-stats" class="space-y-4">
+                        <!-- Stats will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Prediction -->
+            <div class="glass-card bg-gradient-to-br from-purple-900/20 to-purple-900/5 rounded-2xl p-6 border border-purple-500/20 mb-8">
+                <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                    <i class="fas fa-robot text-purple-400"></i>
+                    AI Prediction
+                </h3>
+                <div id="ai-prediction" class="text-center">
+                    <!-- Prediction will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Key Insights -->
+            <div class="glass-card bg-slate-900/50 rounded-2xl p-6 border border-slate-700">
+                <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                    <i class="fas fa-lightbulb text-yellow-400"></i>
+                    Key Insights
+                </h3>
+                <div id="key-insights" class="space-y-4">
+                    <!-- Insights will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Popular Comparisons -->
+        <div class="mt-12">
+            <h3 class="text-2xl font-bold text-white mb-6">Popular Comparisons</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {% for comparison in popular_comparisons %}
+                <div class="glass-card bg-slate-900/50 rounded-2xl p-6 border border-slate-700 hover:border-blue-500/30 transition cursor-pointer" 
+                     onclick="loadComparison('{{ comparison.team1 }}', '{{ comparison.team2 }}')">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-center">
+                            <div class="text-white font-bold">{{ comparison.team1_short }}</div>
+                            <div class="text-slate-400 text-sm">vs</div>
+                            <div class="text-white font-bold">{{ comparison.team2_short }}</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-lg font-bold {{ 'text-green-400' if comparison.win_rate_team1 > 50 else 'text-red-400' }}">
+                                {{ comparison.win_rate_team1 }}%
+                            </div>
+                            <div class="text-xs text-slate-500">Win Rate</div>
+                        </div>
+                    </div>
+                    <div class="text-sm text-slate-400">
+                        {{ comparison.total_matches }} historical matches
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let selectedTeam1 = null;
+    let selectedTeam2 = null;
+    let allTeams = {{ all_teams|tojson|safe }};
+
+    function searchTeams(side) {
+        const searchInput = document.getElementById(`${side}-search`);
+        const resultsDiv = document.getElementById(`${side}-results`);
+        const searchTerm = searchInput.value.toLowerCase();
+        
+        if (searchTerm.length < 2) {
+            resultsDiv.classList.add('hidden');
+            return;
+        }
+        
+        const filtered = allTeams.filter(team => 
+            team.toLowerCase().includes(searchTerm)
+        ).slice(0, 8);
+        
+        resultsDiv.innerHTML = '';
+        filtered.forEach(team => {
+            const div = document.createElement('div');
+            div.className = 'px-4 py-3 hover:bg-slate-800 cursor-pointer text-white border-b border-slate-800 last:border-b-0';
+            div.textContent = team;
+            div.onclick = () => selectTeam(side, team);
+            resultsDiv.appendChild(div);
+        });
+        
+        resultsDiv.classList.remove('hidden');
+    }
+    
+    function selectTeam(side, teamName) {
+        if (side === 'team1') {
+            selectedTeam1 = teamName;
+            document.getElementById('team1-search').value = teamName;
+            document.getElementById('team1-name').textContent = teamName;
+            document.getElementById('team1-badge').textContent = teamName.substring(0, 2).toUpperCase();
+            document.getElementById('team1-selected').classList.remove('hidden');
+        } else {
+            selectedTeam2 = teamName;
+            document.getElementById('team2-search').value = teamName;
+            document.getElementById('team2-name').textContent = teamName;
+            document.getElementById('team2-badge').textContent = teamName.substring(0, 2).toUpperCase();
+            document.getElementById('team2-selected').classList.remove('hidden');
+        }
+        
+        document.getElementById(`${side}-results`).classList.add('hidden');
+    }
+    
+    async function compareTeams() {
+        if (!selectedTeam1 || !selectedTeam2) {
+            alert('Please select both teams to compare');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/compare/${encodeURIComponent(selectedTeam1)}/${encodeURIComponent(selectedTeam2)}`);
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            // Update UI with comparison data
+            updateComparisonUI(data);
+            document.getElementById('comparison-results').classList.remove('hidden');
+            
+            // Scroll to results
+            document.getElementById('comparison-results').scrollIntoView({ behavior: 'smooth' });
+            
+        } catch (error) {
+            console.error('Comparison failed:', error);
+            alert('Failed to compare teams. Please try again.');
+        }
+    }
+    
+    function updateComparisonUI(data) {
+        // Update team titles
+        document.getElementById('team1-title').textContent = data.team1.name;
+        document.getElementById('team2-title').textContent = data.team2.name;
+        
+        // Update ratings
+        document.getElementById('team1-rating').textContent = data.team1.rating;
+        document.getElementById('team2-rating').textContent = data.team2.rating;
+        
+        // Update head-to-head stats
+        const h2hContainer = document.getElementById('h2h-stats');
+        h2hContainer.innerHTML = `
+            <div class="text-center">
+                <div class="text-3xl font-bold text-white">{{ data.h2h.team1_wins }}</div>
+                <div class="text-sm text-slate-400">{{ data.team1.name }} Wins</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-slate-400">{{ data.h2h.draws }}</div>
+                <div class="text-sm text-slate-400">Draws</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-white">{{ data.h2h.team2_wins }}</div>
+                <div class="text-sm text-slate-400">{{ data.team2.name }} Wins</div>
+            </div>
+        `;
+        
+        // Update team stats
+        updateTeamStats('team1', data.team1.stats);
+        updateTeamStats('team2', data.team2.stats);
+        
+        // Update AI prediction
+        const predictionContainer = document.getElementById('ai-prediction');
+        predictionContainer.innerHTML = `
+            <div class="mb-4">
+                <div class="text-4xl font-bold text-white mb-2">${data.prediction.result}</div>
+                <div class="text-slate-400">Predicted Outcome</div>
+            </div>
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <div class="text-center">
+                    <div class="text-xl font-bold text-blue-400">${data.prediction.prob_home}%</div>
+                    <div class="text-sm text-slate-400">${data.team1.name}</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xl font-bold text-slate-400">${data.prediction.prob_draw}%</div>
+                    <div class="text-sm text-slate-400">Draw</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xl font-bold text-red-400">${data.prediction.prob_away}%</div>
+                    <div class="text-sm text-slate-400">${data.team2.name}</div>
+                </div>
+            </div>
+            <a href="/predict?home_team=${encodeURIComponent(data.team1.name)}&away_team=${encodeURIComponent(data.team2.name)}"
+               class="inline-block px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold rounded-xl transition">
+                Make Full Prediction
+            </a>
+        `;
+        
+        // Update key insights
+        const insightsContainer = document.getElementById('key-insights');
+        insightsContainer.innerHTML = data.insights.map(insight => `
+            <div class="flex items-start gap-3 p-4 bg-slate-800/50 rounded-xl">
+                <i class="fas fa-chevron-right text-blue-400 mt-1"></i>
+                <div>
+                    <div class="text-white font-medium mb-1">${insight.title}</div>
+                    <div class="text-sm text-slate-400">${insight.description}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function updateTeamStats(side, stats) {
+        const container = document.getElementById(`${side}-stats`);
+        container.innerHTML = Object.entries(stats).map(([key, value]) => `
+            <div class="flex justify-between items-center">
+                <span class="text-slate-400">${key.replace(/_/g, ' ').toUpperCase()}</span>
+                <span class="text-white font-bold">${value}</span>
+            </div>
+        `).join('');
+    }
+    
+    function loadComparison(team1, team2) {
+        selectTeam('team1', team1);
+        selectTeam('team2', team2);
+        compareTeams();
+    }
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#team1-results') && e.target.id !== 'team1-search') {
+            document.getElementById('team1-results').classList.add('hidden');
+        }
+        if (!e.target.closest('#team2-results') && e.target.id !== 'team2-search') {
+            document.getElementById('team2-results').classList.add('hidden');
+        }
+    });
+</script>
+{% endblock %}

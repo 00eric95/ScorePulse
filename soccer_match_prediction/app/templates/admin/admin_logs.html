@@ -1,0 +1,129 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}System Logs - ScorePulse Admin{% endblock %}
+
+{% block content %}
+<div class="p-6 md:p-8">
+    <!-- Header with controls -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-white gradient-text">System & Orchestration Logs</h1>
+            <p class="text-brand-muted mt-2">Monitor real-time system activity, orchestration events, and errors</p>
+        </div>
+        
+        <div class="flex flex-wrap gap-3">
+            <button onclick="refreshLogs()" class="px-5 py-2.5 bg-gradient-to-r from-brand-accent to-cyan-600 hover:from-cyan-500 hover:to-brand-accent text-white rounded-lg transition-all duration-300 flex items-center gap-2 shadow-md">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            
+            <button onclick="filterLogs('all')" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-all duration-300 flex items-center gap-2">
+                <i class="fas fa-filter"></i> All
+            </button>
+            
+            <button onclick="filterLogs('error')" class="px-4 py-2 bg-red-900/50 hover:bg-red-900/70 text-red-300 rounded-lg transition-all duration-300 flex items-center gap-2 border border-red-500/30">
+                <i class="fas fa-exclamation-triangle"></i> Errors
+            </button>
+            
+            <button onclick="clearLogs()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-all duration-300 flex items-center gap-2 border border-slate-600">
+                <i class="fas fa-trash-alt"></i> Clear
+            </button>
+        </div>
+    </div>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="mb-6 p-4 rounded-xl {% if category == 'success' %}bg-green-900/40 border border-green-500/30 text-green-200{% elif category == 'danger' %}bg-red-900/40 border border-red-500/30 text-red-200{% else %}bg-blue-900/40 border border-brand-accent/30 text-brand-accent{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Logs Table -->
+    <div class="glass-dark rounded-2xl overflow-hidden shadow-2xl border border-slate-700">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-gray-300" id="logs-table">
+                <thead class="text-xs uppercase bg-gradient-to-r from-slate-900 to-slate-800">
+                    <tr>
+                        <th class="px-6 py-4">Timestamp</th>
+                        <th class="px-6 py-4">Level</th>
+                        <th class="px-6 py-4">Source</th>
+                        <th class="px-6 py-4">Message</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-700" id="logs-body">
+                    {% if logs and logs|length > 0 %}
+                        {% for log in logs %}
+                        <tr class="hover:bg-slate-800/60 transition-colors duration-150 log-entry" 
+                            data-level="{{ log.level|lower }}">
+                            <td class="px-6 py-4 whitespace-nowrap font-mono text-brand-muted text-xs">
+                                {{ log.timestamp }}
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium
+                                    {% if log.level in ['ERROR', 'CRITICAL'] %}bg-red-900/60 text-red-300 border border-red-500/40
+                                    {% elif log.level == 'WARNING' %}bg-orange-900/60 text-brand-orange border border-orange-500/40
+                                    {% elif log.level == 'INFO' %}bg-blue-900/60 text-brand-accent border border-brand-accent/40
+                                    {% else %}bg-slate-700 text-gray-300 border border-slate-600{% endif %}">
+                                    {{ log.level }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-brand-muted">{{ log.source or 'system' }}</td>
+                            <td class="px-6 py-4 font-mono leading-relaxed">{{ log.message }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="px-6 py-20 text-center text-brand-muted">
+                                <div class="flex flex-col items-center gap-4">
+                                    <i class="fas fa-history text-6xl opacity-40"></i>
+                                    <h3 class="text-xl font-medium text-white">No logs recorded yet</h3>
+                                    <p class="max-w-md">
+                                        System activity, orchestration events, and errors will appear here in real-time.
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer controls -->
+        <div class="p-6 border-t border-slate-700 bg-slate-900/50 text-center text-sm text-brand-muted">
+            Showing <span id="log-count">{{ logs|length if logs else 0 }}</span> entries • Last updated just now
+        </div>
+    </div>
+</div>
+
+<!-- Client-side filtering (basic) -->
+<script>
+    function filterLogs(level) {
+        const rows = document.querySelectorAll('.log-entry');
+        rows.forEach(row => {
+            if (level === 'all' || row.dataset.level === level) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function refreshLogs() {
+        location.reload();
+    }
+
+    function clearLogs() {
+        if (confirm("Clear all visible logs? This action cannot be undone.")) {
+            // In real app: send AJAX POST to clear-logs endpoint
+            alert("Clear logs request would be sent to server here");
+            // location.reload(); // after clear
+        }
+    }
+
+    // Auto-refresh every 60 seconds (optional - comment out if unwanted)
+    // setInterval(refreshLogs, 60000);
+</script>
+{% endblock %}

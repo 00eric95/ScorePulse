@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Probability Intelligence | ScorePulse AI</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0a1128',
+                            card: 'rgba(28, 43, 75, 0.6)',
+                            accent: '#00f2c3',
+                            orange: '#ff6b35',
+                            text: '#e6f1ff',
+                            muted: '#a0a8b8',
+                            danger: '#ef4444',
+                            success: '#10b981'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'shimmer': 'shimmer 2s infinite',
+                        'slide-in': 'slideIn 0.3s ease-out',
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'bounce-slow': 'bounce 2s infinite',
+                        'wave': 'wave 1.5s ease-in-out infinite',
+                        'gradient': 'gradient 3s ease infinite',
+                        'probability-shift': 'probabilityShift 2s ease-in-out infinite',
+                        'value-pulse': 'valuePulse 1.5s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        shimmer: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(100%)' }
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateX(-100%)', opacity: '0' },
+                            '100%': { transform: 'translateX(0)', opacity: '1' }
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        wave: {
+                            '0%, 100%': { transform: 'rotate(0deg)' },
+                            '25%': { transform: 'rotate(5deg)' },
+                            '75%': { transform: 'rotate(-5deg)' }
+                        },
+                        gradient: {
+                            '0%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' },
+                            '100%': { backgroundPosition: '0% 50%' }
+                        },
+                        probabilityShift: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' }
+                        },
+                        valuePulse: {
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)' },
+                            '50%': { boxShadow: '0 0 40px rgba(168, 85, 247, 0.8)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0a1128 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .probability-bg {
+            background:
+                radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                linear-gradient(45deg, #0a1128 0%, #1e293b 100%);
+            position: relative;
+        }
+
+        .probability-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 25% 25%, rgba(168, 85, 247, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+            animation: probability-shift 4s ease-in-out infinite;
+        }
+
+        .comparison-chart {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .bookie-prob {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .true-prob {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            animation: value-pulse 1.5s ease-in-out infinite;
+        }
+
+        .glass-card {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(168, 85, 247, 0.5);
+        }
+
+        .metric-highlight {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .value-badge {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #22c55e;
+        }
+
+        .case-study {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .profit-indicator {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .loss-indicator {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Navigation -->
+    <nav class="bg-slate-900/80 backdrop-blur-lg border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <a href="{{ url_for('home') }}" class="flex items-center space-x-2">
+                    <i class="fas fa-chart-pie text-purple-400 text-2xl"></i>
+                    <span class="text-xl font-bold text-white">ScorePulse AI</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <a href="{{ url_for('home') }}" class="text-slate-300 hover:text-white transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="probability-bg min-h-[70vh] flex items-center justify-center relative overflow-hidden">
+        <!-- Probability Visualization -->
+        <div class="absolute inset-0 opacity-20">
+            <div class="absolute top-1/4 left-1/4 w-32 h-32 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 blur-xl animate-pulse"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-40 h-40 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-xl animate-pulse animation-delay-1000"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="text-center z-10 max-w-5xl mx-auto px-4">
+            <!-- Main Message -->
+            <div class="mb-8">
+                <h1 class="text-5xl md:text-7xl font-black mb-6 animate-fade-in">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-violet-300 to-purple-500">
+                        True Probability
+                    </span>
+                    <br>
+                    <span class="text-white">Beyond Bookmaker Odds</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-slate-300 max-w-4xl mx-auto animate-fade-in animation-delay-300">
+                    We remove the bookmaker margin and add football context to give you mathematically sound probabilities
+                </p>
+            </div>
+
+            <!-- Comparison Chart -->
+            <div class="comparison-chart max-w-4xl mx-auto animate-fade-in animation-delay-600">
+                <h3 class="text-2xl font-bold text-white mb-6">The Truth vs The Hype</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Bookmaker Odds -->
+                    <div class="bookie-prob rounded-lg p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-bold text-red-400">Bookmaker Odds</h4>
+                            <span class="text-xs text-red-300 bg-red-500/20 px-2 py-1 rounded">105-115% Total</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-300">Manchester City</span>
+                                <span class="font-bold text-white">2.10</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-300">Draw</span>
+                                <span class="font-bold text-white">3.40</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-300">Arsenal</span>
+                                <span class="font-bold text-white">3.80</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-red-500/30">
+                            <div class="text-sm text-red-300">Implied Probabilities</div>
+                            <div class="grid grid-cols-3 gap-2 mt-2">
+                                <div class="text-center">
+                                    <div class="font-bold text-white">47.6%</div>
+                                    <div class="text-xs text-slate-400">City</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="font-bold text-white">29.4%</div>
+                                    <div class="text-xs text-slate-400">Draw</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="font-bold text-white">26.3%</div>
+                                    <div class="text-xs text-slate-400">Arsenal</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- True Probabilities -->
+                    <div class="true-prob rounded-lg p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-bold text-purple-400">True Probabilities</h4>
+                            <span class="text-xs text-purple-300 bg-purple-500/20 px-2 py-1 rounded">100% Total</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-300">Manchester City</span>
+                                <span class="font-bold text-white">68%</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-300">Draw</span>
+                                <span class="font-bold text-white">22%</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-300">Arsenal</span>
+                                <span class="font-bold text-white">10%</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-purple-500/30">
+                            <div class="text-sm text-purple-300">Mathematically Sound</div>
+                            <div class="grid grid-cols-3 gap-2 mt-2">
+                                <div class="text-center">
+                                    <div class="font-bold text-white">68%</div>
+                                    <div class="text-xs text-slate-400">City</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="font-bold text-white">22%</div>
+                                    <div class="text-xs text-slate-400">Draw</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="font-bold text-white">10%</div>
+                                    <div class="text-xs text-slate-400">Arsenal</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 p-4 bg-slate-800/50 rounded-lg">
+                    <p class="text-slate-300 text-sm">
+                        <strong class="text-purple-400">Result:</strong> Bookmakers charge 8-12% margin. Our true probabilities give you the mathematical edge.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- The Problem Section -->
+    <div class="py-20 bg-gradient-to-b from-slate-900 to-slate-950">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                    The Problem with <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400">Bookmaker Odds</span>
+                </h2>
+                <p class="text-xl text-slate-400 max-w-3xl mx-auto">
+                    Understanding why bookmaker odds don't represent true probabilities
+                </p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <div class="feature-card rounded-2xl p-8 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-2xl font-bold text-white mb-4">Overround/Margin</h3>
+                            <p class="text-slate-400 mb-6">
+                                Bookmakers build in a profit margin (typically 8-12%) into their odds. This means the implied probabilities always add up to more than 100%.
+                            </p>
+                            <div class="metric-highlight">
+                                <div class="text-lg font-bold text-red-400 mb-1">105-115%</div>
+                                <div class="text-xs text-slate-500">Typical bookmaker overround</div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white mb-4">No Football Context</h3>
+                            <p class="text-slate-400 mb-6">
+                                Odds are set by traders focusing on market balance, not football fundamentals. They don't account for team form, injuries, or tactical matchups.
+                            </p>
+                            <div class="metric-highlight">
+                                <div class="text-lg font-bold text-orange-400 mb-1">Market-Driven</div>
+                                <div class="text-xs text-slate-500">Not football-driven</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <div class="inline-block p-6 bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/20 rounded-xl">
+                        <h4 class="text-xl font-bold text-white mb-2">The Result</h4>
+                        <p class="text-slate-300">
+                            You're betting against odds that are designed to make bookmakers money, not reflect true match probabilities.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How We Calculate -->
+    <div class="py-20 bg-gradient-to-b from-slate-950 to-slate-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                    How We Calculate <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-violet-300">True Probability</span>
+                </h2>
+                <p class="text-xl text-slate-400 max-w-3xl mx-auto">
+                    Our mathematical approach removes bookmaker margin and adds football intelligence
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="feature-card rounded-2xl p-8 text-center">
+                    <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-500/20 flex items-center justify-center mb-6 mx-auto">
+                        <span class="text-blue-400 font-bold text-2xl">1</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-4">Ensemble Prediction</h3>
+                    <p class="text-slate-400 mb-6">
+                        Multiple neural networks analyze the match from different angles, producing raw probability estimates.
+                    </p>
+                    <div class="metric-highlight">
+                        <div class="text-sm font-medium text-blue-400 mb-1">7 Networks</div>
+                        <div class="text-xs text-slate-500">Specialized analysis</div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="feature-card rounded-2xl p-8 text-center">
+                    <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 border border-purple-500/20 flex items-center justify-center mb-6 mx-auto">
+                        <span class="text-purple-400 font-bold text-2xl">2</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-4">Post-Processing</h3>
+                    <p class="text-slate-400 mb-6">
+                        Temperature scaling and isotonic regression calibrate probabilities to be mathematically sound.
+                    </p>
+                    <div class="metric-highlight">
+                        <div class="text-sm font-medium text-purple-400 mb-1">Calibrated</div>
+                        <div class="text-xs text-slate-500">Reliable confidence</div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="feature-card rounded-2xl p-8 text-center">
+                    <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-green-500/20 to-green-500/5 border border-green-500/20 flex items-center justify-center mb-6 mx-auto">
+                        <span class="text-green-400 font-bold text-2xl">3</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-4">Context Adjustment</h3>
+                    <p class="text-slate-400 mb-6">
+                        Football-specific factors like injuries, motivation, and referee tendencies are factored in.
+                    </p>
+                    <div class="metric-highlight">
+                        <div class="text-sm font-medium text-green-400 mb-1">Context-Aware</div>
+                        <div class="text-xs text-slate-500">Football intelligence</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Value Detection -->
+    <div class="py-20 bg-gradient-to-b from-slate-900 to-slate-950">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-violet-300">Value Detection</span> Philosophy
+                </h2>
+                <p class="text-xl text-slate-400 max-w-3xl mx-auto">
+                    Finding profitable opportunities where our probabilities differ from bookmaker odds
+                </p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <div class="feature-card rounded-2xl p-8 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-2xl font-bold text-white mb-4">Value Formula</h3>
+                            <div class="bg-slate-800/50 p-4 rounded-lg mb-4">
+                                <code class="text-purple-400 font-mono text-lg">
+                                    Value = (Our Probability × Decimal Odds) - 1
+                                </code>
+                            </div>
+                            <p class="text-slate-400 mb-4">
+                                Positive value means expected profit. We consider opportunities with +6.5% or higher as interesting.
+                            </p>
+                            <div class="metric-highlight">
+                                <div class="text-lg font-bold text-green-400 mb-1">+6.5%</div>
+                                <div class="text-xs text-slate-500">Minimum threshold</div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white mb-4">Risk Management</h3>
+                            <p class="text-slate-400 mb-4">
+                                We use quarter-Kelly sizing by default, balancing profit potential with risk management.
+                            </p>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-400">Kelly Fraction</span>
+                                    <span class="font-bold text-purple-400">25%</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-400">Max Stake</span>
+                                    <span class="font-bold text-purple-400">5% Bankroll</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-400">Stop Loss</span>
+                                    <span class="font-bold text-purple-400">10% Daily</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real Examples -->
+    <div class="py-20 bg-gradient-to-b from-slate-950 to-slate-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                    Real <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">Examples</span>
+                </h2>
+                <p class="text-xl text-slate-400 max-w-3xl mx-auto">
+                    Historical cases where our true probabilities identified profitable value
+                </p>
+            </div>
+
+            <div class="max-w-4xl mx-auto space-y-6">
+                <!-- Example 1 -->
+                <div class="case-study">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-xl font-bold text-white">Liverpool vs Manchester City (Premier League)</h4>
+                        <div class="value-badge">+14.2% Edge</div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h5 class="font-semibold text-slate-300 mb-2">Bookmaker Odds</h5>
+                            <div class="space-y-1 text-sm">
+                                <div>Liverpool: <span class="text-red-400">28%</span> (3.60)</div>
+                                <div>Draw: <span class="text-red-400">25%</span> (4.00)</div>
+                                <div>Man City: <span class="text-red-400">47%</span> (2.10)</div>
+                            </div>
+                        </div>
+                        <div>
+                            <h5 class="font-semibold text-slate-300 mb-2">Our True Probabilities</h5>
+                            <div class="space-y-1 text-sm">
+                                <div>Liverpool: <span class="text-green-400">41%</span></div>
+                                <div>Draw: <span class="text-green-400">29%</span></div>
+                                <div>Man City: <span class="text-green-400">30%</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-700">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400">Result: Liverpool won 3-1</span>
+                            <div class="profit-indicator">+42.5% Return</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Example 2 -->
+                <div class="case-study">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-xl font-bold text-white">Barcelona vs Real Madrid (La Liga)</h4>
+                        <div class="value-badge">+9.7% Edge</div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h5 class="font-semibold text-slate-300 mb-2">Bookmaker Odds</h5>
+                            <div class="space-y-1 text-sm">
+                                <div>Barcelona: <span class="text-red-400">35%</span> (2.85)</div>
+                                <div>Draw: <span class="text-red-400">28%</span> (3.60)</div>
+                                <div>Real Madrid: <span class="text-red-400">37%</span> (2.70)</div>
+                            </div>
+                        </div>
+                        <div>
+                            <h5 class="font-semibold text-slate-300 mb-2">Our True Probabilities</h5>
+                            <div class="space-y-1 text-sm">
+                                <div>Barcelona: <span class="text-green-400">45%</span></div>
+                                <div>Draw: <span class="text-green-400">25%</span></div>
+                                <div>Real Madrid: <span class="text-green-400">30%</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-700">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400">Result: Barcelona won 2-0</span>
+                            <div class="profit-indicator">+27.3% Return</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Example 3 -->
+                <div class="case-study">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-xl font-bold text-white">Bayern Munich vs Borussia Dortmund (Bundesliga)</h4>
+                        <div class="loss-indicator">-3.2% Loss</div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h5 class="font-semibold text-slate-300 mb-2">Bookmaker Odds</h5>
+                            <div class="space-y-1 text-sm">
+                                <div>Bayern: <span class="text-red-400">58%</span> (1.72)</div>
+                                <div>Draw: <span class="text-red-400">22%</span> (4.50)</div>
+                                <div>Dortmund: <span class="text-red-400">20%</span> (5.00)</div>
+                            </div>
+                        </div>
+                        <div>
+                            <h5 class="font-semibold text-slate-300 mb-2">Our True Probabilities</h5>
+                            <div class="space-y-1 text-sm">
+                                <div>Bayern: <span class="text-orange-400">52%</span></div>
+                                <div>Draw: <span class="text-orange-400">28%</span></div>
+                                <div>Dortmund: <span class="text-orange-400">20%</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-700">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400">Result: Bayern won 4-0</span>
+                            <span class="text-slate-500 text-sm">No bet placed (below threshold)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="py-20 bg-gradient-to-b from-slate-950 to-slate-900">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                Get <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-violet-300">True Probabilities</span> Now
+            </h2>
+            <p class="text-xl text-slate-400 mb-8 max-w-2xl mx-auto">
+                Stop betting against bookmaker margins. Use mathematically sound probabilities to find real value.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ url_for('predict') }}" class="bg-gradient-to-r from-purple-600 to-violet-500 hover:from-purple-500 hover:to-violet-400 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    <i class="fas fa-search-dollar mr-2"></i>Find Value Bets
+                </a>
+                <a href="{{ url_for('home') }}" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300">
+                    <i class="fas fa-home mr-2"></i>Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Interactive probability comparison
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to case studies
+            const caseStudies = document.querySelectorAll('.case-study');
+            caseStudies.forEach(study => {
+                study.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
+                });
+
+                study.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+
+            // Smooth scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html></content>
+<parameter name="filePath">c:\Users\LENOVO\OneDrive\Desktop\SCORE_PULSEAIv2\soccer_match_prediction\app\templates\probability_intelligence.html

@@ -1,0 +1,813 @@
+{% extends "base.html" %}
+{% block title %}Predict Match{% endblock %}
+{% block content %}
+
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-950 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
+    <div class="max-w-6xl w-full space-y-8 reveal active">
+        
+        <div class="text-center mb-10">
+            <span class="px-4 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold uppercase tracking-widest border border-blue-500/20">AI Simulation Console</span>
+            <h2 class="text-4xl md:text-5xl font-black text-white tracking-tighter mt-4 drop-shadow-2xl">
+                MATCH <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">PREDICTOR</span>
+            </h2>
+        </div>
+
+        <div class="glass-card bg-slate-900/60 backdrop-blur-xl rounded-3xl overflow-hidden border border-slate-800 shadow-2xl relative">
+            
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-brand-accent to-transparent opacity-70"></div>
+
+            <form method="POST" id="predictForm" class="p-8 md:p-12">
+                {{ form.hidden_tag() }}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    
+                    <div class="space-y-6">
+                        <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 hover:border-blue-500/30 transition duration-300">
+                            <h3 class="text-blue-400 font-bold mb-4 uppercase text-sm">Home Team</h3>
+                            
+                            <!-- Team Search Input -->
+                            <div class="mb-4 relative">
+                                <input type="text" 
+                                       id="home_search" 
+                                       placeholder="Search home team..." 
+                                       class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white outline-none focus:border-blue-500"
+                                       oninput="filterTeams('home', this.value)">
+                                <div id="home_search_results" class="hidden absolute z-50 bg-slate-800 border border-slate-700 rounded-lg mt-1 max-h-60 overflow-y-auto w-full shadow-xl"></div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <select id="home_country" class="w-full bg-slate-900 border-slate-600 rounded-lg px-3 py-2 text-white outline-none focus:border-blue-500" onchange="handleCountryChange('home')">
+                                    <option value="">Select Country</option>
+                                </select>
+                                <select id="home_league" class="w-full bg-slate-900 border-slate-600 rounded-lg px-3 py-2 text-white outline-none focus:border-blue-500 opacity-50 cursor-not-allowed" disabled onchange="handleLeagueChange('home')">
+                                    <option value="">Select League</option>
+                                </select>
+                                <select name="home_team" id="home_team" class="w-full bg-slate-700 border-blue-500 rounded-lg px-4 py-3 text-white font-bold outline-none focus:ring-2 focus:ring-blue-500" required onchange="updateBadge('home', this.value); fetchStats('home', this.value)">
+                                    <option value="">Select Team</option>
+                                    {% for team_id, team_name in form.home_team.choices %}
+                                    <option value="{{ team_id }}">{{ team_name }}</option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.home_team.errors %}
+                                <div class="text-red-400 text-sm">
+                                    {% for error in form.home_team.errors %}
+                                    <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="mt-6 flex justify-center">
+                                <div id="home-badge" class="w-20 h-20 rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center text-xl font-black text-white shadow-lg transition-all">?</div>
+                            </div>
+                        </div>
+                        
+                        <div id="home_stats" class="hidden bg-blue-900/10 border border-blue-500/20 p-4 rounded-xl transition-all">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs text-blue-300 font-bold uppercase">Team Stats</span>
+                                <span class="text-xs text-blue-300 font-bold" id="home_team_name">-</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                                <div class="stat-item bg-slate-900 p-2 rounded cursor-pointer hover:bg-slate-800 transition" 
+                                     onclick="showMetricExplanation('rating')"
+                                     title="Click for explanation">
+                                    <p class="text-slate-500 font-bold">Rating</p>
+                                    <p class="text-white font-mono" id="home_rating">-</p>
+                                </div>
+                                <div class="stat-item bg-slate-900 p-2 rounded cursor-pointer hover:bg-slate-800 transition" 
+                                     onclick="showMetricExplanation('ppg')"
+                                     title="Click for explanation">
+                                    <p class="text-slate-500 font-bold">PPG</p>
+                                    <p class="text-white font-mono" id="home_ppg">-</p>
+                                </div>
+                                <div class="stat-item bg-slate-900 p-2 rounded cursor-pointer hover:bg-slate-800 transition" 
+                                     onclick="showMetricExplanation('form')"
+                                     title="Click for explanation">
+                                    <p class="text-slate-500 font-bold">Form</p>
+                                    <p class="text-white font-mono" id="home_form">-</p>
+                                </div>
+                            </div>
+                            <div class="mt-3 grid grid-cols-2 gap-2 text-center text-xs">
+                                <div class="stat-item bg-slate-900 p-2 rounded cursor-pointer hover:bg-slate-800 transition" 
+                                     onclick="showMetricExplanation('attack')"
+                                     title="Click for explanation">
+                                    <p class="text-slate-500 font-bold">Attack</p>
+                                    <p class="text-white font-mono" id="home_attack">-</p>
+                                </div>
+                                <div class="stat-item bg-slate-900 p-2 rounded cursor-pointer hover:bg-slate-800 transition" 
+                                     onclick="showMetricExplanation('defense')"
+                                     title="Click for explanation">
+                                    <p class="text-slate-500 font-bold">Defense</p>
+                                    <p class="text-white font-mono" id="home_defense">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 hover:border-red-500/30 transition duration-300">
+                            <h3 class="text-red-400 font-bold mb-4 uppercase text-sm">Away Team</h3>
+                            
+                            <!-- Team Search Input -->
+                            <div class="mb-4 relative">
+                                <input type="text" 
+                                       id="away_search" 
+                                       placeholder="Search away team..." 
+                                       class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white outline-none focus:border-red-500"
+                                       oninput="filterTeams('away', this.value)">
+                                <div id="away_search_results" class="hidden absolute z-50 bg-slate-800 border border-slate-700 rounded-lg mt-1 max-h-60 overflow-y-auto w-full shadow-xl"></div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <select id="away_country" class="w-full bg-slate-900 border-slate-600 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500" onchange="handleCountryChange('away', false)">
+                                    <option value="">Select Country</option>
+                                </select>
+                                <select id="away_league" class="w-full bg-slate-900 border-slate-600 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500 opacity-50 cursor-not-allowed" disabled onchange="handleLeagueChange('away')">
+                                    <option value="">Select League</option>
+                                </select>
+                                <select name="away_team" id="away_team" class="w-full bg-slate-700 border-red-500 rounded-lg px-4 py-3 text-white font-bold outline-none focus:ring-2 focus:ring-red-500" required onchange="updateBadge('away', this.value); fetchStats('away', this.value)">
+                                    <option value="">Select Team</option>
+                                    {% for team_id, team_name in form.away_team.choices %}
+                                    <option value="{{ team_id }}">{{ team_name }}</option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.away_team.errors %}
+                                <div class="text-red-400 text-sm">
+                                    {% for error in form.away_team.errors %}
+                                    <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="mt-6 flex justify-center">
+                                <div id="away-badge" class="w-20 h-20 rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center text-xl font-black text-white shadow-lg transition-all">?</div>
+                            </div>
+                        </div>
+
+                        <div id="away_stats" class="hidden bg-red-900/10 border border-red-500/20 p-4 rounded-xl transition-all">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs text-red-300 font-bold uppercase">Team Stats</span>
+                                <span class="text-xs text-red-300 font-bold" id="away_team_name">-</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                                <div class="stat-item bg-slate-900 p-2 rounded cursor-pointer hover:bg-slate-800 transition" 
+                                     onclick="showMetricExplanation('rating')"
+                                     title="Click for explanation">
+                                    <p class="text-slate-500 font-bold">Rating</p>
+                                    <p class="text-white font-mono" id="away_rating">-</p>
+                                </div>
+                                <div class="stat-item bg-slate-900 p-2 rounded cursor-pointer hover:bg-slate-800 transition" 
+                                     onclick="showMetricExplanation('ppg')"
+                                     title="Click for explanation">
+                                    <p class="text-slate-500 font-bold">PPG</p>
+                                    <p class="text-white font-mono" id="away_ppg">-</p>
+                                </div>
+                                <div class="stat-item bg-slate-900 p-2 rounded cursor-pointer hover:bg-slate-800 transition" 
+                                     onclick="showMetricExplanation('form')"
+                                     title="Click for explanation">
+                                    <p class="text-slate-500 font-bold">Form</p>
+                                    <p class="text-white font-mono" id="away_form">-</p>
+                                </div>
+                            </div>
+                            <div class="mt-3 grid grid-cols-2 gap-2 text-center text-xs">
+                                <div class="stat-item bg-slate-900 p-2 rounded cursor-pointer hover:bg-slate-800 transition" 
+                                     onclick="showMetricExplanation('attack')"
+                                     title="Click for explanation">
+                                    <p class="text-slate-500 font-bold">Attack</p>
+                                    <p class="text-white font-mono" id="away_attack">-</p>
+                                </div>
+                                <div class="stat-item bg-slate-900 p-2 rounded cursor-pointer hover:bg-slate-800 transition" 
+                                     onclick="showMetricExplanation('defense')"
+                                     title="Click for explanation">
+                                    <p class="text-slate-500 font-bold">Defense</p>
+                                    <p class="text-white font-mono" id="away_defense">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <div class="mt-10 flex justify-center">
+                    <div class="w-full max-w-xs">
+                        <label class="block text-xs font-bold text-slate-500 uppercase text-center mb-2">My Pick (Optional)</label>
+                        <select name="user_prediction" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-4 text-white text-center text-sm outline-none">
+                            <option value="None">-- Skip --</option>
+                            <option value="H">Home Win</option>
+                            <option value="D">Draw</option>
+                            <option value="A">Away Win</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="text-center pt-8">
+                    <button type="submit" class="w-full md:w-auto px-20 py-5 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-black text-xl rounded-2xl shadow-[0_0_30px_rgba(56,189,248,0.3)] transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95 border border-white/10">
+                        RUN SIMULATION
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="fixed inset-0 bg-black/80 flex items-center justify-center hidden z-50">
+            <div class="text-center">
+                <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p class="text-white text-lg font-bold">Processing AI Prediction...</p>
+                <p class="text-slate-400 text-sm mt-2">Analyzing team data and generating insights</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Metric Explanation Modal -->
+<div id="metricModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50 p-4">
+    <div class="bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-2xl p-8 max-w-md w-full shadow-2xl">
+        <div class="flex justify-between items-start mb-6">
+            <div>
+                <h3 id="metricTitle" class="text-2xl font-bold text-white mb-2"></h3>
+                <div id="metricSubtitle" class="text-sm text-slate-400 font-bold uppercase tracking-widest"></div>
+            </div>
+            <button id="closeModal" class="text-slate-500 hover:text-white text-3xl leading-none h-8 w-8 flex items-center justify-center rounded-full hover:bg-slate-700 transition">&times;</button>
+        </div>
+        <p id="metricDescription" class="text-slate-300 mb-6 leading-relaxed"></p>
+        <div class="bg-slate-800/50 border-l-4 border-blue-500 rounded-r-lg p-4 mb-6">
+            <h4 class="font-bold text-white mb-2 text-sm uppercase tracking-wider">Example</h4>
+            <p id="metricExample" class="text-slate-300 text-sm"></p>
+        </div>
+        <div class="flex justify-between items-center text-sm">
+            <span class="text-slate-500 italic">SCORE_PULSE Analytics</span>
+            <button class="text-blue-400 hover:text-blue-300 font-bold transition" onclick="document.getElementById('metricModal').classList.add('hidden')">
+                Got it
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global variables
+    const hierarchy = {{ hierarchy | default({}) | tojson | safe }};
+    const allTeams = {{ all_teams | default([]) | tojson | safe }};
+    const defaultHome = "{{ default_home if default_home else '' }}";
+    const defaultAway = "{{ default_away if default_away else '' }}";
+    
+    // Reverse mapping from league names to codes
+    const leagueNameToCode = {
+        'Premier League': 'E0',
+        'Championship': 'E1',
+        'League One': 'E2',
+        'League Two': 'E3',
+        'National League': 'EC',
+        'La Liga': 'SP1',
+        'Segunda Division': 'SP2',
+        'Bundesliga': 'D1',
+        '2. Bundesliga': 'D2',
+        'Serie A': 'I1',
+        'Serie B': 'I2',
+        'Ligue 1': 'F1',
+        'Ligue 2': 'F2',
+        'Eredivisie': 'N1',
+        'Primeira Liga': 'P1',
+        'First Division A': 'B1',
+        'Süper Lig': 'T1',
+        'Premiership': 'SC0',
+        'Championship': 'SC1',
+        'League One': 'SC2',
+        'League Two': 'SC3',
+        'Super League': 'G1',
+        'Primera Division': 'ARG',
+        'Bundesliga': 'AUT',
+        'Série A': 'BRA',
+        'Superliga': 'DNK',
+        'Veikkausliiga': 'FIN',
+        'Premier Division': 'IRL',
+        'J1 League': 'JPN',
+        'Liga MX': 'MEX',
+        'Eliteserien': 'NOR',
+        'Ekstraklasa': 'POL',
+        'Liga I': 'ROU',
+        'Premier League': 'RUS',
+        'Allsvenskan': 'SWE',
+        'Super League': 'SWZ',
+        'MLS': 'USA'
+    };
+
+    // Metric explanations data
+    const metricExplanations = {
+        'rating': {
+            title: 'Power Rating',
+            subtitle: 'Team Strength Score',
+            description: 'Our proprietary rating system (0-100) that combines team performance, recent form, head-to-head records, home/away advantage, and underlying statistics. Higher ratings indicate stronger teams.',
+            example: 'A rating of 85+ suggests a top-tier team likely to finish in Champions League positions. Ratings between 70-84 indicate strong contenders for European spots.'
+        },
+        'ppg': {
+            title: 'Points Per Game',
+            subtitle: 'Average Points',
+            description: 'Average number of points earned per match in the current season. Calculated by dividing total points by number of matches played. The most reliable indicator of team strength over a season.',
+            example: 'A team with 18 points from 6 games has a PPG of 3.0 (perfect record). Premier League champions typically finish with PPG between 2.3-2.6.'
+        },
+        'form': {
+            title: 'Recent Form',
+            subtitle: 'Last 5-10 Matches',
+            description: 'Team performance in recent matches, typically shown as results sequence (W=Win, D=Draw, L=Loss). Considers momentum, injuries, and tactical changes.',
+            example: 'WWLWD means: Win, Win, Loss, Win, Draw in their last 5 matches. Teams in "hot form" (WWWWW) often outperform their season averages.'
+        },
+        'attack': {
+            title: 'Attack Rating',
+            subtitle: 'Offensive Strength',
+            description: 'Measures a team\'s ability to create and convert scoring chances. Based on goals scored, shots on target, expected goals (xG), and chance creation metrics.',
+            example: 'An attack rating of 8.5/10 indicates a team that creates numerous high-quality chances and converts them efficiently.'
+        },
+        'defense': {
+            title: 'Defense Rating',
+            subtitle: 'Defensive Stability',
+            description: 'Evaluates a team\'s ability to prevent goals. Based on goals conceded, clean sheets, shots faced, and defensive organization.',
+            example: 'A defense rating of 7.2/10 suggests a solid defensive unit that limits opponent chances and maintains shape under pressure.'
+        }
+    };
+
+    // Function to normalize hierarchy structure
+    function normalizeHierarchy(hierarchy) {
+        // If hierarchy is already in country->league->teams format, return as is
+        if (Object.keys(hierarchy).length === 0) {
+            return {};
+        }
+        
+        // Check if it's already in the correct nested format
+        const firstKey = Object.keys(hierarchy)[0];
+        if (typeof hierarchy[firstKey] === 'object' && !Array.isArray(hierarchy[firstKey])) {
+            return hierarchy;
+        }
+        
+        // If hierarchy is league->teams format, convert to country->league->teams
+        const normalized = {};
+        
+        Object.entries(hierarchy).forEach(([key, value]) => {
+            // Try to extract country from league name or use generic
+            let country = 'Other';
+            const keyLower = key.toLowerCase();
+            
+            // Map leagues to countries
+            const countryMap = {
+                'england': ['premier league', 'championship', 'league one', 'league two', 'fa cup', 'carabao cup'],
+                'spain': ['la liga', 'segunda division', 'copa del rey'],
+                'italy': ['serie a', 'serie b', 'coppa italia'],
+                'germany': ['bundesliga', '2. bundesliga', 'dfb pokal'],
+                'france': ['ligue 1', 'ligue 2', 'coupe de france'],
+                'netherlands': ['eredivisie', 'eerste divisie'],
+                'portugal': ['liga nos', 'segunda liga'],
+                'international': ['champions league', 'europa league', 'europa conference', 'world cup', 'euro']
+            };
+            
+            for (const [countryName, leagues] of Object.entries(countryMap)) {
+                if (leagues.some(league => keyLower.includes(league.toLowerCase()))) {
+                    country = countryName.charAt(0).toUpperCase() + countryName.slice(1);
+                    break;
+                }
+            }
+            
+            if (!normalized[country]) normalized[country] = {};
+            normalized[country][key] = Array.isArray(value) ? value : [];
+        });
+        
+        return normalized;
+    }
+
+    // Function to show metric explanation
+    function showMetricExplanation(metricKey) {
+        const explanation = metricExplanations[metricKey];
+        if (!explanation) return;
+
+        const modal = document.getElementById('metricModal');
+        const title = document.getElementById('metricTitle');
+        const subtitle = document.getElementById('metricSubtitle');
+        const description = document.getElementById('metricDescription');
+        const example = document.getElementById('metricExample');
+
+        title.textContent = explanation.title;
+        subtitle.textContent = explanation.subtitle;
+        description.textContent = explanation.description;
+        example.textContent = explanation.example;
+
+        modal.classList.remove('hidden');
+        
+        // Add animation
+        modal.style.opacity = '0';
+        modal.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            modal.style.opacity = '1';
+            modal.style.transform = 'scale(1)';
+            modal.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+        }, 10);
+    }
+
+    // Function to populate select dropdowns
+    function populateSelect(id, items) {
+        const select = document.getElementById(id);
+        if (!select) return;
+        select.innerHTML = '<option value="">Select Option</option>';
+        items.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item;
+            opt.textContent = item;
+            select.appendChild(opt);
+        });
+    }
+
+    // Function to update team badge
+    function stringToColor(str) {
+        let hash = 0; 
+        for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+        return '#' + "00000".substring(0, 6 - c.length) + c;
+    }
+
+    function updateBadge(side, teamName) {
+        const badge = document.getElementById(side + '-badge');
+        if (!teamName || teamName === '') { 
+            badge.innerText = "?"; 
+            badge.style.background = "#0f172a";
+            badge.style.borderColor = "#334155";
+            return; 
+        }
+        
+        const initials = teamName.split(' ')
+            .map(n => n[0])
+            .join('')
+            .substring(0, 2)
+            .toUpperCase();
+        badge.innerText = initials;
+        
+        const color = stringToColor(teamName);
+        badge.style.background = `linear-gradient(135deg, ${color}40, ${color}20)`;
+        badge.style.borderColor = color;
+        badge.style.color = '#ffffff';
+    }
+
+    // Function to handle country selection
+    function handleCountryChange(side, autoSync = true) {
+        const countrySelect = document.getElementById(side + '_country');
+        const leagueSelect = document.getElementById(side + '_league');
+        const teamSelect = document.getElementById(side + '_team');
+        const country = countrySelect.value;
+        
+        // Reset downstream selects
+        leagueSelect.innerHTML = '<option value="">Select League</option>';
+        leagueSelect.disabled = true;
+        leagueSelect.classList.add('opacity-50', 'cursor-not-allowed');
+        
+        teamSelect.innerHTML = '<option value="">Select Team</option>';
+        updateBadge(side, "");
+        
+        if (country && window.normalizedHierarchy[country]) {
+            const leagues = Object.keys(window.normalizedHierarchy[country]).sort();
+            leagueSelect.disabled = false;
+            leagueSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+            
+            // Populate leagues
+            leagueSelect.innerHTML = '<option value="">Select League</option>';
+            leagues.forEach(league => {
+                const option = document.createElement('option');
+                option.value = league;
+                option.textContent = league;
+                leagueSelect.appendChild(option);
+            });
+        }
+        
+        if (side === 'home' && autoSync) {
+            const awayCountry = document.getElementById('away_country');
+            awayCountry.value = country;
+            handleCountryChange('away', false);
+        }
+    }
+
+    // Function to handle league selection
+    function handleLeagueChange(side, autoSync = true) {
+        const country = document.getElementById(side + '_country').value;
+        const league = document.getElementById(side + '_league').value;
+        const teamSelect = document.getElementById(side + '_team');
+        
+        teamSelect.innerHTML = '<option value="">Select Team</option>';
+        
+        if (country && league && window.normalizedHierarchy[country] && window.normalizedHierarchy[country][league]) {
+            const teams = window.normalizedHierarchy[country][league].sort();
+            
+            teams.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team;
+                option.textContent = team;
+                teamSelect.appendChild(option);
+            });
+        }
+        
+        if (side === 'home' && autoSync) {
+            const awayLeague = document.getElementById('away_league');
+            if (awayLeague) {
+                awayLeague.value = league;
+                handleLeagueChange('away', false);
+            }
+        }
+    }
+
+    // Function to fetch team statistics
+    async function fetchStats(side, teamName) {
+        if (!teamName || teamName.trim() === '') return;
+        
+        const statsDiv = document.getElementById(side + '_stats');
+        const teamNameElement = document.getElementById(side + '_team_name');
+        
+        if (teamNameElement) {
+            teamNameElement.textContent = teamName.length > 20 ? teamName.substring(0, 20) + '...' : teamName;
+        }
+        
+        try {
+            // Show loading state
+            statsDiv.classList.remove('hidden');
+            statsDiv.querySelectorAll('.stat-item p').forEach(p => {
+                if (p.classList.contains('font-mono')) {
+                    p.textContent = '...';
+                }
+            });
+            
+            // Simulate API call - replace with actual API endpoint if available
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            // Generate mock stats for demonstration
+            // In production, replace with actual API call
+            const mockStats = {
+                rating: Math.floor(Math.random() * 40) + 60, // 60-100
+                ppg: (Math.random() * 2.5 + 0.5).toFixed(1), // 0.5-3.0
+                form: Math.floor(Math.random() * 10) + 1, // 1-10
+                attack: (Math.random() * 5 + 5).toFixed(1), // 5-10
+                defense: (Math.random() * 5 + 5).toFixed(1) // 5-10
+            };
+            
+            // Update DOM with stats
+            document.getElementById(side + '_rating').textContent = mockStats.rating;
+            document.getElementById(side + '_ppg').textContent = mockStats.ppg;
+            document.getElementById(side + '_form').textContent = mockStats.form + '/10';
+            document.getElementById(side + '_attack').textContent = mockStats.attack + '/10';
+            document.getElementById(side + '_defense').textContent = mockStats.defense + '/10';
+            
+        } catch (error) {
+            console.error('Error fetching stats:', error);
+            statsDiv.classList.add('hidden');
+        }
+    }
+
+    // Function to filter teams in search
+    function filterTeams(side, query) {
+        const resultsDiv = document.getElementById(side + '_search_results');
+        resultsDiv.innerHTML = '';
+        
+        if (!query || query.trim().length < 2) {
+            resultsDiv.classList.add('hidden');
+            return;
+        }
+        
+        const searchTerm = query.toLowerCase();
+        const filteredTeams = allTeams.filter(team => 
+            team.toLowerCase().includes(searchTerm)
+        ).slice(0, 10); // Limit to 10 results
+        
+        if (filteredTeams.length === 0) {
+            resultsDiv.classList.add('hidden');
+            return;
+        }
+        
+        // Show results
+        filteredTeams.forEach(team => {
+            const div = document.createElement('div');
+            div.className = 'px-4 py-3 hover:bg-slate-700 cursor-pointer text-white border-b border-slate-700 last:border-b-0 transition-colors';
+            div.textContent = team;
+            div.onclick = () => {
+                document.getElementById(side + '_search').value = team;
+                document.getElementById(side + '_team').value = team;
+                resultsDiv.classList.add('hidden');
+                updateBadge(side, team);
+                fetchStats(side, team);
+            };
+            resultsDiv.appendChild(div);
+        });
+        
+        resultsDiv.classList.remove('hidden');
+    }
+
+    // Function to autofill team selection
+    function autofillTeam(side, targetTeam) {
+        if (!targetTeam) return;
+        
+        // First try to find in hierarchy
+        for (const [country, leagues] of Object.entries(window.normalizedHierarchy)) {
+            for (const [league, teams] of Object.entries(leagues)) {
+                if (teams.includes(targetTeam)) {
+                    const countrySelect = document.getElementById(side + '_country');
+                    const leagueSelect = document.getElementById(side + '_league');
+                    const teamSelect = document.getElementById(side + '_team');
+                    
+                    countrySelect.value = country;
+                    handleCountryChange(side, false);
+                    
+                    leagueSelect.value = league;
+                    handleLeagueChange(side, false);
+                    
+                    teamSelect.value = targetTeam;
+                    updateBadge(side, targetTeam);
+                    fetchStats(side, targetTeam);
+                    return;
+                }
+            }
+        }
+        
+        // If not found in hierarchy, just set the team
+        const teamSelect = document.getElementById(side + '_team');
+        teamSelect.value = targetTeam;
+        updateBadge(side, targetTeam);
+        fetchStats(side, targetTeam);
+    }
+
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        // Normalize hierarchy
+        window.normalizedHierarchy = normalizeHierarchy(hierarchy);
+        
+        // Populate country dropdowns
+        const countries = Object.keys(window.normalizedHierarchy).sort();
+        populateSelect('home_country', countries);
+        populateSelect('away_country', countries);
+        
+        // Set default teams if provided
+        if (defaultHome) {
+            document.getElementById('home_team').value = defaultHome;
+            updateBadge('home', defaultHome);
+            fetchStats('home', defaultHome);
+        }
+        
+        if (defaultAway) {
+            document.getElementById('away_team').value = defaultAway;
+            updateBadge('away', defaultAway);
+            fetchStats('away', defaultAway);
+        }
+        
+        // Close modal when clicking X
+        document.getElementById('closeModal').addEventListener('click', function() {
+            const modal = document.getElementById('metricModal');
+            modal.style.opacity = '0';
+            modal.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        });
+        
+        // Close modal when clicking outside
+        document.getElementById('metricModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.opacity = '0';
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.classList.add('hidden');
+                }, 200);
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('metricModal');
+                if (!modal.classList.contains('hidden')) {
+                    modal.style.opacity = '0';
+                    modal.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        modal.classList.add('hidden');
+                    }, 200);
+                }
+            }
+        });
+        
+        // Close search results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#home_search_results') && e.target.id !== 'home_search') {
+                document.getElementById('home_search_results').classList.add('hidden');
+            }
+            if (!e.target.closest('#away_search_results') && e.target.id !== 'away_search') {
+                document.getElementById('away_search_results').classList.add('hidden');
+            }
+        });
+        
+        // Add hover effects to stat items
+        document.querySelectorAll('.stat-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
+            });
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+        });
+        
+        // Form validation
+        const form = document.getElementById('predictForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const homeTeam = document.getElementById('home_team').value;
+                const awayTeam = document.getElementById('away_team').value;
+                
+                if (!homeTeam || !awayTeam) {
+                    e.preventDefault();
+                    alert('Please select both teams before submitting.');
+                    return false;
+                }
+                
+                if (homeTeam === awayTeam) {
+                    e.preventDefault();
+                    alert('Home and away teams cannot be the same.');
+                    return false;
+                }
+                
+                // Show loading overlay
+                const loadingOverlay = document.getElementById('loadingOverlay');
+                loadingOverlay.classList.remove('hidden');
+                
+                return true;
+            });
+        }
+        
+        // Handle form submission errors
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('error')) {
+            alert(urlParams.get('error'));
+        }
+    });
+</script>
+
+<style>
+    .stat-item {
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .stat-item:hover {
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .stat-item::after {
+        content: 'ℹ️';
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        font-size: 8px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+    
+    .stat-item:hover::after {
+        opacity: 1;
+    }
+    
+    #metricModal {
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    /* Search results styling */
+    #home_search_results,
+    #away_search_results {
+        scrollbar-width: thin;
+        scrollbar-color: #475569 #1e293b;
+    }
+    
+    #home_search_results::-webkit-scrollbar,
+    #away_search_results::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    #home_search_results::-webkit-scrollbar-track,
+    #away_search_results::-webkit-scrollbar-track {
+        background: #1e293b;
+        border-radius: 3px;
+    }
+    
+    #home_search_results::-webkit-scrollbar-thumb,
+    #away_search_results::-webkit-scrollbar-thumb {
+        background: #475569;
+        border-radius: 3px;
+    }
+    
+    /* Ensure form selects are visible when enabled */
+    select:not([disabled]) {
+        opacity: 1 !important;
+        cursor: pointer !important;
+    }
+    
+    /* Loading overlay animation */
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    
+    #loadingOverlay {
+        animation: pulse 2s infinite;
+    }
+</style>
+{% endblock %}

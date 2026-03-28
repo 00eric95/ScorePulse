@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy | ScorePulse AI{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Privacy Policy</h1>
+        <p class="text-slate-300">Last updated: {{ current_year }}</p>
+    </div>
+
+    <!-- Content -->
+    <div class="glass-card p-8 rounded-2xl border border-slate-800">
+        <div class="prose prose-invert max-w-none">
+            <p class="text-slate-300 mb-6">
+                At ScorePulse AI, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our football prediction platform.
+            </p>
+
+            <h2 class="text-2xl font-bold text-white mt-8 mb-4">1. Information We Collect</h2>
+            <p class="text-slate-300 mb-4">We collect information you provide directly to us:</p>
+            <ul class="text-slate-300 list-disc list-inside space-y-2 mb-6">
+                <li>Account information (username, email, password)</li>
+                <li>Prediction history and preferences</li>
+                <li>Payment information (processed securely via third-party providers)</li>
+                <li>Communications with our support team</li>
+            </ul>
+
+            <h2 class="text-2xl font-bold text-white mt-8 mb-4">2. How We Use Your Information</h2>
+            <p class="text-slate-300 mb-4">We use the information we collect to:</p>
+            <ul class="text-slate-300 list-disc list-inside space-y-2 mb-6">
+                <li>Provide, maintain, and improve our services</li>
+                <li>Process your predictions and display results</li>
+                <li>Send you important updates and notifications</li>
+                <li>Respond to your comments and questions</li>
+                <li>Detect, prevent, and address technical issues</li>
+            </ul>
+
+            <h2 class="text-2xl font-bold text-white mt-8 mb-4">3. Data Security</h2>
+            <p class="text-slate-300 mb-6">
+                We implement appropriate technical and organizational security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.
+            </p>
+
+            <h2 class="text-2xl font-bold text-white mt-8 mb-4">4. Third-Party Services</h2>
+            <p class="text-slate-300 mb-6">
+                We may employ third-party companies and individuals to facilitate our service. These third parties have access to your personal information only to perform specific tasks on our behalf and are obligated not to disclose or use it for any other purpose.
+            </p>
+
+            <h2 class="text-2xl font-bold text-white mt-8 mb-4">5. Cookies</h2>
+            <p class="text-slate-300 mb-6">
+                We use cookies and similar tracking technologies to track activity on our service and hold certain information. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent.
+            </p>
+
+            <h2 class="text-2xl font-bold text-white mt-8 mb-4">6. Your Rights</h2>
+            <p class="text-slate-300 mb-4">You have the right to:</p>
+            <ul class="text-slate-300 list-disc list-inside space-y-2 mb-6">
+                <li>Access and receive a copy of your personal data</li>
+                <li>Rectify any inaccurate personal data</li>
+                <li>Request deletion of your personal data</li>
+                <li>Object to processing of your personal data</li>
+                <li>Request restriction of processing your personal data</li>
+                <li>Request transfer of your personal data</li>
+            </ul>
+
+            <h2 class="text-2xl font-bold text-white mt-8 mb-4">7. Children's Privacy</h2>
+            <p class="text-slate-300 mb-6">
+                Our service is not intended for individuals under the age of 18. We do not knowingly collect personally identifiable information from anyone under 18. If you are a parent or guardian and you are aware that your child has provided us with personal data, please contact us.
+            </p>
+
+            <h2 class="text-2xl font-bold text-white mt-8 mb-4">8. Changes to This Privacy Policy</h2>
+            <p class="text-slate-300 mb-6">
+                We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date.
+            </p>
+
+            <h2 class="text-2xl font-bold text-white mt-8 mb-4">9. Contact Us</h2>
+            <p class="text-slate-300">
+                If you have any questions about this Privacy Policy, please contact us at:
+                <br>
+                <a href="mailto:privacy@scorepulse.ai" class="text-brand-accent hover:underline">privacy@scorepulse.ai</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Acceptance -->
+    <div class="mt-8 p-6 bg-slate-900/50 rounded-xl border border-slate-800">
+        <div class="flex items-start">
+            <div class="flex-shrink-0 mt-1">
+                <svg class="w-6 h-6 text-brand-accent" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-4">
+                <h3 class="font-semibold text-white mb-2">Acceptance of Terms</h3>
+                <p class="text-slate-400 text-sm">
+                    By using ScorePulse AI, you acknowledge that you have read and understood this Privacy Policy and agree to its terms.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

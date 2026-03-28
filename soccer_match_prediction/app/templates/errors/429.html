@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>429 - Too Many Requests | ScorePulse AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .error-code {
+            font-size: 120px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+        
+        .error-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .error-message {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #4CAF50;
+            border: 2px solid #4CAF50;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .rate-limit-details {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid #4CAF50;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .cooldown-timer {
+            font-size: 48px;
+            font-weight: 800;
+            color: #4CAF50;
+            margin: 20px 0;
+        }
+        
+        .timer-label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .rate-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .stat {
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #4CAF50;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .circular-progress {
+            width: 120px;
+            height: 120px;
+            margin: 20px auto;
+            position: relative;
+        }
+        
+        .circular-progress svg {
+            width: 120px;
+            height: 120px;
+            transform: rotate(-90deg);
+        }
+        
+        .circular-progress circle {
+            fill: none;
+            stroke-width: 10;
+            stroke-linecap: round;
+        }
+        
+        .circular-progress .bg {
+            stroke: rgba(76, 175, 80, 0.1);
+        }
+        
+        .circular-progress .progress {
+            stroke: #4CAF50;
+            stroke-dasharray: 314;
+            stroke-dashoffset: calc(314 - (314 * {{ progress or 30 }}) / 100);
+            animation: progress-animation 2s ease-out;
+        }
+        
+        @keyframes progress-animation {
+            from { stroke-dashoffset: 314; }
+            to { stroke-dashoffset: calc(314 - (314 * {{ progress or 30 }}) / 100); }
+        }
+        
+        .circular-progress .timer-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            font-weight: 700;
+            color: #4CAF50;
+        }
+        
+        .premium-tip {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .error-code {
+                font-size: 80px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .rate-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .cooldown-timer {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-code">429</div>
+        <div class="error-title">Too Many Requests</div>
+        
+        <div class="error-message">
+            You've made too many requests to our servers. Please wait a while before trying again.
+        </div>
+        
+        <div class="circular-progress">
+            <svg>
+                <circle class="bg" cx="60" cy="60" r="50"></circle>
+                <circle class="progress" cx="60" cy="60" r="50"></circle>
+            </svg>
+            <div class="timer-text" id="timer">30s</div>
+        </div>
+        
+        <div class="timer-label">
+            Cooldown period remaining
+        </div>
+        
+        <div class="rate-limit-details">
+            <strong>📊 Rate Limit Details:</strong>
+            <ul style="margin: 10px 0 10px 20px;">
+                <li>Limit: {{ limit or "30 requests per minute" }}</li>
+                <li>Your IP: {{ ip_address or request.remote_addr }}</li>
+                <li>Endpoint: {{ endpoint or request.path }}</li>
+                <li>Time: {{ datetime.now().strftime('%H:%M:%S') }}</li>
+            </ul>
+        </div>
+        
+        <div class="rate-stats">
+            <div class="stat">
+                <div class="stat-value" id="remaining">0</div>
+                <div class="stat-label">Requests Left</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="reset">60s</div>
+                <div class="stat-label">Reset In</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">{{ limit.split(' ')[0] or 30 }}</div>
+                <div class="stat-label">Limit/Min</div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                🏠 Go to Homepage
+            </a>
+            <a href="javascript:location.reload()" class="btn btn-secondary" id="retry-btn" disabled>
+                ⏳ Wait <span id="retry-time">30</span>s
+            </a>
+        </div>
+        
+        <div class="premium-tip">
+            💡 <strong>Premium users</strong> get higher rate limits. 
+            <a href="{{ url_for('pricing') }}" style="color: #4CAF50; font-weight: bold;">Upgrade now</a>
+        </div>
+        
+        <div style="margin-top: 25px; color: #999; font-size: 12px;">
+            This limit protects our AI servers from abuse. Thank you for understanding.
+        </div>
+    </div>
+    
+    <script>
+        // Timer functionality
+        let seconds = {{ cooldown or 30 }};
+        const timerElement = document.getElementById('timer');
+        const retryBtn = document.getElementById('retry-btn');
+        const retryTime = document.getElementById('retry-time');
+        const remainingEl = document.getElementById('remaining');
+        const resetEl = document.getElementById('reset');
+        
+        // Simulate rate limit info
+        let requestsRemaining = 0;
+        let resetIn = 60;
+        
+        function updateTimer() {
+            if (seconds > 0) {
+                seconds--;
+                timerElement.textContent = seconds + 's';
+                retryTime.textContent = seconds;
+                
+                // Update rate limit info
+                if (seconds % 5 === 0) {
+                    requestsRemaining = Math.min(30, requestsRemaining + 5);
+                    remainingEl.textContent = requestsRemaining;
+                }
+                
+                if (resetIn > 0) {
+                    resetIn--;
+                    resetEl.textContent = resetIn + 's';
+                }
+            } else {
+                timerElement.textContent = 'Ready!';
+                retryBtn.textContent = '🔄 Try Again';
+                retryBtn.disabled = false;
+                retryBtn.classList.add('btn-primary');
+                retryBtn.classList.remove('btn-secondary');
+                clearInterval(timerInterval);
+            }
+        }
+        
+        // Initialize
+        remainingEl.textContent = requestsRemaining;
+        resetEl.textContent = resetIn + 's';
+        
+        const timerInterval = setInterval(updateTimer, 1000);
+        updateTimer(); // Initial call
+        
+        // Retry button functionality
+        retryBtn.addEventListener('click', function() {
+            if (!this.disabled) {
+                window.location.reload();
+            }
+        });
+        
+        // Auto-refresh when timer reaches 0
+        setTimeout(function() {
+            if (seconds <= 0) {
+                window.location.reload();
+            }
+        }, (seconds + 1) * 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% block title %}Verify Your Email{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-slate-950 flex items-center justify-center py-12 px-4">
+    <div class="max-w-md w-full space-y-8">
+        <div class="glass-card bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 border border-slate-700">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-envelope text-blue-400 text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Verify Your Email</h2>
+                <p class="text-slate-400 mt-2">
+                    We've sent a 6-digit code to<br>
+                    <span class="font-bold text-white">{{ email }}</span>
+                </p>
+            </div>
+            
+            <!-- Timer -->
+            {% if remaining_time %}
+            <div class="bg-blue-900/20 border border-blue-500/30 rounded-xl p-4 mb-6 text-center">
+                <div class="text-sm text-blue-400 mb-1">Code expires in</div>
+                <div id="timer" class="text-2xl font-bold text-white">{{ remaining_time }}:00</div>
+            </div>
+            {% endif %}
+            
+            <!-- Form -->
+            <form method="POST" id="verifyForm">
+                {{ form.hidden_tag() }}
+                
+                <div class="space-y-6">
+                    <!-- Code Input -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-300 mb-2">
+                            Enter Verification Code
+                        </label>
+                        {{ form.verification_code(class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-white text-center text-xl tracking-widest focus:border-blue-500 outline-none", 
+                                                autofocus=true) }}
+                        {% if form.verification_code.errors %}
+                        <div class="text-red-400 text-sm mt-2">
+                            {% for error in form.verification_code.errors %}
+                            <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Submit -->
+                    {{ form.submit(class="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold rounded-xl transition-all transform hover:-translate-y-1") }}
+                </div>
+            </form>
+            
+            <!-- Resend Section -->
+            <div class="mt-8 pt-6 border-t border-slate-800">
+                <div class="text-center">
+                    <p class="text-slate-400 text-sm mb-4">Didn't receive the code?</p>
+                    <button id="resendBtn" onclick="resendVerification()" 
+                           class="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                           {% if not can_resend %}disabled{% endif %}>
+                        <i class="fas fa-redo mr-2"></i>
+                        Resend Code
+                    </button>
+                    <div id="resendTimer" class="text-xs text-slate-500 mt-2 hidden">
+                        Resend available in <span id="resendCountdown">120</span> seconds
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Help -->
+            <div class="mt-6 text-center">
+                <a href="{{ url_for('register') }}" class="text-sm text-slate-500 hover:text-white transition">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Register
+                </a>
+            </div>
+        </div>
+        
+        <!-- Instructions -->
+        <div class="glass-card bg-slate-900/50 p-6 rounded-2xl border border-slate-700">
+            <h4 class="text-white font-bold mb-3 flex items-center gap-2">
+                <i class="fas fa-info-circle text-blue-400"></i>
+                Need Help?
+            </h4>
+            <ul class="text-sm text-slate-400 space-y-2">
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-check text-green-400 mt-1"></i>
+                    <span>Check your spam or junk folder</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-check text-green-400 mt-1"></i>
+                    <span>Make sure you entered the correct email</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-check text-green-400 mt-1"></i>
+                    <span>Codes expire after 15 minutes</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-check text-green-400 mt-1"></i>
+                    <span>Contact <a href="mailto:wemba12321@gmail.com" class="text-blue-400 hover:underline">support@scorepulse.ai</a> for assistance</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Timer countdown
+    {% if remaining_time %}
+    let minutes = {{ remaining_time }};
+    let seconds = 0;
+    
+    function updateTimer() {
+        if (seconds === 0) {
+            if (minutes === 0) {
+                // Timer expired
+                document.getElementById('timer').textContent = 'Expired!';
+                clearInterval(timerInterval);
+                // Show resend option
+                document.getElementById('resendBtn').disabled = false;
+                return;
+            }
+            minutes--;
+            seconds = 59;
+        } else {
+            seconds--;
+        }
+        
+        document.getElementById('timer').textContent = 
+            minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+    }
+    
+    const timerInterval = setInterval(updateTimer, 1000);
+    {% endif %}
+    
+    // Auto-submit on 6 digits
+    document.getElementById('verification_code').addEventListener('input', function(e) {
+        if (this.value.length === 6) {
+            // Auto-submit after short delay
+            setTimeout(() => {
+                document.getElementById('verifyForm').submit();
+            }, 300);
+        }
+    });
+    
+    // Resend verification
+    async function resendVerification() {
+        const btn = document.getElementById('resendBtn');
+        const email = '{{ email }}';
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Sending...';
+        
+        try {
+            const response = await fetch('{{ url_for("resend_verification") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `email=${encodeURIComponent(email)}`
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Show success message
+                alert('✅ New verification code sent! Check your email.');
+                
+                // Start resend cooldown timer
+                startResendCooldown(120); // 2 minutes
+                
+                // Reload page to get new expiry time
+                location.reload();
+            } else {
+                alert('❌ ' + data.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-redo mr-2"></i> Resend Code';
+            }
+        } catch (error) {
+            alert('❌ Network error. Please try again.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-redo mr-2"></i> Resend Code';
+        }
+    }
+    
+    // Resend cooldown timer
+    function startResendCooldown(seconds) {
+        const resendTimer = document.getElementById('resendTimer');
+        const countdown = document.getElementById('resendCountdown');
+        const btn = document.getElementById('resendBtn');
+        
+        resendTimer.classList.remove('hidden');
+        btn.disabled = true;
+        
+        const interval = setInterval(() => {
+            seconds--;
+            countdown.textContent = seconds;
+            
+            if (seconds <= 0) {
+                clearInterval(interval);
+                resendTimer.classList.add('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-redo mr-2"></i> Resend Code';
+            }
+        }, 1000);
+    }
+    
+    // Initialize cooldown if button is disabled
+    {% if not can_resend and user.verification_code_expiry %}
+    const now = new Date();
+    const expiry = new Date('{{ user.verification_code_expiry.isoformat() }}');
+    const diffMs = expiry - now;
+    const diffSec = Math.floor(diffMs / 1000) - (13 * 60); // Show 2 minutes before expiry
+    
+    if (diffSec > 0) {
+        startResendCooldown(diffSec);
+    }
+    {% endif %}
+</script>
+
+<style>
+    /* Auto-fill code boxes style */
+    input[type="text"] {
+        letter-spacing: 10px;
+    }
+    
+    /* Custom focus style */
+    input:focus {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+    
+    /* Disabled button style */
+    button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}

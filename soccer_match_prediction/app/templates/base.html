@@ -1,14 +1,37 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ScorePulse AI - Advanced football predictions powered by neural networks and historical data analysis">
+    <meta name="keywords" content="football prediction, AI sports betting, match analysis, neural networks">
     <title>ScorePulse AI - {% block title %}Home{% endblock %}</title>
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="ScorePulse AI - Football Predictions">
+    <meta property="og:description" content="Advanced AI-powered football match predictions">
+    <meta property="og:type" content="website">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="alternate icon" href="{{ url_for('static', filename='favicon.ico') }}">
     
     <script src="https://cdn.tailwindcss.com"></script>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Add Plotly.js here (after other CDNs) -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <!-- Google Analytics/GTag (placeholder - add your ID) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
@@ -19,17 +42,51 @@
                 extend: {
                     colors: {
                         brand: {
-                            dark: '#0a1128',       /* Deep Night Blue */
-                            card: 'rgba(28, 43, 75, 0.6)', /* Glass Card BG */
-                            accent: '#00f2c3',     /* Cyber Teal */
-                            orange: '#ff6b35',     /* Sporty Orange */
-                            text: '#e6f1ff',       /* Soft White */
-                            muted: '#a0a8b8'       /* Muted Blue-Grey */
+                            dark: '#0a1128',
+                            card: 'rgba(28, 43, 75, 0.6)',
+                            accent: '#00f2c3',
+                            orange: '#ff6b35',
+                            text: '#e6f1ff',
+                            muted: '#a0a8b8',
+                            danger: '#ef4444',
+                            success: '#10b981'
                         }
                     },
-                    fontFamily: { sans: ['Poppins', 'sans-serif'] },
+                    fontFamily: { 
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'] 
+                    },
                     animation: {
                         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'shimmer': 'shimmer 2s infinite',
+                        'slide-in': 'slideIn 0.3s ease-out',
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'bounce-slow': 'bounce 2s infinite',
+                        'wave': 'wave 1.5s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-200% center' },
+                            '100%': { backgroundPosition: '200% center' }
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateY(-10px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        wave: {
+                            '0%, 100%': { transform: 'rotate(0deg)' },
+                            '25%': { transform: 'rotate(5deg)' },
+                            '75%': { transform: 'rotate(-5deg)' }
+                        }
                     }
                 }
             }
@@ -37,13 +94,20 @@
     </script>
 
     <style>
+        :root {
+            --brand-accent: #00f2c3;
+            --brand-orange: #ff6b35;
+        }
+        
         /* Global Background Gradient */
         body {
             background-color: #0a1128;
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(0, 242, 195, 0.08), transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(255, 107, 53, 0.05), transparent 40%);
+                radial-gradient(circle at 90% 80%, rgba(255, 107, 53, 0.05), transparent 40%),
+                linear-gradient(to bottom, rgba(10, 17, 40, 0.95), rgba(10, 17, 40, 0.98));
             background-attachment: fixed;
+            min-height: 100vh;
         }
 
         /* Glassmorphism Utilities */
@@ -55,90 +119,574 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
         
+        .glass-dark {
+            background: rgba(10, 17, 40, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #00f2c3 0%, #0099ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Shimmer Effect */
+        .shimmer-effect {
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                transparent 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 17, 40, 0.5);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 242, 195, 0.3);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 242, 195, 0.5);
+        }
+        
+        /* Selection Color */
+        ::selection {
+            background-color: rgba(0, 242, 195, 0.3);
+            color: #ffffff;
+        }
+        
         /* Preloader Animations */
-        .pulse-path { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: dash 2s ease-in-out infinite; }
-        .soccer-ball { animation: spin 3s infinite linear; transform-origin: center; }
-        @keyframes dash { 0% { stroke-dashoffset: 1000; } 50% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -1000; } }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .pulse-path { 
+            stroke-dasharray: 1000; 
+            stroke-dashoffset: 1000; 
+            animation: dash 2s ease-in-out infinite; 
+        }
+        .soccer-ball { 
+            animation: spin 3s infinite linear; 
+            transform-origin: center; 
+        }
+        
+        @keyframes dash { 
+            0% { stroke-dashoffset: 1000; } 
+            50% { stroke-dashoffset: 0; } 
+            100% { stroke-dashoffset: -1000; } 
+        }
+        
+        @keyframes spin { 
+            100% { transform: rotate(360deg); } 
+        }
+        
+        /* Mobile Menu Animation */
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out;
+        }
+        
+        .mobile-menu.active {
+            transform: translateX(0);
+        }
+        
+        /* Loading Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, 
+                rgba(255, 255, 255, 0.06) 25%, 
+                rgba(255, 255, 255, 0.1) 37%, 
+                rgba(255, 255, 255, 0.06) 63%);
+            background-size: 400% 100%;
+            animation: shimmer 1.4s ease infinite;
+        }
+
+        /* Chatbot Specific Styles */
+        .chatbot-typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .chatbot-typing-indicator span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--brand-accent);
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+        
+        .chatbot-typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .chatbot-typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        .chatbot-typing-indicator span:nth-child(3) { animation-delay: 0s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        .chatbot-message-user {
+            background: linear-gradient(135deg, #00f2c3 0%, #0099ff 100%);
+            color: #0a1128;
+            border-radius: 18px 18px 4px 18px;
+            align-self: flex-end;
+        }
+        
+        .chatbot-message-ai {
+            background: rgba(28, 43, 75, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px 18px 18px 4px;
+            align-self: flex-start;
+        }
+        
+        .chatbot-quick-questions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .chatbot-quick-question {
+            background: rgba(0, 242, 195, 0.1);
+            border: 1px solid rgba(0, 242, 195, 0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .chatbot-quick-question:hover {
+            background: rgba(0, 242, 195, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .chatbot-suggestions {
+            position: absolute;
+            bottom: 70px;
+            left: 0;
+            right: 0;
+            padding: 12px;
+            background: rgba(10, 17, 40, 0.9);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+        
+        .chatbot-suggestions.active {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        /* Password Generator Styles */
+        .password-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 17, 40, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .password-modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .password-modal-content {
+            background: rgba(28, 43, 75, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 242, 195, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 242, 195, 0.2);
+        }
+        
+        /* Strength Meter */
+        .strength-meter {
+            height: 6px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+        
+        .strength-weak { background: linear-gradient(90deg, #ef4444, #f87171); }
+        .strength-fair { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .strength-good { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .strength-strong { background: linear-gradient(90deg, #10b981, #34d399); }
+        
+        /* Password Criteria */
+        .criteria-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 1rem;
+        }
+        
+        .criteria-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+        
+        .criteria-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+        
+        .criteria-met {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .criteria-unmet {
+            background: rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+        }
+        
+        /* Copy Button */
+        .copy-btn {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .copy-btn:hover {
+            color: #00f2c3;
+        }
+        
+        .copy-btn.copied {
+            color: #10b981;
+        }
+
+        /* Password Suggestions */
+        .password-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(10, 17, 40, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 4px;
+            display: none;
+            z-index: 100;
+        }
+        
+        .password-suggestions.active {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
     </style>
+    
+    {% block extra_css %}{% endblock %}
 </head>
 <body class="text-brand-text font-sans flex flex-col min-h-screen">
 
-    <div id="app-preloader" class="fixed inset-0 z-[9999] bg-brand-dark flex items-center justify-center transition-opacity duration-500">
+    <!-- App Preloader -->
+    <div id="app-preloader" class="fixed inset-0 z-[9999] bg-brand-dark flex items-center justify-center transition-all duration-500">
         <div class="text-center">
-            <svg width="150" height="150" viewBox="0 0 200 200" fill="none" class="mx-auto">
-                <path class="pulse-path" d="M10 100 H40 L60 40 L80 160 L100 100 H190" stroke="#00f2c3" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                <g class="soccer-ball">
-                    <path d="M100 70 L125 85 V115 L100 130 L75 115 V85 Z" stroke="white" stroke-width="3" fill="transparent"/>
-                </g>
-            </svg>
-            <h2 class="text-3xl font-extrabold text-white mt-4 tracking-widest animate-pulse">SCORE<span class="text-brand-accent">PULSE</span></h2>
+            <div class="relative mx-auto w-40 h-40 mb-6">
+                <div class="absolute inset-0 rounded-full border-4 border-brand-accent/20 animate-ping"></div>
+                <svg width="150" height="150" viewBox="0 0 200 200" fill="none" class="mx-auto relative z-10">
+                    <path class="pulse-path" d="M10 100 H40 L60 40 L80 160 L100 100 H190" stroke="#00f2c3" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <g class="soccer-ball">
+                        <path d="M100 70 L125 85 V115 L100 130 L75 115 V85 Z" stroke="white" stroke-width="3" fill="transparent"/>
+                    </g>
+                </svg>
+            </div>
+            <h2 class="text-3xl font-extrabold text-white mt-4 tracking-widest animate-pulse">
+                SCORE<span class="text-brand-accent drop-shadow-[0_0_8px_rgba(0,242,195,0.8)]">PULSE</span>
+            </h2>
             <p id="loading-text" class="text-xs text-brand-muted mt-2 font-mono tracking-widest">INITIALIZING AI MODELS...</p>
+            <div class="w-48 h-1 bg-brand-card rounded-full mt-6 mx-auto overflow-hidden">
+                <div id="loading-bar" class="h-full bg-brand-accent rounded-full w-0 transition-all duration-300"></div>
+            </div>
         </div>
     </div>
 
-    <script>
-        window.addEventListener('load', function() {
-            const loader = document.getElementById('app-preloader');
-            const text = document.getElementById('loading-text');
-            if (!navigator.onLine) {
-                text.innerText = "⚠️ OFFLINE MODE ACTIVE";
-                text.classList.add('text-brand-orange');
-            } else {
-                setTimeout(() => {
-                    loader.style.opacity = '0';
-                    setTimeout(() => { loader.style.display = 'none'; }, 500);
-                }, 800);
-            }
-        });
-    </script>
+    <!-- Password Generator Modal -->
+    <div class="password-modal" id="passwordModal">
+        <div class="password-modal-content">
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-brand-accent to-blue-600 flex items-center justify-center">
+                    <i class="fas fa-key text-brand-dark"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Generate Secure Password</h3>
+                <p class="text-slate-400 text-sm">ScorePulse AI can generate a strong, secure password for you.</p>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm text-slate-400 mb-2">Your New Password:</label>
+                <div class="relative">
+                    <input type="text" id="generatedPassword" 
+                           class="w-full glass bg-white/5 border border-brand-accent/30 text-white rounded-xl px-4 py-3 pr-24 text-center font-mono text-lg tracking-wider"
+                           readonly>
+                    <button id="copyPassword" class="copy-btn">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                
+                <div class="flex justify-center gap-4 mt-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-white" id="passwordLength">16</div>
+                        <div class="text-xs text-slate-400">Length</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold" id="passwordStrengthColor">Strong</div>
+                        <div class="text-xs text-slate-400">Strength</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex gap-3">
+                <button id="regeneratePassword" class="flex-1 glass border border-white/10 text-white py-3 rounded-xl hover:bg-white/5 transition">
+                    <i class="fas fa-redo mr-2"></i> Regenerate
+                </button>
+                <button id="usePassword" class="flex-1 bg-gradient-to-r from-brand-accent to-blue-600 text-brand-dark font-bold py-3 rounded-xl hover:shadow-lg transition">
+                    <i class="fas fa-check mr-2"></i> Use This Password
+                </button>
+            </div>
+            
+            <div class="mt-6 pt-6 border-t border-white/10">
+                <div class="flex items-center justify-center gap-2 text-slate-400 text-sm">
+                    <i class="fas fa-shield-alt text-green-500"></i>
+                    <span>This password will be securely hashed and stored</span>
+                </div>
+            </div>
+            
+            <button id="closeModal" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+    </div>
 
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm hidden"></div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu fixed top-0 right-0 h-full w-64 bg-brand-dark/95 backdrop-blur-xl z-[101] p-6 border-l border-white/10 hidden md:hidden">
+        <button id="close-menu" class="absolute top-4 right-4 text-white/60 hover:text-white">
+            <i class="fas fa-times text-2xl"></i>
+        </button>
+        
+        <div class="mt-12 space-y-6">
+            <a href="{{ url_for('home') }}" class="flex items-center gap-3 text-white hover:text-brand-accent transition">
+                <i class="fas fa-home w-6"></i>
+                <span>Home</span>
+            </a>
+            <a href="{{ url_for('predict') }}" class="flex items-center gap-3 text-white hover:text-brand-accent transition">
+                <i class="fas fa-chart-line w-6"></i>
+                <span>Predict</span>
+            </a>
+            
+            <!-- DASHBOARD LINK ADDED HERE -->
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('dashboard') }}" class="flex items-center gap-3 text-white hover:text-brand-accent transition">
+                <i class="fas fa-tachometer-alt w-6"></i>
+                <span>Dashboard</span>
+            </a>
+            {% endif %}
+            
+            <a href="{{ url_for('pricing') }}" class="flex items-center gap-3 text-white hover:text-brand-accent transition">
+                <i class="fas fa-tags w-6"></i>
+                <span>Pricing</span>
+            </a>
+            
+            {% if current_user.is_authenticated %}
+                <div class="pt-4 border-t border-white/10">
+                    <a href="{{ url_for('profile') }}" class="flex items-center gap-3 text-white hover:text-brand-accent transition">
+                        <i class="fas fa-user w-6"></i>
+                        <span>Profile</span>
+                    </a>
+                    {% if current_user.id == 1 %}
+                        <a href="{{ url_for('admin_dashboard') }}" class="flex items-center gap-3 text-brand-orange hover:text-white mt-4">
+                            <i class="fas fa-crown w-6"></i>
+                            <span>Admin Panel</span>
+                        </a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}" class="flex items-center gap-3 text-white/60 hover:text-white mt-4">
+                        <i class="fas fa-sign-out-alt w-6"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            {% else %}
+                <div class="pt-4 border-t border-white/10">
+                    <a href="{{ url_for('guest_demo') }}" class="flex items-center gap-3 text-white hover:text-brand-accent transition">
+                        <i class="fas fa-play-circle w-6"></i>
+                        <span>Demo</span>
+                    </a>
+                    <a href="{{ url_for('login') }}" class="flex items-center gap-3 text-white hover:text-brand-accent transition">
+                        <i class="fas fa-sign-in-alt w-6"></i>
+                        <span>Login</span>
+                    </a>
+                    <a href="{{ url_for('register') }}" class="mt-4 bg-brand-accent text-brand-dark px-4 py-2 rounded-lg font-bold flex items-center gap-2 justify-center">
+                        <i class="fas fa-rocket"></i>
+                        <span>Get Started</span>
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Navigation -->
     <nav class="glass sticky top-0 z-50 border-b-0">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center">
                 
+                <!-- Logo -->
                 <a href="{{ url_for('home') }}" class="flex items-center space-x-2 group">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-accent to-blue-600 flex items-center justify-center text-brand-dark font-bold text-lg shadow-[0_0_15px_rgba(0,242,195,0.4)] group-hover:scale-110 transition duration-300">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-accent to-blue-600 flex items-center justify-center text-brand-dark font-bold text-lg shadow-[0_0_15px_rgba(0,242,195,0.4)] group-hover:scale-110 transition-all duration-300">
                         <i class="fas fa-bolt"></i>
                     </div>
-                    <span class="text-2xl font-bold tracking-wide text-white">SCORE<span class="text-brand-accent drop-shadow-[0_0_8px_rgba(0,242,195,0.8)]">PULSE</span></span>
+                    <span class="text-2xl font-bold tracking-wide text-white hidden sm:block">
+                        SCORE<span class="text-brand-accent drop-shadow-[0_0_8px_rgba(0,242,195,0.8)]">PULSE</span>
+                    </span>
                 </a>
 
+                <!-- Desktop Navigation -->
                 <div class="hidden md:flex space-x-8 items-center">
-                    <a href="{{ url_for('home') }}" class="text-brand-muted hover:text-brand-accent transition text-sm font-medium hover:tracking-wide">Home</a>
-                    <a href="{{ url_for('predict') }}" class="text-brand-muted hover:text-brand-accent transition text-sm font-medium hover:tracking-wide">Predict</a>
-                    <a href="{{ url_for('pricing') }}" class="text-brand-muted hover:text-brand-accent transition text-sm font-medium hover:tracking-wide">Pricing</a>
+                    <a href="{{ url_for('home') }}" class="text-brand-muted hover:text-brand-accent transition-all text-sm font-medium hover:tracking-wide group relative">
+                        <span>Home</span>
+                        <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-accent group-hover:w-full transition-all duration-300"></span>
+                    </a>
+                    <a href="{{ url_for('predict') }}" class="text-brand-muted hover:text-brand-accent transition-all text-sm font-medium hover:tracking-wide group relative">
+                        <span>Predict</span>
+                        <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-accent group-hover:w-full transition-all duration-300"></span>
+                    </a>
+                    
+                    <!-- DASHBOARD LINK ADDED FOR DESKTOP -->
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard') }}" class="text-brand-muted hover:text-brand-accent transition-all text-sm font-medium hover:tracking-wide group relative">
+                        <span>Dashboard</span>
+                        <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-accent group-hover:w-full transition-all duration-300"></span>
+                    </a>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('pricing') }}" class="text-brand-muted hover:text-brand-accent transition-all text-sm font-medium hover:tracking-wide group relative">
+                        <span>Pricing</span>
+                        <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-accent group-hover:w-full transition-all duration-300"></span>
+                    </a>
+
+                    {% if not current_user.is_authenticated %}
+                        <a href="{{ url_for('guest_demo') }}" class="text-brand-muted hover:text-brand-accent transition-all text-sm font-medium hover:tracking-wide group relative">
+                            <span>Demo</span>
+                            <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-accent group-hover:w-full transition-all duration-300"></span>
+                        </a>
+                    {% endif %}
                     
                     {% if current_user.is_authenticated and current_user.id == 1 %}
-                        <a href="{{ url_for('admin_dashboard') }}" class="text-brand-orange hover:text-white border border-brand-orange/30 hover:bg-brand-orange/20 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition">Admin Panel</a>
+                        <a href="{{ url_for('admin_dashboard') }}" class="text-brand-orange hover:text-white border border-brand-orange/30 hover:bg-brand-orange/20 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all">
+                            Admin Stats
+                        </a>
+                        <a href="{{ url_for('admin_analytics') }}" class="text-brand-accent hover:text-white border border-brand-accent/30 hover:bg-brand-accent/20 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all ml-2">
+                            Command Center
+                        </a>                    
                     {% endif %}
                 </div>
 
+                <!-- Right Section -->
                 <div class="flex items-center space-x-4">
                     
-                    <a href="https://t.me/ScorePulseBot" target="_blank" class="p-2 rounded-full text-blue-400 hover:bg-white/10 transition-colors flex items-center gap-2">
+                    <!-- Telegram Button -->
+                    <a href="https://t.me/ScorePulseBot" target="_blank" 
+                       class="p-2 rounded-full text-blue-400 hover:bg-white/10 transition-colors flex items-center gap-2 group relative"
+                       title="Join our Telegram Bot">
+                        <div class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            Live
+                        </div>
                         <i class="fab fa-telegram text-2xl"></i>
                     </a>
 
+                    <!-- Mobile Menu Toggle (Three-line Hamburger Menu) -->
+                    <button id="mobile-menu-toggle" class="md:hidden text-white/80 hover:text-white">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+
                     {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('profile') }}" class="flex items-center gap-3 pl-4 border-l border-white/10">
-                            <div class="text-right hidden sm:block">
-                                <span class="block text-xs text-brand-muted">Welcome,</span>
-                                <span class="block text-sm font-bold text-white leading-none">{{ current_user.username }}</span>
+                        <!-- User Profile Dropdown -->
+                        <div class="relative group">
+                            <a href="{{ url_for('profile') }}" class="flex items-center gap-3 pl-4 border-l border-white/10 group">
+                                <div class="text-right hidden sm:block">
+                                    <span class="block text-xs text-brand-muted">Welcome,</span>
+                                    <span class="block text-sm font-bold text-white leading-none max-w-[120px] truncate">{{ current_user.username }}</span>
+                                </div>
+                                <div class="w-9 h-9 bg-gradient-to-br from-brand-accent to-blue-600 rounded-lg flex items-center justify-center text-brand-dark font-bold shadow-lg group-hover:scale-110 transition-transform">
+                                    {{ current_user.username[0] | upper }}
+                                </div>
+                            </a>
+                            
+                            <!-- Dropdown Menu -->
+                            <div class="absolute right-0 top-full mt-2 w-48 glass rounded-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                                <a href="{{ url_for('dashboard') }}" class="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                    <i class="fas fa-tachometer-alt w-5"></i>
+                                    <span>Dashboard</span>
+                                </a>
+                                <a href="{{ url_for('profile') }}" class="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                    <i class="fas fa-user w-5"></i>
+                                    <span>Profile</span>
+                                </a>
+                                <a href="{{ url_for('predictions_history') }}" class="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                    <i class="fas fa-history w-5"></i>
+                                    <span>My Predictions</span>
+                                </a>
+                                <div class="border-t border-white/10 my-2"></div>
+                                <a href="{{ url_for('logout') }}" class="flex items-center gap-3 p-3 rounded-lg hover:bg-red-500/10 text-red-400 transition">
+                                    <i class="fas fa-sign-out-alt w-5"></i>
+                                    <span>Logout</span>
+                                </a>
                             </div>
-                            <div class="w-9 h-9 bg-brand-accent rounded-lg flex items-center justify-center text-brand-dark font-bold shadow-lg">
-                                {{ current_user.username[0] | upper }}
-                            </div>
-                        </a>
+                        </div>
                     {% else %}
-                        <a href="{{ url_for('login') }}" class="text-white hover:text-brand-accent text-sm font-medium px-4">Log In</a>
-                        <a href="{{ url_for('register') }}" class="bg-brand-accent hover:bg-emerald-300 text-brand-dark px-6 py-2.5 rounded-full text-sm font-bold transition shadow-[0_4px_14px_rgba(0,242,195,0.3)] hover:transform hover:-translate-y-0.5">Get Started</a>
+                        <a href="{{ url_for('login') }}" class="text-white hover:text-brand-accent text-sm font-medium px-4 hidden sm:block">Log In</a>
+                        <a href="{{ url_for('register') }}" class="bg-gradient-to-r from-brand-accent to-emerald-400 hover:from-emerald-400 hover:to-brand-accent text-brand-dark px-6 py-2.5 rounded-full text-sm font-bold transition-all shadow-[0_4px_14px_rgba(0,242,195,0.3)] hover:shadow-[0_6px_20px_rgba(0,242,195,0.4)] hover:transform hover:-translate-y-0.5">
+                            Get Started <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
                     {% endif %}
                 </div>
             </div>
         </div>
     </nav>
 
+    <!-- Flash Messages -->
     <div class="max-w-7xl mx-auto px-4 mt-8">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -146,54 +694,1122 @@
                     {% if category == 'success' %}
                         {% set styles = 'border-l-4 border-brand-accent bg-green-900/20 text-green-200' %}
                         {% set icon = 'fa-check-circle text-brand-accent' %}
+                    {% elif category == 'warning' %}
+                        {% set styles = 'border-l-4 border-yellow-500 bg-yellow-900/20 text-yellow-200' %}
+                        {% set icon = 'fa-exclamation-triangle text-yellow-500' %}
+                    {% elif category == 'info' %}
+                        {% set styles = 'border-l-4 border-blue-500 bg-blue-900/20 text-blue-200' %}
+                        {% set icon = 'fa-info-circle text-blue-500' %}
                     {% else %}
                         {% set styles = 'border-l-4 border-brand-orange bg-red-900/20 text-red-200' %}
                         {% set icon = 'fa-exclamation-triangle text-brand-orange' %}
                     {% endif %}
                     
-                    <div class="glass p-4 mb-6 rounded-r-xl flex items-center gap-4 {{ styles }} animate-fade-in-down">
+                    <div class="glass p-4 mb-6 rounded-r-xl flex items-center gap-4 {{ styles }} animate-fade-in" id="flash-{{ loop.index }}">
                         <i class="fas {{ icon }} text-xl"></i>
-                        <span class="font-medium">{{ message }}</span>
+                        <span class="font-medium flex-grow">{{ message }}</span>
+                        <button onclick="this.parentElement.remove()" class="text-white/40 hover:text-white">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
     </div>
 
+    <!-- Main Content -->
     <main class="flex-grow">
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-brand-dark border-t border-white/5 py-12 mt-auto relative overflow-hidden">
+    <!-- AI Chatbot (Only for Authenticated Users) -->
+    {% if current_user.is_authenticated %}
+        <div id="chatbot-container" class="fixed bottom-6 right-6 z-40">
+            <!-- Chatbot Window (Hidden by default) -->
+            <div id="chatbot-window" class="glass w-80 h-96 rounded-2xl mb-4 flex flex-col shadow-2xl hidden transform transition-all duration-300">
+                <!-- Header -->
+                <div class="p-4 border-b border-white/10 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-accent to-blue-600 flex items-center justify-center">
+                            <i class="fas fa-robot text-xs text-brand-dark"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-white">ScorePulse AI Assistant</h3>
+                            <p class="text-xs text-brand-muted">Online • Powered by GPT-4</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="chatbot-minimize" class="text-brand-muted hover:text-white p-1">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button id="chatbot-close" class="text-brand-muted hover:text-white p-1">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat Messages -->
+                <div id="chatbot-messages" class="flex-grow p-4 overflow-y-auto space-y-4">
+                    <!-- Initial welcome message -->
+                    <div class="chatbot-message-ai p-3 max-w-[85%]">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-brand-accent to-blue-600 flex items-center justify-center">
+                                <i class="fas fa-robot text-xs"></i>
+                            </div>
+                            <span class="text-xs font-bold text-brand-accent">ScorePulse AI</span>
+                        </div>
+                        <p class="text-sm">Hello <strong>{{ current_user.username }}</strong>! I'm your AI football prediction assistant. I can help you with:</p>
+                        <div class="chatbot-quick-questions mt-3">
+                            <button class="chatbot-quick-question" data-question="Today's best predictions">⚽ Today's best predictions</button>
+                            <button class="chatbot-quick-question" data-question="Explain prediction model">🤖 Explain prediction model</button>
+                            <button class="chatbot-quick-question" data-question="Upcoming matches">📅 Upcoming matches</button>
+                            <button class="chatbot-quick-question" data-question="How to use ScorePulse">❓ How to use ScorePulse</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Suggestions (Optional - can be hidden) -->
+                <div id="chatbot-suggestions" class="chatbot-suggestions">
+                    <p class="text-xs text-brand-muted mb-2">Try asking:</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="text-xs px-3 py-1 bg-white/5 rounded-full cursor-pointer hover:bg-white/10" onclick="sendQuickQuestion('Predict Liverpool vs Man City')">Predict Liverpool vs Man City</span>
+                        <span class="text-xs px-3 py-1 bg-white/5 rounded-full cursor-pointer hover:bg-white/10" onclick="sendQuickQuestion('What is xG?')">What is xG?</span>
+                        <span class="text-xs px-3 py-1 bg-white/5 rounded-full cursor-pointer hover:bg-white/10" onclick="sendQuickQuestion('Best betting strategy')">Best betting strategy</span>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="p-4 border-t border-white/10">
+                    <div class="flex gap-2">
+                        <input 
+                            id="chatbot-input" 
+                            type="text" 
+                            placeholder="Ask about football predictions..." 
+                            class="flex-grow bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent/50 focus:border-transparent"
+                            autocomplete="off"
+                        >
+                        <button id="chatbot-send" class="bg-gradient-to-r from-brand-accent to-blue-600 text-brand-dark w-10 h-10 rounded-full flex items-center justify-center hover:shadow-lg transition-all">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="flex justify-between items-center mt-2 px-2">
+                        <button id="toggle-suggestions" class="text-xs text-brand-muted hover:text-white flex items-center gap-1">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Suggestions</span>
+                        </button>
+                        <button id="chatbot-clear" class="text-xs text-brand-muted hover:text-white">
+                            <i class="fas fa-trash-alt mr-1"></i> Clear chat
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chatbot Toggle Button -->
+            <button id="chatbot-toggle" class="w-14 h-14 rounded-full bg-gradient-to-br from-brand-accent to-blue-600 flex items-center justify-center text-brand-dark shadow-2xl hover:shadow-[0_0_30px_rgba(0,242,195,0.5)] transition-all duration-300 animate-wave">
+                <i class="fas fa-robot text-xl"></i>
+                <span id="chatbot-notification" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center hidden">3</span>
+            </button>
+        </div>
+    {% endif %}
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="fixed bottom-24 right-8 w-12 h-12 glass rounded-full flex items-center justify-center text-brand-accent hover:text-white hover:bg-brand-accent/20 transition-all duration-300 opacity-0 invisible z-40">
+        <i class="fas fa-chevron-up text-xl"></i>
+    </button>
+
+    <!-- Footer -->
+    <footer class="bg-brand-dark border-t border-white/5 py-12 mt-20 relative overflow-hidden">
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-1 bg-brand-accent/50 blur-[100px]"></div>
+        <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-accent/10 rounded-full blur-3xl"></div>
+        <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-orange/5 rounded-full blur-3xl"></div>
 
         <div class="max-w-7xl mx-auto px-4 text-center relative z-10">
-            <div class="flex justify-center items-center gap-2 mb-6">
-                <i class="fas fa-bolt text-brand-accent"></i>
+            <a href="{{ url_for('home') }}" class="flex justify-center items-center gap-2 mb-6 group">
+                <i class="fas fa-bolt text-brand-accent group-hover:rotate-12 transition-transform"></i>
                 <span class="font-bold text-lg text-white tracking-widest">SCORE<span class="text-brand-accent">PULSE</span> AI</span>
-            </div>
+            </a>
 
             <p class="text-brand-muted text-sm mb-8 max-w-md mx-auto">
                 Leveraging neural networks and historical data to provide the most accurate football predictions in the market.
             </p>
 
-            <div class="flex justify-center gap-8 mb-8">
-                <a href="#" class="text-brand-muted hover:text-brand-accent transition transform hover:scale-110"><i class="fab fa-twitter text-2xl"></i></a>
-                <a href="https://t.me/ScorePulseBot" class="text-brand-muted hover:text-blue-400 transition transform hover:scale-110"><i class="fab fa-telegram text-2xl"></i></a>
-                <a href="#" class="text-brand-muted hover:text-white transition transform hover:scale-110"><i class="fab fa-github text-2xl"></i></a>
+            <!-- Quick Links -->
+            <div class="flex flex-wrap justify-center gap-6 mb-8">
+                <a href="{{ url_for('home') }}" class="text-brand-muted hover:text-brand-accent transition text-sm">Home</a>
+                <a href="{{ url_for('predict') }}" class="text-brand-muted hover:text-brand-accent transition text-sm">Predict</a>
+                <a href="{{ url_for('pricing') }}" class="text-brand-muted hover:text-brand-accent transition text-sm">Pricing</a>
+                <a href="{{ url_for('about') }}" class="text-brand-muted hover:text-brand-accent transition text-sm">About</a>
+                <a href="{{ url_for('contact') }}" class="text-brand-muted hover:text-brand-accent transition text-sm">Contact</a>
+                <a href="{{ url_for('privacy') }}" class="text-brand-muted hover:text-brand-accent transition text-sm">Privacy Policy</a>
+                <a href="{{ url_for('terms') }}" class="text-brand-muted hover:text-brand-accent transition text-sm">Terms</a>
             </div>
 
-            <div class="flex justify-center items-center space-x-6 opacity-60 grayscale hover:grayscale-0 transition duration-500">
-                <i class="fab fa-cc-visa text-3xl text-white"></i>
-                <i class="fab fa-cc-paypal text-3xl text-blue-400"></i>
+            <!-- Social Links -->
+            <div class="flex justify-center gap-8 mb-8">
+                <a href="https://twitter.com/ScorePulseAI" target="_blank" class="text-brand-muted hover:text-brand-accent transition transform hover:scale-110" title="Twitter">
+                    <i class="fab fa-twitter text-2xl"></i>
+                </a>
+                <a href="https://t.me/ScorePulseBot" target="_blank" class="text-brand-muted hover:text-blue-400 transition transform hover:scale-110" title="Telegram Bot">
+                    <i class="fab fa-telegram text-2xl"></i>
+                </a>
+                <a href="https://github.com/ScorePulseAI" target="_blank" class="text-brand-muted hover:text-white transition transform hover:scale-110" title="GitHub">
+                    <i class="fab fa-github text-2xl"></i>
+                </a>
+                <a href="https://discord.gg/scorepulse" target="_blank" class="text-brand-muted hover:text-purple-400 transition transform hover:scale-110" title="Discord">
+                    <i class="fab fa-discord text-2xl"></i>
+                </a>
+            </div>
+
+            <!-- Payment Methods -->
+            <div class="flex justify-center items-center space-x-6 opacity-60 grayscale hover:grayscale-0 transition duration-500 mb-8">
+                <i class="fab fa-cc-visa text-3xl text-white" title="Visa"></i>
+                <i class="fab fa-cc-mastercard text-3xl text-red-400" title="MasterCard"></i>
+                <i class="fab fa-cc-paypal text-3xl text-blue-400" title="PayPal"></i>
                 <div class="flex items-center border border-green-600 rounded px-3 py-1 bg-green-900/20">
                     <span class="text-green-500 font-bold text-xs tracking-wider">M-PESA</span>
                 </div>
             </div>
             
             <p class="text-slate-600 text-xs mt-8">&copy; 2025 ScorePulse AI. All rights reserved.</p>
+            <p class="text-slate-700 text-xs mt-2">Predictions are for informational purposes only. Gamble responsibly.</p>
         </div>
     </footer>
 
+    <!-- JavaScript -->
+    <script>
+        // Preloader Logic
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('app-preloader');
+            const text = document.getElementById('loading-text');
+            const loadingBar = document.getElementById('loading-bar');
+            
+            // Simulate loading progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 20;
+                if (progress > 100) progress = 100;
+                loadingBar.style.width = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    if (!navigator.onLine) {
+                        text.innerText = "⚠️ OFFLINE MODE ACTIVE";
+                        text.classList.add('text-brand-orange');
+                        setTimeout(() => {
+                            loader.style.opacity = '0';
+                            setTimeout(() => { 
+                                loader.style.display = 'none'; 
+                                document.body.style.overflow = 'auto';
+                            }, 500);
+                        }, 1500);
+                    } else {
+                        setTimeout(() => {
+                            loader.style.opacity = '0';
+                            setTimeout(() => { 
+                                loader.style.display = 'none'; 
+                                document.body.style.overflow = 'auto';
+                            }, 300);
+                        }, 300);
+                    }
+                }
+            }, 100);
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+        const closeMenu = document.getElementById('close-menu');
+        
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                mobileMenuOverlay.classList.toggle('hidden');
+                mobileMenu.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        }
+        
+        if (closeMenu) {
+            closeMenu.addEventListener('click', closeMobileMenu);
+        }
+        
+        if (mobileMenuOverlay) {
+            mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+        }
+        
+        function closeMobileMenu() {
+            mobileMenu.classList.remove('active');
+            setTimeout(() => {
+                mobileMenu.classList.add('hidden');
+                mobileMenuOverlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+
+        // Back to Top Button
+        const backToTop = document.getElementById('back-to-top');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.remove('opacity-100', 'visible');
+                backToTop.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        if (backToTop) {
+            backToTop.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        // Auto-remove flash messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', () => {
+            const flashMessages = document.querySelectorAll('[id^="flash-"]');
+            flashMessages.forEach(message => {
+                setTimeout(() => {
+                    message.style.opacity = '0';
+                    setTimeout(() => message.remove(), 300);
+                }, 5000);
+            });
+        });
+
+        // Theme Toggle (optional future feature)
+        const themeToggle = document.createElement('button');
+        themeToggle.className = 'fixed bottom-24 right-8 w-12 h-12 glass rounded-full flex items-center justify-center text-brand-muted hover:text-brand-accent z-40 hidden';
+        themeToggle.innerHTML = '<i class="fas fa-moon text-xl"></i>';
+        themeToggle.title = 'Toggle Theme';
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            const icon = themeToggle.querySelector('i');
+            if (document.documentElement.classList.contains('dark')) {
+                icon.className = 'fas fa-sun text-xl';
+            } else {
+                icon.className = 'fas fa-moon text-xl';
+            }
+        });
+        document.body.appendChild(themeToggle);
+
+        // Online/Offline Detection
+        window.addEventListener('online', () => {
+            showToast('Back online! Syncing data...', 'success');
+        });
+        
+        window.addEventListener('offline', () => {
+            showToast('You are offline. Some features may be limited.', 'warning');
+        });
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 glass px-4 py-3 rounded-lg flex items-center gap-3 animate-slide-in z-50 ${
+                type === 'success' ? 'border-l-4 border-green-500' :
+                type === 'warning' ? 'border-l-4 border-yellow-500' :
+                'border-l-4 border-blue-500'
+            }`;
+            toast.innerHTML = `
+                <i class="fas ${
+                    type === 'success' ? 'fa-check-circle text-green-500' :
+                    type === 'warning' ? 'fa-exclamation-triangle text-yellow-500' :
+                    'fa-info-circle text-blue-500'
+                }"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Prevent form resubmission on page refresh
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+
+        // ================== PASSWORD GENERATOR FUNCTIONALITY ==================
+        
+        // Password Generator Elements
+        const passwordModal = document.getElementById('passwordModal');
+        const closeModal = document.getElementById('closeModal');
+        const regenerateBtn = document.getElementById('regeneratePassword');
+        const usePasswordBtn = document.getElementById('usePassword');
+        const copyPasswordBtn = document.getElementById('copyPassword');
+        const generatedPasswordInput = document.getElementById('generatedPassword');
+        const passwordLengthSpan = document.getElementById('passwordLength');
+        const passwordStrengthSpan = document.getElementById('passwordStrengthColor');
+        
+        // Password generator state
+        let currentGeneratedPassword = '';
+        
+        // Initialize password generator if elements exist
+        if (passwordModal) {
+            // Close modal
+            if (closeModal) {
+                closeModal.addEventListener('click', function() {
+                    passwordModal.classList.remove('active');
+                });
+            }
+            
+            // Regenerate password
+            if (regenerateBtn) {
+                regenerateBtn.addEventListener('click', generateNewPassword);
+            }
+            
+            // Use generated password
+            if (usePasswordBtn) {
+                usePasswordBtn.addEventListener('click', function() {
+                    if (currentGeneratedPassword) {
+                        // Find password fields in the current form
+                        const passwordInput = document.querySelector('input[type="password"], input[name="password"]');
+                        const confirmPasswordInput = document.querySelector('input[name="confirm_password"]');
+                        
+                        if (passwordInput) {
+                            passwordInput.value = currentGeneratedPassword;
+                            // Trigger input event to update strength meter
+                            passwordInput.dispatchEvent(new Event('input'));
+                        }
+                        
+                        if (confirmPasswordInput) {
+                            confirmPasswordInput.value = currentGeneratedPassword;
+                            confirmPasswordInput.dispatchEvent(new Event('input'));
+                        }
+                        
+                        passwordModal.classList.remove('active');
+                        
+                        // Show success message
+                        showToast('Password applied successfully!', 'success');
+                    }
+                });
+            }
+            
+            // Copy password to clipboard
+            if (copyPasswordBtn) {
+                copyPasswordBtn.addEventListener('click', function() {
+                    if (currentGeneratedPassword) {
+                        navigator.clipboard.writeText(currentGeneratedPassword).then(() => {
+                            const icon = copyPasswordBtn.querySelector('i');
+                            icon.className = 'fas fa-check';
+                            copyPasswordBtn.classList.add('copied');
+                            
+                            setTimeout(() => {
+                                icon.className = 'fas fa-copy';
+                                copyPasswordBtn.classList.remove('copied');
+                            }, 2000);
+                        });
+                    }
+                });
+            }
+            
+            // Generate initial password
+            generateNewPassword();
+        }
+        
+        // Global function to open password generator
+        window.openPasswordGenerator = function() {
+            if (passwordModal) {
+                passwordModal.classList.add('active');
+                generateNewPassword();
+            }
+        };
+        
+        // Generate new password
+        function generateNewPassword() {
+            // First try to use server-side generation
+            fetch('/generate-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    currentGeneratedPassword = data.password;
+                    updatePasswordDisplay();
+                    
+                    // Check password strength
+                    checkPasswordStrength(currentGeneratedPassword).then(strengthData => {
+                        updateStrengthDisplay(strengthData);
+                    });
+                } else {
+                    throw new Error(data.error || 'Failed to generate password');
+                }
+            })
+            .catch(error => {
+                console.warn('Server generation failed, using client-side:', error);
+                // Fallback to client-side generation
+                currentGeneratedPassword = generatePasswordLocally();
+                updatePasswordDisplay();
+                
+                // Check password strength locally
+                const strengthData = checkPasswordStrengthLocally(currentGeneratedPassword);
+                updateStrengthDisplay(strengthData);
+            });
+        }
+        
+        // Update password display
+        function updatePasswordDisplay() {
+            if (generatedPasswordInput) {
+                generatedPasswordInput.value = currentGeneratedPassword;
+            }
+            if (passwordLengthSpan) {
+                passwordLengthSpan.textContent = currentGeneratedPassword.length;
+            }
+        }
+        
+        // Update strength display
+        function updateStrengthDisplay(strengthData) {
+            if (passwordStrengthSpan) {
+                const strengthMap = {
+                    'weak': { text: 'Weak', color: '#ef4444' },
+                    'fair': { text: 'Fair', color: '#f59e0b' },
+                    'good': { text: 'Good', color: '#3b82f6' },
+                    'strong': { text: 'Strong', color: '#10b981' }
+                };
+                
+                const strength = strengthMap[strengthData.strength] || { text: 'Strong', color: '#10b981' };
+                passwordStrengthSpan.textContent = strength.text;
+                passwordStrengthSpan.style.color = strength.color;
+            }
+        }
+        
+        // Local password generation fallback
+        function generatePasswordLocally() {
+            const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+            const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const numbers = '0123456789';
+            const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+            const allChars = lowercase + uppercase + numbers + symbols;
+            
+            let password = '';
+            
+            // Ensure at least one of each type
+            password += lowercase[Math.floor(Math.random() * lowercase.length)];
+            password += uppercase[Math.floor(Math.random() * uppercase.length)];
+            password += numbers[Math.floor(Math.random() * numbers.length)];
+            password += symbols[Math.floor(Math.random() * symbols.length)];
+            
+            // Add remaining characters (total 16 characters)
+            for (let i = 0; i < 12; i++) {
+                password += allChars[Math.floor(Math.random() * allChars.length)];
+            }
+            
+            // Shuffle the password
+            return password.split('').sort(() => Math.random() - 0.5).join('');
+        }
+        
+        // Check password strength (server-side)
+        function checkPasswordStrength(password) {
+            return fetch('/check-password-strength', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ password: password })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .catch(error => {
+                console.warn('Server strength check failed, using client-side:', error);
+                return checkPasswordStrengthLocally(password);
+            });
+        }
+        
+        // Local password strength checking fallback
+        function checkPasswordStrengthLocally(password) {
+            let score = 0;
+            const feedback = [];
+            
+            // Check criteria
+            const hasLower = /[a-z]/.test(password);
+            const hasUpper = /[A-Z]/.test(password);
+            const hasNumber = /[0-9]/.test(password);
+            const hasSpecial = /[^A-Za-z0-9]/.test(password);
+            const length = password.length;
+            
+            // Calculate score
+            if (length >= 8) score += 1;
+            if (length >= 12) score += 1;
+            if (hasLower) score += 1;
+            if (hasUpper) score += 1;
+            if (hasNumber) score += 1;
+            if (hasSpecial) score += 1;
+            
+            // Determine strength
+            let strength;
+            if (score <= 2) strength = 'weak';
+            else if (score <= 4) strength = 'fair';
+            else if (score <= 6) strength = 'good';
+            else strength = 'strong';
+            
+            return { score, strength, feedback };
+        }
+        
+        // Global function to check password strength and update UI
+        window.checkPasswordStrengthAndUpdate = function(password, strengthBarId, strengthTextId, criteriaPrefix = 'criteria') {
+            checkPasswordStrength(password).then(data => {
+                updateStrengthUI(data.score, data.strength, strengthBarId, strengthTextId);
+                updateCriteriaUI(password, criteriaPrefix);
+            });
+        };
+        
+        // Update strength UI
+        function updateStrengthUI(score, strength, strengthBarId, strengthTextId) {
+            const strengthBar = document.getElementById(strengthBarId);
+            const strengthText = document.getElementById(strengthTextId);
+            const maxScore = 7;
+            
+            if (!strengthBar || !strengthText) return;
+            
+            const percentage = (score / maxScore) * 100;
+            strengthBar.style.width = percentage + '%';
+            
+            // Remove all classes
+            strengthBar.className = 'strength-bar';
+            
+            // Add appropriate class
+            switch(strength) {
+                case 'weak':
+                    strengthBar.classList.add('strength-weak');
+                    strengthText.textContent = 'Weak';
+                    strengthText.className = 'text-xs font-medium text-red-400';
+                    break;
+                case 'fair':
+                    strengthBar.classList.add('strength-fair');
+                    strengthText.textContent = 'Fair';
+                    strengthText.className = 'text-xs font-medium text-yellow-400';
+                    break;
+                case 'good':
+                    strengthBar.classList.add('strength-good');
+                    strengthText.textContent = 'Good';
+                    strengthText.className = 'text-xs font-medium text-blue-400';
+                    break;
+                case 'strong':
+                    strengthBar.classList.add('strength-strong');
+                    strengthText.textContent = 'Strong';
+                    strengthText.className = 'text-xs font-medium text-green-400';
+                    break;
+                default:
+                    strengthBar.style.background = 'rgba(255, 255, 255, 0.1)';
+                    strengthText.textContent = 'None';
+                    strengthText.className = 'text-xs font-medium text-slate-400';
+            }
+        }
+        
+        // Update criteria UI
+        function updateCriteriaUI(password, prefix) {
+            const criteria = {
+                'length': password.length >= 8,
+                'length12': password.length >= 12,
+                'uppercase': /[A-Z]/.test(password),
+                'lowercase': /[a-z]/.test(password),
+                'number': /[0-9]/.test(password),
+                'special': /[^A-Za-z0-9]/.test(password)
+            };
+            
+            for (const [key, met] of Object.entries(criteria)) {
+                const icon = document.getElementById(`${prefix}-${key}`);
+                if (icon) {
+                    if (met) {
+                        icon.className = 'criteria-icon criteria-met';
+                        icon.innerHTML = '<i class="fas fa-check"></i>';
+                    } else {
+                        icon.className = 'criteria-icon criteria-unmet';
+                        icon.innerHTML = '<i class="fas fa-times"></i>';
+                    }
+                }
+            }
+        }
+        
+        // Global function to check password match
+        window.checkPasswordMatch = function(passwordId, confirmPasswordId, matchDivId) {
+            const password = document.getElementById(passwordId)?.value || '';
+            const confirm = document.getElementById(confirmPasswordId)?.value || '';
+            const matchDiv = document.getElementById(matchDivId);
+            
+            if (!matchDiv) return;
+            
+            if (!confirm) {
+                matchDiv.innerHTML = '';
+                return;
+            }
+            
+            if (password === confirm) {
+                matchDiv.innerHTML = `
+                    <div class="flex items-center gap-2 text-green-400 text-xs">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Passwords match</span>
+                    </div>
+                `;
+            } else {
+                matchDiv.innerHTML = `
+                    <div class="flex items-center gap-2 text-red-400 text-xs">
+                        <i class="fas fa-times-circle"></i>
+                        <span>Passwords don't match</span>
+                    </div>
+                `;
+            }
+        };
+        
+        // Global function to toggle password visibility
+        window.togglePasswordVisibility = function(fieldId, toggleIconId) {
+            const passwordInput = document.getElementById(fieldId);
+            const toggleIcon = document.getElementById(toggleIconId);
+            
+            if (!passwordInput || !toggleIcon) return;
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.className = 'fas fa-eye';
+            }
+        };
+
+        // ================== CHATBOT FUNCTIONALITY (Requires Login) ==================
+        
+        {% if current_user.is_authenticated %}
+            // Chatbot Elements
+            const chatbotToggle = document.getElementById('chatbot-toggle');
+            const chatbotWindow = document.getElementById('chatbot-window');
+            const chatbotClose = document.getElementById('chatbot-close');
+            const chatbotMinimize = document.getElementById('chatbot-minimize');
+            const chatbotSend = document.getElementById('chatbot-send');
+            const chatbotInput = document.getElementById('chatbot-input');
+            const chatbotMessages = document.getElementById('chatbot-messages');
+            const chatbotClear = document.getElementById('chatbot-clear');
+            const toggleSuggestions = document.getElementById('toggle-suggestions');
+            const chatbotSuggestions = document.getElementById('chatbot-suggestions');
+            const quickQuestions = document.querySelectorAll('.chatbot-quick-question');
+            const chatbotNotification = document.getElementById('chatbot-notification');
+
+            // Chatbot State
+            let isChatbotOpen = false;
+            let isMinimized = false;
+            let messageCount = 0;
+
+            // Initialize chatbot if user is authenticated
+            if (chatbotToggle) {
+                // Toggle chatbot window
+                chatbotToggle.addEventListener('click', () => {
+                    if (!isChatbotOpen) {
+                        chatbotWindow.classList.remove('hidden');
+                        chatbotWindow.classList.add('animate-slide-in');
+                        isChatbotOpen = true;
+                        chatbotNotification.classList.add('hidden');
+                        messageCount = 0;
+                        
+                        // Focus input after animation
+                        setTimeout(() => {
+                            chatbotInput.focus();
+                        }, 300);
+                    } else {
+                        closeChatbot();
+                    }
+                });
+
+                // Close chatbot
+                if (chatbotClose) chatbotClose.addEventListener('click', closeChatbot);
+
+                // Minimize chatbot
+                if (chatbotMinimize) {
+                    chatbotMinimize.addEventListener('click', () => {
+                        if (isMinimized) {
+                            chatbotWindow.style.height = '24rem';
+                            chatbotWindow.style.width = '20rem';
+                            chatbotMinimize.innerHTML = '<i class="fas fa-minus"></i>';
+                            isMinimized = false;
+                        } else {
+                            chatbotWindow.style.height = '3rem';
+                            chatbotWindow.style.width = '16rem';
+                            chatbotMinimize.innerHTML = '<i class="fas fa-plus"></i>';
+                            isMinimized = true;
+                        }
+                    });
+                }
+
+                // Send message on button click
+                if (chatbotSend) chatbotSend.addEventListener('click', sendMessage);
+
+                // Send message on Enter key
+                if (chatbotInput) {
+                    chatbotInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            sendMessage();
+                        }
+                    });
+                }
+
+                // Toggle suggestions
+                if (toggleSuggestions) {
+                    toggleSuggestions.addEventListener('click', () => {
+                        chatbotSuggestions.classList.toggle('active');
+                    });
+                }
+
+                // Clear chat history
+                if (chatbotClear) {
+                    chatbotClear.addEventListener('click', () => {
+                        chatbotMessages.innerHTML = `
+                            <div class="chatbot-message-ai p-3 max-w-[85%]">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <div class="w-6 h-6 rounded-full bg-gradient-to-br from-brand-accent to-blue-600 flex items-center justify-center">
+                                        <i class="fas fa-robot text-xs"></i>
+                                    </div>
+                                    <span class="text-xs font-bold text-brand-accent">ScorePulse AI</span>
+                                </div>
+                                <p class="text-sm">Hello <strong>{{ current_user.username }}</strong>! I'm your AI football prediction assistant. I can help you with:</p>
+                                <div class="chatbot-quick-questions mt-3">
+                                    <button class="chatbot-quick-question" data-question="Today's best predictions">⚽ Today's best predictions</button>
+                                    <button class="chatbot-quick-question" data-question="Explain prediction model">🤖 Explain prediction model</button>
+                                    <button class="chatbot-quick-question" data-question="Upcoming matches">📅 Upcoming matches</button>
+                                    <button class="chatbot-quick-question" data-question="How to use ScorePulse">❓ How to use ScorePulse</button>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Re-attach event listeners to quick questions
+                        attachQuickQuestionListeners();
+                    });
+                }
+
+                // Quick question buttons
+                function attachQuickQuestionListeners() {
+                    document.querySelectorAll('.chatbot-quick-question').forEach(button => {
+                        button.addEventListener('click', (e) => {
+                            const question = e.target.getAttribute('data-question');
+                            sendQuickQuestion(question);
+                        });
+                    });
+                }
+
+                // Initialize quick question listeners
+                attachQuickQuestionListeners();
+
+                // Function to send a quick question
+                window.sendQuickQuestion = function(question) {
+                    if (!chatbotInput) return;
+                    chatbotInput.value = question;
+                    sendMessage();
+                };
+
+                // Function to send a message
+                function sendMessage() {
+                    if (!chatbotInput) return;
+                    
+                    const message = chatbotInput.value.trim();
+                    if (!message) return;
+
+                    // Add user message to chat
+                    addMessage(message, 'user');
+                    chatbotInput.value = '';
+
+                    // Show typing indicator
+                    showTypingIndicator();
+
+                    // Simulate AI response (in a real app, this would be an API call)
+                    setTimeout(() => {
+                        removeTypingIndicator();
+                        const aiResponse = generateAIResponse(message);
+                        addMessage(aiResponse, 'ai');
+                        
+                        // Scroll to bottom
+                        if (chatbotMessages) {
+                            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+                        }
+                    }, 1000 + Math.random() * 1000);
+                }
+
+                // Function to add a message to the chat
+                function addMessage(text, sender) {
+                    if (!chatbotMessages) return;
+                    
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = sender === 'user' ? 'chatbot-message-user p-3 max-w-[85%] ml-auto' : 'chatbot-message-ai p-3 max-w-[85%]';
+                    
+                    if (sender === 'ai') {
+                        messageDiv.innerHTML = `
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-6 h-6 rounded-full bg-gradient-to-br from-brand-accent to-blue-600 flex items-center justify-center">
+                                    <i class="fas fa-robot text-xs"></i>
+                                </div>
+                                <span class="text-xs font-bold text-brand-accent">ScorePulse AI</span>
+                            </div>
+                            <p class="text-sm">${text}</p>
+                        `;
+                    } else {
+                        messageDiv.innerHTML = `
+                            <div class="flex items-center gap-2 mb-2 justify-end">
+                                <span class="text-xs font-bold text-brand-dark">You</span>
+                                <div class="w-6 h-6 rounded-full bg-gradient-to-br from-brand-accent to-blue-600 flex items-center justify-center">
+                                    <i class="fas fa-user text-xs"></i>
+                                </div>
+                            </div>
+                            <p class="text-sm">${text}</p>
+                        `;
+                    }
+                    
+                    chatbotMessages.appendChild(messageDiv);
+                    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+                    // Increment message count for notification
+                    if (!isChatbotOpen && sender === 'ai' && chatbotNotification) {
+                        messageCount++;
+                        chatbotNotification.textContent = messageCount;
+                        chatbotNotification.classList.remove('hidden');
+                    }
+                }
+
+                // Function to show typing indicator
+                function showTypingIndicator() {
+                    if (!chatbotMessages) return;
+                    
+                    const typingDiv = document.createElement('div');
+                    typingDiv.className = 'chatbot-message-ai p-3 max-w-[85%]';
+                    typingDiv.id = 'typing-indicator';
+                    typingDiv.innerHTML = `
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-brand-accent to-blue-600 flex items-center justify-center">
+                                <i class="fas fa-robot text-xs"></i>
+                            </div>
+                            <span class="text-xs font-bold text-brand-accent">ScorePulse AI</span>
+                        </div>
+                        <div class="chatbot-typing-indicator">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    `;
+                    chatbotMessages.appendChild(typingDiv);
+                    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+                }
+
+                // Function to remove typing indicator
+                function removeTypingIndicator() {
+                    const typingIndicator = document.getElementById('typing-indicator');
+                    if (typingIndicator) {
+                        typingIndicator.remove();
+                    }
+                }
+
+                // Function to generate AI response (simulated)
+                function generateAIResponse(userMessage) {
+                    const lowerMessage = userMessage.toLowerCase();
+                    
+                    // Define response patterns
+                    const responses = {
+                        greetings: [
+                            `Hello {{ current_user.username }}! How can I assist you with football predictions today?`,
+                            `Hi there! Ready to dive into some football analysis?`,
+                            `Welcome back {{ current_user.username }}! I'm here to help with all your football prediction needs.`
+                        ],
+                        predictions: [
+                            "Based on our neural network analysis, Manchester City has a 68% chance of winning against Arsenal, with an expected score of 2-1.",
+                            "Liverpool vs Chelsea is predicted to be a close match. Our model gives Liverpool a 52% chance, Chelsea 28%, and draw 20%.",
+                            "For today's matches, our top pick is Bayern Munich to win with over 2.5 goals. Confidence level: 78%."
+                        ],
+                        model: [
+                            "Our AI uses a hybrid model combining LSTM neural networks with XGBoost algorithms, trained on 10+ years of historical match data including xG, possession stats, and team form.",
+                            "The prediction model analyzes 50+ features per match, including recent form, head-to-head records, injuries, and even weather conditions.",
+                            "We use ensemble learning with multiple models to provide the most accurate predictions. Our current accuracy rate is 72% on test data."
+                        ],
+                        matches: [
+                            "Today's key matches: Premier League - Manchester United vs Tottenham (20:00 GMT), La Liga - Barcelona vs Real Madrid (21:00 GMT).",
+                            "Upcoming this weekend: Champions League quarter-finals, with PSG vs Bayern Munich as the highlight match.",
+                            "Next week features derby matches including Milan Derby (Inter vs AC Milan) and North London Derby (Arsenal vs Tottenham)."
+                        ],
+                        usage: [
+                            "To get predictions: 1) Go to Predict page 2) Select league/teams 3) View AI analysis 4) Check confidence scores",
+                            "Premium users get access to: Live match predictions, detailed statistics, and betting value indicators.",
+                            "Use the Telegram bot for instant notifications on match predictions and live updates."
+                        ],
+                        default: [
+                            "I can help with match predictions, explain our AI model, discuss upcoming fixtures, or guide you on using ScorePulse features.",
+                            "That's an interesting question about football predictions. Could you be more specific about what you'd like to know?",
+                            "I specialize in football analytics and predictions. Ask me about specific matches, teams, or how our AI works."
+                        ]
+                    };
+
+                    // Determine response category
+                    let category = 'default';
+                    
+                    if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+                        category = 'greetings';
+                    } else if (lowerMessage.includes('predict') || lowerMessage.includes('bet') || lowerMessage.includes('win') || lowerMessage.includes('score')) {
+                        category = 'predictions';
+                    } else if (lowerMessage.includes('model') || lowerMessage.includes('ai') || lowerMessage.includes('neural') || lowerMessage.includes('algorithm')) {
+                        category = 'model';
+                    } else if (lowerMessage.includes('match') || lowerMessage.includes('fixture') || lowerMessage.includes('schedule') || lowerMessage.includes('upcoming')) {
+                        category = 'matches';
+                    } else if (lowerMessage.includes('use') || lowerMessage.includes('how to') || lowerMessage.includes('feature') || lowerMessage.includes('premium')) {
+                        category = 'usage';
+                    }
+
+                    // Get random response from category
+                    const categoryResponses = responses[category];
+                    return categoryResponses[Math.floor(Math.random() * categoryResponses.length)];
+                }
+
+                // Function to close chatbot
+                function closeChatbot() {
+                    if (chatbotWindow) {
+                        chatbotWindow.classList.add('hidden');
+                        isChatbotOpen = false;
+                    }
+                }
+
+                // Auto-open chatbot for first-time users (after 30 seconds)
+                setTimeout(() => {
+                    const hasOpenedChatbot = localStorage.getItem('hasOpenedChatbot');
+                    if (!hasOpenedChatbot && !isChatbotOpen && chatbotToggle) {
+                        chatbotToggle.click();
+                        localStorage.setItem('hasOpenedChatbot', 'true');
+                    }
+                }, 30000);
+
+                // Initialize chatbot position
+                if (chatbotWindow) {
+                    chatbotWindow.style.height = '24rem';
+                    chatbotWindow.style.width = '20rem';
+                }
+            }
+        {% else %}
+            // Show login prompt if chatbot is accessed without authentication
+            document.addEventListener('DOMContentLoaded', function() {
+                // Check if someone tries to access chatbot via direct URL or other means
+                const chatbotContainer = document.getElementById('chatbot-container');
+                if (chatbotContainer) {
+                    chatbotContainer.innerHTML = `
+                        <button onclick="window.location.href='{{ url_for('login') }}'" 
+                                class="w-14 h-14 rounded-full bg-gradient-to-br from-brand-orange to-red-600 flex items-center justify-center text-white shadow-2xl hover:shadow-[0_0_30px_rgba(255,107,53,0.5)] transition-all duration-300"
+                                title="Login to access AI Assistant">
+                            <i class="fas fa-sign-in-alt text-xl"></i>
+                        </button>
+                    `;
+                }
+            });
+        {% endif %}
+    </script>
+
+    <!-- Offline Detection Script -->
+    <script>
+        // Offline detection and handling
+        let isOffline = false;
+        let offlineOverlay = null;
+
+        function createOfflineOverlay() {
+            // Remove existing overlay if any
+            if (offlineOverlay) {
+                offlineOverlay.remove();
+            }
+
+            // Create overlay
+            offlineOverlay = document.createElement('div');
+            offlineOverlay.id = 'offline-overlay';
+            offlineOverlay.className = 'fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4';
+            offlineOverlay.innerHTML = `
+                <div class="bg-slate-900 rounded-2xl p-8 max-w-md w-full text-center border border-slate-700 shadow-2xl">
+                    <div class="w-16 h-16 rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-wifi-slash text-red-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-4">Connection Lost</h3>
+                    <p class="text-slate-400 mb-6">
+                        You're currently offline. Don't worry - you can still enjoy football activities!
+                    </p>
+                    <div class="flex gap-3">
+                        <button onclick="goToOfflinePage()" class="flex-1 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105">
+                            Go to Offline Page
+                        </button>
+                        <button onclick="dismissOfflineOverlay()" class="px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors duration-300">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(offlineOverlay);
+        }
+
+        function goToOfflinePage() {
+            window.location.href = '/offline';
+        }
+
+        function dismissOfflineOverlay() {
+            if (offlineOverlay) {
+                offlineOverlay.remove();
+                offlineOverlay = null;
+            }
+        }
+
+        function handleOffline() {
+            if (!isOffline) {
+                isOffline = true;
+                createOfflineOverlay();
+
+                // Auto-redirect after 10 seconds if overlay is still visible
+                setTimeout(() => {
+                    if (offlineOverlay && document.body.contains(offlineOverlay)) {
+                        goToOfflinePage();
+                    }
+                }, 10000);
+            }
+        }
+
+        function handleOnline() {
+            if (isOffline) {
+                isOffline = false;
+
+                // Show online notification
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in';
+                notification.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-wifi text-lg"></i>
+                        <span class="font-medium">Back Online!</span>
+                    </div>
+                `;
+                document.body.appendChild(notification);
+
+                // Remove notification and overlay after 3 seconds
+                setTimeout(() => {
+                    notification.remove();
+                    dismissOfflineOverlay();
+                }, 3000);
+            }
+        }
+
+        // Initialize offline detection
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check initial state
+            if (!navigator.onLine) {
+                handleOffline();
+            }
+
+            // Listen for online/offline events
+            window.addEventListener('online', handleOnline);
+            window.addEventListener('offline', handleOffline);
+
+            // Periodic connection check (every 30 seconds)
+            setInterval(() => {
+                if (navigator.onLine && isOffline) {
+                    handleOnline();
+                } else if (!navigator.onLine && !isOffline) {
+                    handleOffline();
+                }
+            }, 30000);
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

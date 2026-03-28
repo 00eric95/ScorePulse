@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% block title %}Match Fixtures{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-slate-950 py-12 px-4">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header with Date Navigation -->
+        <div class="glass-card bg-slate-900/50 rounded-2xl p-6 mb-8 border border-slate-700">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-white mb-2">Match Fixtures</h1>
+                    <p class="text-slate-400">Upcoming matches and live scores</p>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <!-- Date Picker -->
+                    <div class="relative">
+                        <input type="date" id="fixture-date" value="{{ selected_date }}"
+                               class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-2 pr-10 focus:outline-none focus:border-blue-500">
+                        <i class="fas fa-calendar absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
+                    </div>
+                    
+                    <!-- View Toggle -->
+                    <div class="flex bg-slate-900 rounded-xl p-1">
+                        <button id="view-list" class="px-4 py-2 rounded-lg bg-blue-600 text-white">
+                            <i class="fas fa-list"></i>
+                        </button>
+                        <button id="view-calendar" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white">
+                            <i class="fas fa-calendar-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Date Navigation -->
+            <div class="flex items-center justify-center gap-4 mt-6">
+                <button onclick="changeDate(-1)" class="p-2 text-slate-400 hover:text-white">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                
+                <div class="flex gap-2">
+                    {% for day in date_range %}
+                    <button onclick="setDate('{{ day }}')" 
+                            class="px-4 py-2 rounded-lg {{ 'bg-blue-600 text-white' if day == selected_date else 'bg-slate-800 text-slate-400 hover:bg-slate-700' }}">
+                        {{ day }}
+                    </button>
+                    {% endfor %}
+                </div>
+                
+                <button onclick="changeDate(1)" class="p-2 text-slate-400 hover:text-white">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Live Matches Section -->
+        {% if live_matches %}
+        <div class="mb-8">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                <h2 class="text-2xl font-bold text-white">Live Now</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for match in live_matches %}
+                <div class="glass-card bg-slate-900/50 rounded-2xl p-6 border border-red-500/30 hover:border-red-500/50 transition">
+                    <!-- Live Badge -->
+                    <div class="absolute top-4 right-4">
+                        <span class="px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full animate-pulse flex items-center gap-1">
+                            <span class="w-2 h-2 bg-white rounded-full"></span>
+                            LIVE
+                        </span>
+                    </div>
+                    
+                    <!-- Match Info -->
+                    <div class="mb-6">
+                        <div class="text-sm text-slate-400 mb-1">{{ match.league }}</div>
+                        <div class="text-lg font-bold text-white">{{ match.home }}</div>
+                        <div class="text-lg font-bold text-white">{{ match.away }}</div>
+                    </div>
+                    
+                    <!-- Live Score -->
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-white">{{ match.home_score or '0' }}</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-sm text-slate-400">{{ match.minute }}'</div>
+                            <div class="text-xs text-slate-500">{{ match.status }}</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-white">{{ match.away_score or '0' }}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Match Events -->
+                    {% if match.events %}
+                    <div class="space-y-2 mb-4">
+                        {% for event in match.events[:3] %}
+                        <div class="flex items-center gap-2 text-xs">
+                            <span class="text-slate-500">{{ event.minute }}'</span>
+                            <span class="text-white">{{ event.player }}</span>
+                            <span class="text-slate-400">{{ event.type }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Predict Button -->
+                    <a href="{{ url_for('predict', home_team=match.home, away_team=match.away) }}"
+                       class="block w-full py-2 bg-slate-800 hover:bg-slate-700 text-white text-center rounded-lg text-sm">
+                        Predict Live
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Upcoming Fixtures -->
+        <div>
+            <h2 class="text-2xl font-bold text-white mb-4">Upcoming Matches</h2>
+            
+            {% if fixtures_by_league %}
+                {% for league, matches in fixtures_by_league.items() %}
+                <div class="glass-card bg-slate-900/50 rounded-2xl p-6 mb-6 border border-slate-700">
+                    <!-- League Header -->
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white">
+                            {{ league[0] }}
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white">{{ league }}</h3>
+                            <p class="text-sm text-slate-400">{{ matches|length }} matches</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Matches List -->
+                    <div class="space-y-4">
+                        {% for match in matches %}
+                        <div class="bg-slate-900 rounded-xl p-4 hover:bg-slate-800 transition group">
+                            <div class="flex items-center justify-between">
+                                <!-- Match Time -->
+                                <div class="w-20 text-center">
+                                    <div class="text-white font-bold">{{ match.time }}</div>
+                                    <div class="text-xs text-slate-400">{{ match.date }}</div>
+                                </div>
+                                
+                                <!-- Teams -->
+                                <div class="flex-1 px-6">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="text-white font-medium">{{ match.home }}</div>
+                                        <div class="text-slate-400 text-xs">vs</div>
+                                        <div class="text-white font-medium">{{ match.away }}</div>
+                                    </div>
+                                    
+                                    <!-- Prediction Status -->
+                                    {% if match.has_prediction %}
+                                    <div class="flex items-center gap-2 text-xs">
+                                        <span class="text-green-400">✓ Predicted</span>
+                                        <span class="text-slate-500">•</span>
+                                        <span class="text-blue-400">{{ match.prediction_confidence }}% confidence</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Action Buttons -->
+                                <div class="flex gap-2">
+                                    <a href="{{ url_for('predict', home_team=match.home, away_team=match.away) }}"
+                                       class="px-4 py-2 bg-slate-800 hover:bg-blue-600 text-white rounded-lg text-sm transition">
+                                        Predict
+                                    </a>
+                                    <button onclick="addToWatchlist({{ match.id }})"
+                                            class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-lg">
+                                        <i class="far fa-star"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="glass-card bg-slate-900/50 rounded-2xl p-12 text-center border border-slate-700">
+                <i class="fas fa-calendar-times text-4xl text-slate-600 mb-4"></i>
+                <h3 class="text-xl font-bold text-white mb-2">No Fixtures Found</h3>
+                <p class="text-slate-400 mb-6">No matches scheduled for the selected date</p>
+                <button onclick="setDate('{{ today }}')" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">
+                    Show Today's Matches
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Date navigation
+    function changeDate(days) {
+        const currentDate = new Date(document.getElementById('fixture-date').value);
+        currentDate.setDate(currentDate.getDate() + days);
+        const newDate = currentDate.toISOString().split('T')[0];
+        window.location.href = `{{ url_for('fixtures') }}?date=${newDate}`;
+    }
+    
+    function setDate(dateStr) {
+        window.location.href = `{{ url_for('fixtures') }}?date=${dateStr}`;
+    }
+    
+    // View toggle
+    document.getElementById('view-list').addEventListener('click', function() {
+        this.classList.add('bg-blue-600', 'text-white');
+        this.classList.remove('bg-slate-800', 'text-slate-400');
+        document.getElementById('view-calendar').classList.remove('bg-blue-600', 'text-white');
+        document.getElementById('view-calendar').classList.add('bg-slate-800', 'text-slate-400');
+        // Switch to list view
+    });
+    
+    document.getElementById('view-calendar').addEventListener('click', function() {
+        this.classList.add('bg-blue-600', 'text-white');
+        this.classList.remove('bg-slate-800', 'text-slate-400');
+        document.getElementById('view-list').classList.remove('bg-blue-600', 'text-white');
+        document.getElementById('view-list').classList.add('bg-slate-800', 'text-slate-400');
+        // Switch to calendar view
+    });
+    
+    // Auto-refresh for live matches
+    {% if live_matches %}
+    setInterval(() => {
+        fetch("{{ url_for('live_scores_api') }}")
+            .then(response => response.json())
+            .then(data => {
+                // Update live scores
+                console.log('Live scores updated:', data);
+            })
+            .catch(err => console.error('Failed to update live scores:', err));
+    }, 30000); // Every 30 seconds
+    {% endif %}
+    
+    // Add to watchlist
+    function addToWatchlist(matchId) {
+        fetch(`/api/watchlist/add/${matchId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Added to watchlist!', 'success');
+            }
+        })
+        .catch(err => console.error('Failed to add to watchlist:', err));
+    }
+    
+    function showToast(message, type) {
+        // Your toast notification implementation
+        console.log(`${type}: ${message}`);
+    }
+</script>
+{% endblock %}

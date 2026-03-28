@@ -1,0 +1,641 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-slate-950 py-12 px-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="mb-10">
+            <h1 class="text-4xl font-bold text-white mb-2">Account Settings</h1>
+            <p class="text-slate-400">Manage your account preferences and security</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Navigation -->
+            <div class="lg:col-span-1">
+                <div class="glass-card bg-slate-900/50 rounded-2xl p-6 border border-slate-700 sticky top-8">
+                    <nav class="space-y-2">
+                        <button onclick="showSection('profile')" class="w-full text-left px-4 py-3 rounded-lg text-white font-medium hover:bg-slate-800 transition active-section">
+                            <i class="fas fa-user mr-3"></i>
+                            Profile
+                        </button>
+                        <button onclick="showSection('notifications')" class="w-full text-left px-4 py-3 rounded-lg text-slate-400 hover:text-white font-medium hover:bg-slate-800 transition">
+                            <i class="fas fa-bell mr-3"></i>
+                            Notifications
+                        </button>
+                        <button onclick="showSection('privacy')" class="w-full text-left px-4 py-3 rounded-lg text-slate-400 hover:text-white font-medium hover:bg-slate-800 transition">
+                            <i class="fas fa-shield-alt mr-3"></i>
+                            Privacy & Security
+                        </button>
+                        <button onclick="showSection('subscription')" class="w-full text-left px-4 py-3 rounded-lg text-slate-400 hover:text-white font-medium hover:bg-slate-800 transition">
+                            <i class="fas fa-crown mr-3"></i>
+                            Subscription
+                        </button>
+                        <button onclick="showSection('api')" class="w-full text-left px-4 py-3 rounded-lg text-slate-400 hover:text-white font-medium hover:bg-slate-800 transition">
+                            <i class="fas fa-code mr-3"></i>
+                            API Access
+                        </button>
+                        <button onclick="showSection('danger')" class="w-full text-left px-4 py-3 rounded-lg text-red-400 hover:text-red-300 font-medium hover:bg-red-500/10 transition">
+                            <i class="fas fa-exclamation-triangle mr-3"></i>
+                            Danger Zone
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Right Content Area -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Profile Section -->
+                <div id="profile-section" class="settings-section">
+                    <div class="glass-card bg-slate-900/50 rounded-2xl p-8 border border-slate-700">
+                        <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                            <i class="fas fa-user text-blue-400"></i>
+                            Profile Settings
+                        </h2>
+                        
+                        <form method="POST" class="space-y-6">
+                            {{ form.hidden_tag() }}
+                            
+                            <!-- Profile Picture -->
+                            <div>
+                                <label class="block text-sm font-bold text-slate-300 mb-2">Profile Picture</label>
+                                <div class="flex items-center gap-6">
+                                    <div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold">
+                                        {{ current_user.username[0]|upper }}
+                                    </div>
+                                    <div>
+                                        <input type="file" id="avatar-upload" class="hidden" accept="image/*">
+                                        <button type="button" onclick="document.getElementById('avatar-upload').click()" 
+                                                class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg">
+                                            Upload New Photo
+                                        </button>
+                                        <p class="text-xs text-slate-500 mt-2">JPG, PNG up to 2MB</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Username -->
+                            <div>
+                                <label class="block text-sm font-bold text-slate-300 mb-2">Username</label>
+                                {{ form.username(class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none", value=current_user.username) }}
+                            </div>
+                            
+                            <!-- Email -->
+                            <div>
+                                <label class="block text-sm font-bold text-slate-300 mb-2">Email Address</label>
+                                {{ form.email(class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none", value=current_user.email) }}
+                            </div>
+                            
+                            <!-- Favorite Leagues -->
+                            <div>
+                                <label class="block text-sm font-bold text-slate-300 mb-2">Favorite Leagues</label>
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                    {% for league in ['Premier League', 'La Liga', 'Serie A', 'Bundesliga', 'Ligue 1', 'Champions League'] %}
+                                    <label class="flex items-center gap-2 p-3 bg-slate-800/50 rounded-xl hover:bg-slate-800 cursor-pointer">
+                                        <input type="checkbox" class="w-4 h-4 text-blue-500 bg-slate-900 rounded" 
+                                               {% if league in current_user.favorite_leagues %}checked{% endif %}>
+                                        <span class="text-white text-sm">{{ league }}</span>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <!-- Theme Preference -->
+                            <div>
+                                <label class="block text-sm font-bold text-slate-300 mb-2">Theme</label>
+                                <div class="grid grid-cols-3 gap-3">
+                                    <label class="relative">
+                                        <input type="radio" name="theme" value="dark" class="sr-only peer" checked>
+                                        <div class="p-4 bg-slate-800 border-2 border-slate-700 rounded-xl peer-checked:border-blue-500 cursor-pointer">
+                                            <div class="text-white font-medium mb-2">Dark</div>
+                                            <div class="text-xs text-slate-400">Default theme</div>
+                                        </div>
+                                    </label>
+                                    <label class="relative">
+                                        <input type="radio" name="theme" value="light" class="sr-only peer">
+                                        <div class="p-4 bg-white border-2 border-slate-300 rounded-xl peer-checked:border-blue-500 cursor-pointer">
+                                            <div class="text-slate-900 font-medium mb-2">Light</div>
+                                            <div class="text-xs text-slate-600">Light mode</div>
+                                        </div>
+                                    </label>
+                                    <label class="relative">
+                                        <input type="radio" name="theme" value="auto" class="sr-only peer">
+                                        <div class="p-4 bg-gradient-to-br from-slate-800 to-white border-2 border-slate-700 rounded-xl peer-checked:border-blue-500 cursor-pointer">
+                                            <div class="text-white font-medium mb-2">Auto</div>
+                                            <div class="text-xs text-slate-400">System preference</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Save Button -->
+                            <div class="pt-6">
+                                <button type="submit" class="px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold rounded-xl transition">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Notification Settings Section -->
+                <div id="notifications-section" class="settings-section hidden">
+                    <div class="glass-card bg-slate-900/50 rounded-2xl p-8 border border-slate-700">
+                        <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                            <i class="fas fa-bell text-green-400"></i>
+                            Notification Settings
+                        </h2>
+                        
+                        <!-- Email Notifications -->
+                        <div class="space-y-4 mb-8">
+                            <h3 class="text-lg font-bold text-white mb-4">Email Notifications</h3>
+                            {% for setting in email_settings %}
+                            <label class="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl hover:bg-slate-800 cursor-pointer">
+                                <div>
+                                    <span class="text-white font-medium">{{ setting.name }}</span>
+                                    <p class="text-sm text-slate-400">{{ setting.description }}</p>
+                                </div>
+                                <input type="checkbox" class="w-5 h-5 text-blue-500 rounded" {{ 'checked' if setting.enabled }}>
+                            </label>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Push Notifications -->
+                        <div class="space-y-4">
+                            <h3 class="text-lg font-bold text-white mb-4">Push Notifications</h3>
+                            {% for setting in push_settings %}
+                            <label class="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl hover:bg-slate-800 cursor-pointer">
+                                <div>
+                                    <span class="text-white font-medium">{{ setting.name }}</span>
+                                    <p class="text-sm text-slate-400">{{ setting.description }}</p>
+                                </div>
+                                <input type="checkbox" class="w-5 h-5 text-blue-500 rounded" {{ 'checked' if setting.enabled }}>
+                            </label>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="mt-8 pt-8 border-t border-slate-800">
+                            <button onclick="saveNotificationSettings()" class="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white font-bold rounded-xl transition">
+                                Save Notification Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy & Security Section -->
+                <div id="privacy-section" class="settings-section hidden">
+                    <div class="glass-card bg-slate-900/50 rounded-2xl p-8 border border-slate-700">
+                        <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                            <i class="fas fa-shield-alt text-purple-400"></i>
+                            Privacy & Security
+                        </h2>
+                        
+                        <!-- Change Password -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-bold text-white mb-4">Change Password</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm text-slate-300 mb-2">Current Password</label>
+                                    <input type="password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-slate-300 mb-2">New Password</label>
+                                    <input type="password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-slate-300 mb-2">Confirm New Password</label>
+                                    <input type="password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none">
+                                </div>
+                                <button onclick="changePassword()" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">
+                                    Update Password
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Two-Factor Authentication -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-bold text-white mb-4">Two-Factor Authentication</h3>
+                            <div class="p-4 bg-slate-800/50 rounded-xl">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div>
+                                        <div class="text-white font-medium">2FA Status</div>
+                                        <div class="text-sm text-slate-400">Add an extra layer of security</div>
+                                    </div>
+                                    <span class="px-3 py-1 bg-red-500/20 text-red-400 rounded-full text-sm">Disabled</span>
+                                </div>
+                                <button onclick="enable2FA()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg">
+                                    Enable Two-Factor Authentication
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Login History -->
+                        <div>
+                            <h3 class="text-lg font-bold text-white mb-4">Recent Login Activity</h3>
+                            <div class="space-y-3">
+                                {% for login in login_history %}
+                                <div class="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl">
+                                    <div>
+                                        <div class="text-white font-medium">{{ login.location }}</div>
+                                        <div class="text-sm text-slate-400">{{ login.time }} • {{ login.device }}</div>
+                                    </div>
+                                    <span class="text-sm {{ 'text-green-400' if login.current else 'text-slate-500' }}">
+                                        {{ 'Current Session' if login.current else 'Active' }}
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <button onclick="logoutOtherSessions()" class="w-full mt-4 py-3 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg">
+                                Logout All Other Sessions
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subscription Section -->
+                <div id="subscription-section" class="settings-section hidden">
+                    <div class="glass-card bg-slate-900/50 rounded-2xl p-8 border border-slate-700">
+                        <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                            <i class="fas fa-crown text-yellow-400"></i>
+                            Subscription Plan
+                        </h2>
+                        
+                        <!-- Current Plan -->
+                        <div class="mb-8 p-6 bg-gradient-to-r from-yellow-900/20 to-yellow-900/5 rounded-xl border border-yellow-500/20">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <div class="text-yellow-400 font-bold text-lg">{{ current_user.tier|default('Silver') }} Plan</div>
+                                    <div class="text-white text-2xl font-bold">KES {{ current_user.plan_price|default(500) }}/month</div>
+                                </div>
+                                <span class="px-4 py-2 bg-yellow-500/20 text-yellow-400 rounded-full font-bold">
+                                    Active
+                                </span>
+                            </div>
+                            <div class="text-sm text-slate-400">
+                                Next billing date: {{ current_user.next_billing_date|default('2024-01-01') }}
+                            </div>
+                        </div>
+                        
+                        <!-- Plan Features -->
+                        <div class="grid grid-cols-2 gap-4 mb-8">
+                            {% for feature in plan_features %}
+                            <div class="flex items-center gap-3 p-4 bg-slate-800/50 rounded-xl">
+                                <i class="fas fa-check text-green-400"></i>
+                                <span class="text-white">{{ feature }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Upgrade/Downgrade -->
+                        <div class="space-y-4">
+                            <h3 class="text-lg font-bold text-white">Change Plan</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <button onclick="upgradePlan('gold')" class="p-4 bg-gradient-to-r from-yellow-900/20 to-yellow-900/5 border border-yellow-500/20 rounded-xl hover:border-yellow-500/50 transition">
+                                    <div class="text-yellow-400 font-bold text-lg">Gold Plan</div>
+                                    <div class="text-white text-xl font-bold">KES 1,200/month</div>
+                                    <div class="text-sm text-slate-400 mt-2">All Silver features + Neural Network</div>
+                                </button>
+                                <button onclick="downgradePlan('silver')" class="p-4 bg-gradient-to-r from-blue-900/20 to-blue-900/5 border border-blue-500/20 rounded-xl hover:border-blue-500/50 transition">
+                                    <div class="text-blue-400 font-bold text-lg">Silver Plan</div>
+                                    <div class="text-white text-xl font-bold">KES 500/month</div>
+                                    <div class="text-sm text-slate-400 mt-2">Unlimited predictions + RF Model</div>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Billing History -->
+                        <div class="mt-8 pt-8 border-t border-slate-800">
+                            <h3 class="text-lg font-bold text-white mb-4">Billing History</h3>
+                            <div class="space-y-3">
+                                {% for invoice in billing_history %}
+                                <div class="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl">
+                                    <div>
+                                        <div class="text-white font-medium">{{ invoice.description }}</div>
+                                        <div class="text-sm text-slate-400">{{ invoice.date }}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-white font-bold">{{ invoice.amount }} KES</div>
+                                        <a href="{{ invoice.receipt_url }}" class="text-sm text-blue-400 hover:text-blue-300">Receipt</a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Access Section -->
+                <div id="api-section" class="settings-section hidden">
+                    <div class="glass-card bg-slate-900/50 rounded-2xl p-8 border border-slate-700">
+                        <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                            <i class="fas fa-code text-cyan-400"></i>
+                            API Access
+                        </h2>
+                        
+                        <!-- API Key -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-bold text-white mb-4">Your API Key</h3>
+                            <div class="relative">
+                                <input type="text" id="api-key" value="{{ api_key|default('••••••••••••••••••••••••••••••••') }}" 
+                                       class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 pr-24 font-mono text-white" readonly>
+                                <button onclick="copyApiKey()" class="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm">
+                                    Copy
+                                </button>
+                            </div>
+                            <p class="text-sm text-slate-400 mt-2">
+                                Keep this key secret. Use it to authenticate API requests.
+                            </p>
+                        </div>
+                        
+                        <!-- Regenerate Key -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-bold text-white mb-4">Regenerate API Key</h3>
+                            <p class="text-slate-400 mb-4">
+                                Regenerating your API key will invalidate the current key. Any applications using the old key will stop working.
+                            </p>
+                            <button onclick="regenerateApiKey()" class="px-6 py-3 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg">
+                                Regenerate API Key
+                            </button>
+                        </div>
+                        
+                        <!-- API Documentation -->
+                        <div>
+                            <h3 class="text-lg font-bold text-white mb-4">API Documentation</h3>
+                            <div class="space-y-3">
+                                <a href="/api/docs" class="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl hover:bg-slate-800 transition group">
+                                    <div>
+                                        <div class="text-white font-medium">REST API Documentation</div>
+                                        <div class="text-sm text-slate-400">Complete API reference and examples</div>
+                                    </div>
+                                    <i class="fas fa-external-link-alt text-slate-500 group-hover:text-white"></i>
+                                </a>
+                                <a href="/api/playground" class="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl hover:bg-slate-800 transition group">
+                                    <div>
+                                        <div class="text-white font-medium">API Playground</div>
+                                        <div class="text-sm text-slate-400">Test API endpoints in real-time</div>
+                                    </div>
+                                    <i class="fas fa-external-link-alt text-slate-500 group-hover:text-white"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danger Zone Section -->
+                <div id="danger-section" class="settings-section hidden">
+                    <div class="glass-card bg-slate-900/50 rounded-2xl p-8 border border-red-500/30">
+                        <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                            <i class="fas fa-exclamation-triangle text-red-400"></i>
+                            Danger Zone
+                        </h2>
+                        
+                        <!-- Delete Account -->
+                        <div class="mb-8 p-6 bg-red-500/10 rounded-xl border border-red-500/20">
+                            <h3 class="text-lg font-bold text-white mb-2">Delete Account</h3>
+                            <p class="text-slate-300 mb-4">
+                                Permanently delete your account and all associated data. This action cannot be undone.
+                            </p>
+                            <button onclick="deleteAccount()" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg">
+                                Delete My Account
+                            </button>
+                        </div>
+                        
+                        <!-- Export Data -->
+                        <div class="mb-8 p-6 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                            <h3 class="text-lg font-bold text-white mb-2">Export Your Data</h3>
+                            <p class="text-slate-300 mb-4">
+                                Download a copy of all your data including predictions, settings, and activity history.
+                            </p>
+                            <button onclick="exportData()" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg">
+                                Export All Data
+                            </button>
+                        </div>
+                        
+                        <!-- Reset Settings -->
+                        <div class="p-6 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
+                            <h3 class="text-lg font-bold text-white mb-2">Reset All Settings</h3>
+                            <p class="text-slate-300 mb-4">
+                                Reset all your preferences and settings to their default values.
+                            </p>
+                            <button onclick="resetSettings()" class="px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-bold rounded-lg">
+                                Reset Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Section navigation
+    function showSection(sectionId) {
+        // Hide all sections
+        document.querySelectorAll('.settings-section').forEach(section => {
+            section.classList.add('hidden');
+        });
+        
+        // Show selected section
+        document.getElementById(`${sectionId}-section`).classList.remove('hidden');
+        
+        // Update active navigation button
+        document.querySelectorAll('nav button').forEach(btn => {
+            btn.classList.remove('active-section', 'text-white', 'bg-slate-800');
+            btn.classList.add('text-slate-400', 'hover:text-white');
+        });
+        
+        event.target.classList.remove('text-slate-400', 'hover:text-white');
+        event.target.classList.add('active-section', 'text-white', 'bg-slate-800');
+    }
+    
+    // Copy API key
+    function copyApiKey() {
+        const apiKeyInput = document.getElementById('api-key');
+        apiKeyInput.select();
+        apiKeyInput.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(apiKeyInput.value);
+        
+        // Show feedback
+        const button = event.target;
+        const originalText = button.textContent;
+        button.textContent = 'Copied!';
+        button.classList.remove('bg-blue-600');
+        button.classList.add('bg-green-600');
+        
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.classList.remove('bg-green-600');
+            button.classList.add('bg-blue-600');
+        }, 2000);
+    }
+    
+    // Regenerate API key
+    async function regenerateApiKey() {
+        if (!confirm('Are you sure you want to regenerate your API key? This will invalidate the current key.')) {
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/regenerate-api-key', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('api-key').value = data.new_key;
+                alert('API key regenerated successfully!');
+            }
+        } catch (error) {
+            console.error('Failed to regenerate API key:', error);
+            alert('Failed to regenerate API key');
+        }
+    }
+    
+    // Delete account
+    async function deleteAccount() {
+        if (!confirm('Are you absolutely sure? This will permanently delete your account and all data. This action cannot be undone.')) {
+            return;
+        }
+        
+        const confirmation = prompt('Type "DELETE" to confirm account deletion:');
+        if (confirmation !== 'DELETE') {
+            alert('Account deletion cancelled.');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/delete-account', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            if (response.ok) {
+                alert('Account deleted successfully. You will be logged out.');
+                window.location.href = '/logout';
+            } else {
+                throw new Error('Delete failed');
+            }
+        } catch (error) {
+            console.error('Failed to delete account:', error);
+            alert('Failed to delete account');
+        }
+    }
+    
+    // Export data
+    async function exportData() {
+        try {
+            const response = await fetch('/api/export-data');
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `scorepulse-data-${new Date().toISOString().split('T')[0]}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }
+        } catch (error) {
+            console.error('Failed to export data:', error);
+            alert('Failed to export data');
+        }
+    }
+    
+    // Reset settings
+    async function resetSettings() {
+        if (!confirm('Reset all settings to default values?')) {
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/reset-settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            if (response.ok) {
+                alert('Settings reset successfully!');
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Failed to reset settings:', error);
+            alert('Failed to reset settings');
+        }
+    }
+    
+    // Change password
+    async function changePassword() {
+        // Implement password change
+        console.log('Change password functionality');
+    }
+    
+    // Enable 2FA
+    async function enable2FA() {
+        // Implement 2FA setup
+        console.log('Enable 2FA functionality');
+    }
+    
+    // Logout other sessions
+    async function logoutOtherSessions() {
+        if (!confirm('Logout all other sessions?')) {
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/logout-other-sessions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            if (response.ok) {
+                alert('All other sessions have been logged out.');
+            }
+        } catch (error) {
+            console.error('Failed to logout other sessions:', error);
+            alert('Failed to logout other sessions');
+        }
+    }
+    
+    // Save notification settings
+    async function saveNotificationSettings() {
+        // Implement notification settings save
+        console.log('Save notification settings');
+        alert('Notification settings saved!');
+    }
+    
+    // Upgrade/Downgrade plan
+    async function upgradePlan(plan) {
+        window.location.href = `/upgrade/${plan}`;
+    }
+    
+    async function downgradePlan(plan) {
+        window.location.href = `/downgrade/${plan}`;
+    }
+</script>
+
+<style>
+    .active-section {
+        background-color: rgba(30, 41, 59, 0.5);
+        color: white;
+    }
+    
+    .settings-section {
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}

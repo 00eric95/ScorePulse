@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Failed | ScorePulse AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .error-code {
+            font-size: 120px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+        
+        .error-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .error-message {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .payment-details {
+            background: rgba(255, 65, 108, 0.1);
+            border-left: 4px solid #ff416c;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .payment-methods {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .payment-method {
+            width: 50px;
+            height: 30px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .retry-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid #28a745;
+            border-radius: 10px;
+        }
+        
+        .error-status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .status-failed {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            color: white;
+        }
+        
+        .status-pending {
+            background: linear-gradient(135deg, #ff9a00 0%, #ffcc00 100%);
+            color: white;
+        }
+        
+        .transaction-info {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .error-code {
+                font-size: 80px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-code">402</div>
+        
+        <!-- Status badge -->
+        {% if error_type == 'failed' %}
+            <div class="error-status status-failed">❌ PAYMENT FAILED</div>
+            <div class="error-title">Payment Failed</div>
+            <div class="error-message">
+                We couldn't process your payment. Please check your payment details and try again.
+            </div>
+        {% else %}
+            <div class="error-status status-pending">⏳ PAYMENT REQUIRED</div>
+            <div class="error-title">Payment Required</div>
+            <div class="error-message">
+                Please complete your payment to access premium features.
+            </div>
+        {% endif %}
+        
+        <div class="payment-details">
+            <strong>🔍 Transaction Details:</strong>
+            <div class="transaction-info">
+                Transaction ID: {{ transaction_id or 'TX-' + random_string(8) }}<br>
+                Amount: <strong>KES {{ amount or 50 }}</strong><br>
+                Time: {{ datetime.now().strftime('%Y-%m-%d %H:%M:%S') }}
+            </div>
+            
+            <strong>Common issues:</strong>
+            <ul style="margin: 10px 0 10px 20px;">
+                <li>Insufficient funds in your account</li>
+                <li>Card security code (CVC) incorrect</li>
+                <li>Card expired or invalid</li>
+                <li>Bank declined the transaction</li>
+                <li>Network connectivity issues</li>
+            </ul>
+        </div>
+        
+        <div class="payment-methods">
+            <div class="payment-method" title="Credit Card">💳</div>
+            <div class="payment-method" title="M-Pesa">📱</div>
+            <div class="payment-method" title="PayPal">🤝</div>
+            <div class="payment-method" title="Bank Transfer">🏦</div>
+        </div>
+        
+        <div class="action-buttons">
+            {% if error_type == 'failed' %}
+                <a href="{{ url_for('retry_payment', transaction_id=transaction_id) }}" class="btn btn-primary">
+                    🔄 Retry Payment
+                </a>
+            {% else %}
+                <a href="{{ url_for('checkout') }}" class="btn btn-primary">
+                    💳 Complete Payment
+                </a>
+            {% endif %}
+            
+            <a href="{{ url_for('pricing') }}" class="btn btn-secondary">
+                💰 Choose Different Plan
+            </a>
+        </div>
+        
+        <div style="margin-top: 25px; color: #666; font-size: 14px;">
+            Need help? 
+            <a href="mailto:support@scorepulse.ai" style="color: #667eea;">support@scorepulse.ai</a> 
+            or Telegram: <a href="https://t.me/ScorePulseSupport" style="color: #667eea;">@ScorePulseSupport</a>
+        </div>
+        
+        <div style="margin-top: 15px; font-size: 12px; color: #999;">
+            Your payment details are never stored on our servers. All payments are processed securely.
+        </div>
+    </div>
+</body>
+</html>

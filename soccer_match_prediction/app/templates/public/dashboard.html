@@ -1,0 +1,967 @@
+<!-- templates/dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Dashboard - ScorePulse AI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+        --secondary-gradient: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+        --dark-bg: #0f172a;
+        --darker-bg: #020617;
+        --card-bg: rgba(30, 41, 59, 0.7);
+        --card-border: rgba(71, 85, 105, 0.3);
+        --text-primary: #f8fafc;
+        --text-secondary: #cbd5e1;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --info-color: #8b5cf6;
+        --glass-bg: rgba(15, 23, 42, 0.7);
+        --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        --hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .dashboard {
+        min-height: calc(100vh - 64px);
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    .dashboard::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 1.75rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        color: var(--text-primary);
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--primary-gradient);
+        border-radius: 16px 16px 0 0;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--hover-shadow);
+        border-color: rgba(59, 130, 246, 0.5);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        margin-bottom: 1rem;
+        background: var(--primary-gradient);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .stat-icon-primary { background: var(--primary-gradient); }
+    .stat-icon-success { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); }
+    .stat-icon-warning { background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); }
+    .stat-icon-info { background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); }
+
+    .stat-value {
+        font-size: 2.25rem;
+        font-weight: 800;
+        margin-bottom: 0.25rem;
+        background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stat-label {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+
+    .content-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 1.75rem;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+    }
+
+    .content-card:hover {
+        border-color: rgba(59, 130, 246, 0.4);
+    }
+
+    .quick-action-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .quick-action-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--primary-gradient);
+        border-radius: 4px;
+    }
+
+    .quick-action-card:hover {
+        transform: translateX(8px) translateY(-4px);
+        box-shadow: var(--hover-shadow);
+        border-color: rgba(59, 130, 246, 0.5);
+    }
+
+    .action-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: var(--primary-gradient);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        margin-right: 1rem;
+        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+    }
+
+    .match-badge {
+        padding: 0.375rem 0.875rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .badge-premier-league { 
+        background: linear-gradient(135deg, #3D195B 0%, #6d28d9 100%);
+        color: white;
+    }
+    .badge-la-liga { 
+        background: linear-gradient(135deg, #FF0000 0%, #dc2626 100%);
+        color: white;
+    }
+    .badge-champions { 
+        background: linear-gradient(135deg, #00A8E1 0%, #3b82f6 100%);
+        color: white;
+    }
+    .badge-bundesliga { 
+        background: linear-gradient(135deg, #D20026 0%, #ef4444 100%);
+        color: white;
+    }
+    .badge-serie-a { 
+        background: linear-gradient(135deg, #008C45 0%, #10b981 100%);
+        color: white;
+    }
+
+    .streak-indicator {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 700;
+        background: linear-gradient(45deg, #f59e0b 0%, #fbbf24 100%);
+        color: #000;
+        border: 2px solid rgba(245, 158, 11, 0.3);
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+    }
+
+    .prediction-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .badge-home { 
+        background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        color: white;
+    }
+    .badge-away { 
+        background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+        color: white;
+    }
+    .badge-draw { 
+        background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+        color: #000;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-won { 
+        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        color: white;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .badge-lost { 
+        background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        color: white;
+        border: 1px solid rgba(220, 38, 38, 0.3);
+    }
+    .badge-pending { 
+        background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+        color: #000;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .match-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 0.75rem;
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .match-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--primary-gradient);
+        border-radius: 4px;
+    }
+
+    .match-card:hover {
+        transform: translateX(8px);
+        box-shadow: var(--hover-shadow);
+        border-color: rgba(59, 130, 246, 0.5);
+    }
+
+    .notification-item {
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid var(--card-border);
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .notification-item.unread {
+        background: rgba(59, 130, 246, 0.1);
+        border-color: rgba(59, 130, 246, 0.5);
+        border-left: 4px solid #3b82f6;
+    }
+
+    .notification-item:hover {
+        background: rgba(59, 130, 246, 0.15);
+        transform: translateX(4px);
+    }
+
+    .leaderboard-badge {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #f59e0b 0%, #fbbf24 100%);
+        color: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.25rem;
+        box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+        border: 2px solid rgba(245, 158, 11, 0.5);
+    }
+
+    /* Custom scrollbar */
+    .table-responsive::-webkit-scrollbar {
+        height: 8px;
+        background: rgba(30, 41, 59, 0.5);
+        border-radius: 4px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: var(--primary-gradient);
+        border-radius: 4px;
+    }
+
+    .table {
+        --bs-table-bg: transparent;
+        --bs-table-color: var(--text-primary);
+        --bs-table-border-color: var(--card-border);
+    }
+
+    .table th {
+        color: var(--text-secondary);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.75rem;
+        border-bottom: 2px solid var(--card-border);
+    }
+
+    .table td {
+        border-bottom: 1px solid var(--card-border);
+        vertical-align: middle;
+    }
+
+    .table-hover tbody tr:hover {
+        background: rgba(59, 130, 246, 0.1);
+    }
+
+    .btn-outline-primary {
+        --bs-btn-color: #3b82f6;
+        --bs-btn-border-color: #3b82f6;
+        --bs-btn-hover-bg: #3b82f6;
+        --bs-btn-hover-border-color: #3b82f6;
+        --bs-btn-active-bg: #3b82f6;
+        --bs-btn-active-border-color: #3b82f6;
+    }
+
+    .btn-primary {
+        background: var(--primary-gradient);
+        border: none;
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 25px rgba(59, 130, 246, 0.4);
+    }
+
+    .progress {
+        background: rgba(30, 41, 59, 0.5);
+        border-radius: 10px;
+        height: 8px;
+    }
+
+    .progress-bar {
+        background: var(--primary-gradient);
+        border-radius: 10px;
+    }
+
+    .text-muted {
+        color: #94a3b8 !important;
+    }
+
+    @media (max-width: 768px) {
+        .stat-value {
+            font-size: 1.75rem;
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+        }
+        
+        .dashboard {
+            min-height: calc(100vh - 56px);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <!-- Enhanced Dashboard Header -->
+    <div class="container-fluid py-6">
+        <!-- Hero Section -->
+        <div class="relative mb-8">
+            <div class="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-cyan-600/10 to-transparent rounded-3xl blur-2xl"></div>
+            <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-4 p-8 bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-3xl border border-slate-700/50 backdrop-blur-sm">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-4 h-4 rounded-full bg-green-400 animate-pulse"></div>
+                        <h1 class="text-4xl md:text-5xl font-black bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+                            Welcome back, {{ current_user.username }}! 👋
+                        </h1>
+                    </div>
+                    <p class="text-slate-400 text-lg">Track your predictions, analyze performance, and dominate the leaderboard.</p>
+                </div>
+                
+                <!-- Quick Status Pills -->
+                <div class="flex flex-wrap gap-2 justify-end">
+                    {% if stats.streak > 0 %}
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30 backdrop-blur">
+                        <i class="fas fa-fire text-orange-400"></i>
+                        <span class="font-semibold text-orange-300">{{ stats.streak }} Streak</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 backdrop-blur">
+                        <i class="fas fa-coins text-purple-400"></i>
+                        <span class="font-semibold text-purple-300">{{ current_user.credits if current_user.credits else 0 }}</span>
+                    </div>
+                    
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 backdrop-blur">
+                        <i class="fas fa-crown text-yellow-400"></i>
+                        <span class="font-semibold text-yellow-300">{{ current_user.subscription_tier|title if current_user.subscription_tier else 'Free' }}</span>
+                    </div>
+                    
+                    {% if leaderboard and leaderboard.rank %}
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-500/30 backdrop-blur">
+                        <i class="fas fa-trophy text-blue-400"></i>
+                        <span class="font-semibold text-blue-300">#{{ leaderboard.rank }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Stats Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <!-- Accuracy Card -->
+            <div class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600/10 to-blue-600/5 border border-blue-500/30 p-6 hover:border-blue-500/60 transition-all duration-300 hover:shadow-[0_0_30px_rgba(59,130,246,0.2)]">
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-600/5 group-hover:from-blue-500/10 transition-all duration-300"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-chart-line text-lg"></i>
+                        </div>
+                        {% if stats.accuracy >= 60 %}
+                        <span class="text-xs font-bold text-green-400">↑ Excellent</span>
+                        {% elif stats.accuracy >= 50 %}
+                        <span class="text-xs font-bold text-yellow-400">→ Good</span>
+                        {% else %}
+                        <span class="text-xs font-bold text-orange-400">↓ Improving</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-slate-400 text-sm font-medium">Accuracy Rate</p>
+                    <h3 class="text-3xl font-bold text-white mt-2">{{ "%.1f"|format(stats.accuracy) }}%</h3>
+                    <div class="mt-4 h-1 bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-blue-500 to-cyan-400" style="width: {{ stats.accuracy }}%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Predictions Card -->
+            <div class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-600/10 to-purple-600/5 border border-purple-500/30 p-6 hover:border-purple-500/60 transition-all duration-300 hover:shadow-[0_0_30px_rgba(168,85,247,0.2)]">
+                <div class="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-600/5 group-hover:from-purple-500/10 transition-all duration-300"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-list-check text-lg"></i>
+                        </div>
+                        <span class="text-xs font-bold text-purple-400">All-Time</span>
+                    </div>
+                    <p class="text-slate-400 text-sm font-medium">Total Predictions</p>
+                    <h3 class="text-3xl font-bold text-white mt-2">{{ stats.total }}</h3>
+                    <div class="mt-4 flex gap-2 text-xs">
+                        <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-400"></span><span class="text-green-400">{{ stats.wins }} Won</span></div>
+                        <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-400"></span><span class="text-red-400">{{ stats.losses }} Lost</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Predictions Left Today Card -->
+            <div class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-600/10 to-green-600/5 border border-green-500/30 p-6 hover:border-green-500/60 transition-all duration-300 hover:shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+                <div class="absolute inset-0 bg-gradient-to-br from-green-500/0 to-green-600/5 group-hover:from-green-500/10 transition-all duration-300"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center text-green-400 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-bolt text-lg"></i>
+                        </div>
+                        <span class="text-xs font-bold text-green-400">Today</span>
+                    </div>
+                    <p class="text-slate-400 text-sm font-medium">Remaining Predictions</p>
+                    {% set daily_limit = current_user.daily_prediction_limit if current_user.daily_prediction_limit else 10 %}
+                    {% set predictions_today = current_user.predictions_today if current_user.predictions_today else 0 %}
+                    <h3 class="text-3xl font-bold text-white mt-2">{{ daily_limit - predictions_today if daily_limit > predictions_today else 0 }}</h3>
+                    <div class="mt-4 h-1 bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-green-500 to-emerald-400" style="width: {{ (predictions_today / daily_limit * 100) if daily_limit > 0 else 0 }}%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Credits Card -->
+            <div class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-600/10 to-orange-600/5 border border-orange-500/30 p-6 hover:border-orange-500/60 transition-all duration-300 hover:shadow-[0_0_30px_rgba(249,115,22,0.2)]">
+                <div class="absolute inset-0 bg-gradient-to-br from-orange-500/0 to-orange-600/5 group-hover:from-orange-500/10 transition-all duration-300"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-400 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-wallet text-lg"></i>
+                        </div>
+                        <span class="text-xs font-bold text-orange-400">Credits</span>
+                    </div>
+                    <p class="text-slate-400 text-sm font-medium">Available Balance</p>
+                    <h3 class="text-3xl font-bold text-white mt-2">{{ current_user.credits if current_user.credits else 0 }}</h3>
+                    <a href="{{ url_for('upgrade') }}" class="mt-4 block text-center py-2 bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 hover:text-orange-300 text-xs font-semibold rounded-lg transition">
+                        Top Up Credits
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column: Recent Predictions & Insights (2 columns) -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Recent Predictions Card -->
+                <div class="rounded-2xl bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 backdrop-blur-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-700/50 bg-gradient-to-r from-slate-800/50 to-transparent">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                                    <i class="fas fa-history text-blue-400"></i>
+                                    Recent Predictions
+                                </h2>
+                                <p class="text-xs text-slate-400 mt-1">Your latest 10 predictions</p>
+                            </div>
+                            <a href="{{ url_for('my_predictions') }}" class="text-sm text-blue-400 hover:text-blue-300 transition flex items-center gap-1">
+                                View All <i class="fas fa-arrow-right text-xs"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        {% if predictions %}
+                        <div class="space-y-3">
+                            {% for pred in predictions %}
+                            <div class="flex items-center justify-between p-4 rounded-xl bg-slate-800/30 hover:bg-slate-800/60 border border-slate-700/30 hover:border-slate-600/50 transition-all group">
+                                <!-- Left: Match Info -->
+                                <div class="flex items-center gap-4 flex-1">
+                                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                                        {{ pred.home_team[0] }}
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-semibold text-white text-sm">{{ pred.home_team }} vs {{ pred.away_team }}</h4>
+                                        <p class="text-xs text-slate-400">{{ pred.match_date.strftime('%b %d, %Y') }}</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Middle: Prediction & Status -->
+                                <div class="flex items-center gap-3 flex-shrink-0">
+                                    <!-- Prediction Badge -->
+                                    {% if pred.pred_outcome == 'H' %}
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-blue-500/20 text-blue-400 border border-blue-500/30 text-xs font-semibold">
+                                        <i class="fas fa-house-user"></i> Home
+                                    </span>
+                                    {% elif pred.pred_outcome == 'A' %}
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-purple-500/20 text-purple-400 border border-purple-500/30 text-xs font-semibold">
+                                        <i class="fas fa-arrow-right"></i> Away
+                                    </span>
+                                    {% elif pred.pred_outcome == 'D' %}
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 text-xs font-semibold">
+                                        <i class="fas fa-equals"></i> Draw
+                                    </span>
+                                    {% endif %}
+                                    
+                                    <!-- Status Badge -->
+                                    {% if pred.status == 'Won' %}
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30 text-xs font-semibold">
+                                        <i class="fas fa-check-circle"></i> Won
+                                    </span>
+                                    {% elif pred.status == 'Lost' %}
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-semibold">
+                                        <i class="fas fa-times-circle"></i> Lost
+                                    </span>
+                                    {% elif pred.status == 'Pending' %}
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-orange-500/20 text-orange-400 border border-orange-500/30 text-xs font-semibold">
+                                        <i class="fas fa-hourglass"></i> Pending
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Right: Confidence -->
+                                {% if pred.confidence %}
+                                <div class="flex items-center gap-2 flex-shrink-0 ml-4">
+                                    <div class="text-right">
+                                        <p class="text-xs text-slate-400">Confidence</p>
+                                        <p class="text-sm font-bold text-white">{{ "%.0f"|format(pred.confidence) }}%</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-12">
+                            <i class="fas fa-inbox text-4xl text-slate-700 mb-4"></i>
+                            <p class="text-slate-500 mb-4">No predictions yet. Start making predictions!</p>
+                            <a href="{{ url_for('predict') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-semibold rounded-lg transition-all">
+                                <i class="fas fa-magic"></i> Make Your First Prediction
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Quick Actions Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Make Prediction -->
+                    <a href="{{ url_for('predict') }}" class="group relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-600/20 to-blue-600/10 border border-blue-500/30 p-6 hover:border-blue-500/60 transition-all hover:shadow-[0_0_30px_rgba(59,130,246,0.2)]">
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-600/5 group-hover:from-blue-500/10 transition-all"></div>
+                        <div class="relative">
+                            <div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400 mb-3 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-magic"></i>
+                            </div>
+                            <h3 class="font-bold text-white mb-1">Make a Prediction</h3>
+                            <p class="text-sm text-slate-400">Analyze matches and get AI insights</p>
+                        </div>
+                    </a>
+                    
+                    <!-- View Leaderboard -->
+                    <a href="{{ url_for('leaderboard') }}" class="group relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-600/20 to-purple-600/10 border border-purple-500/30 p-6 hover:border-purple-500/60 transition-all hover:shadow-[0_0_30px_rgba(168,85,247,0.2)]">
+                        <div class="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-600/5 group-hover:from-purple-500/10 transition-all"></div>
+                        <div class="relative">
+                            <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400 mb-3 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <h3 class="font-bold text-white mb-1">View Leaderboard</h3>
+                            <p class="text-sm text-slate-400">See where you rank globally</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Right Sidebar -->
+            <div class="space-y-6">
+
+                <!-- Today's Matches Card -->
+                {% if today_matches %}
+                <div class="rounded-2xl bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 backdrop-blur-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-700/50 bg-gradient-to-r from-slate-800/50 to-transparent">
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fas fa-calendar text-green-400"></i>
+                            Today's Matches
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">{{ today_matches|length }} upcoming matches</p>
+                    </div>
+                    
+                    <div class="p-6 space-y-3">
+                        {% for match in today_matches[:5] %}
+                        <div class="p-4 rounded-xl bg-slate-800/30 hover:bg-slate-800/60 border border-slate-700/30 hover:border-slate-600/50 transition-all group">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-futbol text-green-400 text-sm"></i>
+                                    <span class="text-xs font-bold text-slate-400 uppercase">{{ match.time if match.time else 'TBD' }}</span>
+                                </div>
+                                <a href="{{ url_for('predict') }}?home={{ match.home_team.name if match.home_team else 'home' }}&away={{ match.away_team.name if match.away_team else 'away' }}" 
+                                   class="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 hover:bg-blue-500/40 transition">
+                                    Predict
+                                </a>
+                            </div>
+                            <h4 class="font-semibold text-white text-sm">
+                                {{ match.home_team.name if match.home_team else 'Home' }} vs {{ match.away_team.name if match.away_team else 'Away' }}
+                            </h4>
+                            {% if match.league %}
+                            <p class="text-xs text-slate-500 mt-2">
+                                <i class="fas fa-flag text-slate-400 mr-1"></i>{{ match.league }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if today_matches|length > 5 %}
+                    <div class="px-6 pb-4">
+                        <a href="#" class="block w-full text-center py-2 text-blue-400 hover:text-blue-300 text-sm font-semibold transition">
+                            View All Today's Matches →
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <!-- Notifications Card -->
+                <div class="rounded-2xl bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 backdrop-blur-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-700/50 bg-gradient-to-r from-slate-800/50 to-transparent">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fas fa-bell text-yellow-400"></i>
+                                Notifications
+                            </h2>
+                            {% if notifications|length > 0 %}
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-500 text-white text-xs font-bold">
+                                {{ notifications|length }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        {% if notifications %}
+                        <div class="space-y-3 max-h-80 overflow-y-auto">
+                            {% for notif in notifications %}
+                            <div class="p-4 rounded-xl bg-slate-800/30 hover:bg-slate-800/60 border border-slate-700/30 {% if not notif.is_read %}border-blue-500/50 bg-blue-500/5{% endif %} hover:border-slate-600/50 transition-all">
+                                <div class="flex items-start gap-3">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-info-circle text-blue-400 text-lg mt-1"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-semibold text-white">{{ notif.title if notif.title else 'Notification' }}</p>
+                                        <p class="text-xs text-slate-400 mt-1">{{ notif.message[:60] if notif.message else 'No message' }}</p>
+                                        <p class="text-xs text-slate-500 mt-2">{{ notif.created_at.strftime('%H:%M') if notif.created_at else 'Now' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-inbox text-3xl text-slate-700 mb-2"></i>
+                            <p class="text-slate-500 text-sm">No notifications yet</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+                        {% for notif in notifications %}
+                        <div class="list-group-item border-0 px-0 py-2 notification-item unread">
+                            <div class="d-flex align-items-start">
+                                <div class="me-2">
+                                    {% if notif.title %}
+                                        {% if 'won' in notif.title.lower() or 'success' in notif.title.lower() %}
+                                        <i class="bi bi-check-circle-fill text-green-400"></i>
+                                        {% elif 'warning' in notif.title.lower() or 'alert' in notif.title.lower() %}
+                                        <i class="bi bi-exclamation-triangle-fill text-yellow-400"></i>
+                                        {% elif 'error' in notif.title.lower() or 'failed' in notif.title.lower() %}
+                                        <i class="bi bi-x-circle-fill text-red-400"></i>
+                                        {% else %}
+                                        <i class="bi bi-info-circle-fill text-blue-400"></i>
+                                        {% endif %}
+                                    {% else %}
+                                        <i class="bi bi-info-circle-fill text-blue-400"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between">
+                                        <strong class="mb-1 text-white">{{ notif.title if notif.title else 'Notification' }}</strong>
+                                        <small class="text-muted">{{ notif.created_at.strftime('%H:%M') if notif.created_at else '' }}</small>
+                                    </div>
+                                    <p class="mb-1 small text-slate-300">{{ notif.message if notif.message else '' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-center mt-2">
+                        <a href="{{ url_for('notifications') }}" 
+                           class="btn btn-sm btn-outline-primary">
+                            View All Notifications
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-3">
+                        <i class="bi bi-bell display-4 text-slate-600 mb-3"></i>
+                        <p class="text-slate-400">No new notifications</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Leaderboard Position -->
+                {% if leaderboard %}
+                <div class="content-card">
+                    <h5 class="mb-3 text-white">Your Leaderboard Position</h5>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="leaderboard-badge me-3">
+                            #{{ leaderboard.rank if leaderboard.rank else 'N/A' }}
+                        </div>
+                        <div>
+                            <h6 class="mb-1 text-white">{{ current_user.username }}</h6>
+                            <p class="text-muted mb-0">
+                                Accuracy: {{ "%.1f"|format(leaderboard.accuracy if leaderboard.accuracy else 0) }}%
+                                {% if leaderboard.profit and leaderboard.profit > 0 %}
+                                • Profit: +${{ "%.2f"|format(leaderboard.profit) }}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="fw-bold fs-4 text-white">{{ leaderboard.wins if leaderboard.wins else 0 }}</div>
+                            <div class="text-muted small">Wins</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="fw-bold fs-4 text-white">{{ leaderboard.losses if leaderboard.losses else 0 }}</div>
+                            <div class="text-muted small">Losses</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="fw-bold fs-4 text-white">{{ leaderboard.streak if leaderboard.streak else 0 }}</div>
+                            <div class="text-muted small">Streak</div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('leaderboard_view') }}" class="btn btn-sm btn-outline-primary">
+                            View Full Leaderboard
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Upgrade Banner for Free Tier -->
+        {% if current_user.subscription_tier == 'free' %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="content-card" style="background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%); color: white;">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="text-white mb-2">
+                                <i class="bi bi-star-fill me-2"></i>Upgrade to Premium
+                            </h5>
+                            <p class="mb-0 text-white">Get unlimited predictions, advanced analytics, and priority support.</p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a href="{{ url_for('upgrade') }}" 
+                               class="btn btn-light">
+                                Upgrade Now <i class="bi bi-arrow-up-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animate stat cards on scroll
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate stat cards on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all stat cards
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.6s ease';
+            observer.observe(card);
+        });
+        
+        // Quick action card animations
+        document.querySelectorAll('.quick-action-card').forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+            card.classList.add('animate__animated', 'animate__fadeInUp');
+        });
+        
+        // Mark notification as read on click
+        document.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', function() {
+                this.classList.remove('unread');
+                this.style.opacity = '0.7';
+            });
+        });
+        
+        // Update time displays every minute
+        function updateTimes() {
+            document.querySelectorAll('.time-display').forEach(el => {
+                const timeStr = el.getAttribute('data-time');
+                if (timeStr) {
+                    const time = new Date(timeStr);
+                    const now = new Date();
+                    const diffMs = now - time;
+                    const diffMins = Math.floor(diffMs / 60000);
+                    
+                    if (diffMins < 1) {
+                        el.textContent = 'Just now';
+                    } else if (diffMins < 60) {
+                        el.textContent = `${diffMins}m ago`;
+                    } else if (diffMins < 1440) {
+                        el.textContent = `${Math.floor(diffMins / 60)}h ago`;
+                    } else {
+                        el.textContent = `${Math.floor(diffMins / 1440)}d ago`;
+                    }
+                }
+            });
+        }
+        
+        // Initial update
+        updateTimes();
+        // Update every minute
+        setInterval(updateTimes, 60000);
+
+        // Add gradient animation to stat values
+        const statValues = document.querySelectorAll('.stat-value');
+        statValues.forEach(value => {
+            const colors = [
+                'linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%)',
+                'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
+                'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+                'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)'
+            ];
+            
+            value.addEventListener('mouseenter', function() {
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                this.style.backgroundImage = randomColor;
+            });
+            
+            value.addEventListener('mouseleave', function() {
+                this.style.backgroundImage = 'linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%)';
+            });
+        });
+    });
+</script>
+{% endblock %}

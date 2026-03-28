@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Live Matches - ScorePulse AI{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-white gradient-text">Live Matches</h1>
+            <p class="text-brand-muted mt-2">Real-time scores & predictions</p>
+        </div>
+        
+        <div class="flex gap-3">
+            <button class="px-5 py-2 bg-gradient-to-r from-brand-accent to-cyan-600 hover:from-cyan-500 hover:to-brand-accent text-white rounded-lg transition-all duration-300 flex items-center gap-2">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <button class="px-5 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-all duration-300 flex items-center gap-2">
+                <i class="fas fa-filter"></i> Filter
+            </button>
+        </div>
+    </div>
+
+    {% if live_matches and live_matches|length > 0 %}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {% for match in live_matches %}
+            <div class="glass-dark rounded-2xl overflow-hidden shadow-2xl border border-slate-700 hover:border-brand-accent/50 transition-all duration-300">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="text-lg font-bold text-white">{{ match.home_team }}</div>
+                        <div class="text-2xl font-bold text-brand-accent px-4">
+                            {{ match.home_score }} - {{ match.away_score }}
+                        </div>
+                        <div class="text-lg font-bold text-white">{{ match.away_team }}</div>
+                    </div>
+
+                    <div class="flex justify-center mb-6">
+                        <span class="px-4 py-1 bg-slate-800 rounded-full text-sm text-brand-muted">
+                            {{ match.minute }}' • {{ match.league }}
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 text-center text-sm">
+                        <div>
+                            <p class="text-brand-muted">xG</p>
+                            <p class="font-bold text-white">{{ match.xg_home|round(1) }}</p>
+                        </div>
+                        <div>
+                            <p class="text-brand-muted">Possession</p>
+                            <p class="font-bold text-white">{{ match.possession_home }}% - {{ match.possession_away }}%</p>
+                        </div>
+                        <div>
+                            <p class="text-brand-muted">Shots</p>
+                            <p class="font-bold text-white">{{ match.shots_home }} - {{ match.shots_away }}</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t border-slate-700 text-center">
+                        <p class="text-brand-accent font-medium">
+                            Prediction: {{ match.predicted_winner }} • {{ match.live_win_prob|round(0) }}%
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="glass-dark rounded-2xl p-12 text-center">
+            <i class="fas fa-futbol text-7xl text-brand-muted opacity-40 mb-6"></i>
+            <h3 class="text-2xl font-bold text-white mb-3">No Live Matches Right Now</h3>
+            <p class="text-brand-muted max-w-md mx-auto mb-6">
+                No matches are currently in progress. Check back during major leagues' match times.
+            </p>
+            <a href="{{ url_for('upcoming_matches') }}" class="inline-block px-6 py-3 bg-gradient-to-r from-brand-accent to-cyan-600 hover:from-cyan-500 hover:to-brand-accent text-white rounded-lg transition-all duration-300">
+                View Upcoming Fixtures →
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

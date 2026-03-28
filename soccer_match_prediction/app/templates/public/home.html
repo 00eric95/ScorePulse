@@ -1,0 +1,582 @@
+{% extends "base.html" %}
+{% block title %}ScorePulse AI - Advanced Football Predictions & Analytics{% endblock %}
+
+{% block content %}
+    <!-- Animated Hero Section -->
+    <div class="relative min-h-[90vh] overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+        <!-- Animated background elements -->
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[120px] animate-pulse"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-[100px] animate-pulse delay-1000"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-full blur-[150px]"></div>
+            
+            <!-- Animated grid pattern -->
+            <div class="absolute inset-0 opacity-5 bg-[url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1920')] bg-cover bg-center mix-blend-overlay"></div>
+        </div>
+
+        <div class="relative z-10 pt-24 pb-32 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto text-center">
+                <!-- Premium Badge -->
+                <div class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 backdrop-blur-lg mb-8 animate-bounce">
+                    <span class="w-2 h-2 bg-gradient-to-r from-blue-400 to-cyan-300 rounded-full animate-pulse"></span>
+                    <span class="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 uppercase tracking-widest">
+                        <i class="fas fa-robot mr-2"></i> AI-Powered Analytics Platform
+                    </span>
+                </div>
+                
+                <!-- Main Headline -->
+                <h1 class="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 tracking-tighter">
+                    <span class="block">FOOTBALL</span>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 animate-gradient">
+                        INTELLIGENCE
+                    </span>
+                    <span class="block text-3xl md:text-4xl lg:text-5xl font-bold text-slate-300 mt-4">
+                        Redefined
+                    </span>
+                </h1>
+                
+                <!-- Subtitle -->
+                <p class="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto mb-10 leading-relaxed">
+                    Advanced machine learning meets football analytics. Predict match outcomes with 
+                    <span class="font-bold text-white bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">76.3% accuracy</span> 
+                    using our proprietary AI models.
+                </p>
+                
+                <!-- CTA Buttons -->
+                <div class="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
+                    <a href="{{ url_for('predict') }}" 
+                       class="group relative px-12 py-5 bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 hover:from-blue-500 hover:via-cyan-400 hover:to-blue-500 text-white font-bold text-lg rounded-2xl shadow-[0_0_50px_rgba(56,189,248,0.5)] transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 active:scale-95 overflow-hidden">
+                        <!-- Animated border -->
+                        <div class="absolute inset-0 rounded-2xl border-2 border-transparent bg-gradient-to-r from-blue-400 to-cyan-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        
+                        <!-- Button content -->
+                        <div class="relative flex items-center gap-3">
+                            <i class="fas fa-rocket text-xl"></i>
+                            <span>Launch Predictor</span>
+                            <i class="fas fa-arrow-right group-hover:translate-x-2 transition-transform duration-300"></i>
+                        </div>
+                    </a>
+                    
+                    <a href="#match-center" 
+                       class="group px-10 py-5 bg-slate-900/50 hover:bg-slate-800/50 text-white font-bold rounded-2xl border border-slate-700 hover:border-slate-600 transition-all duration-300 backdrop-blur-sm">
+                        <span class="flex items-center gap-3">
+                            <i class="fas fa-play-circle"></i>
+                            <span>View Live Matches</span>
+                            <i class="fas fa-arrow-down group-hover:translate-y-1 transition-transform duration-300"></i>
+                        </span>
+                    </a>
+                </div>
+                
+                <!-- Live Stats Bar -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                    <div class="glass-card bg-gradient-to-br from-slate-900/50 to-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-xl p-6 hover:border-blue-500/30 transition-all duration-300">
+                        <div class="text-3xl font-black text-white mb-2 counter" data-target="50" data-suffix="">0</div>
+                        <div class="text-xs text-slate-400 uppercase tracking-widest font-bold">Leagues Covered</div>
+                        <div class="h-1 w-12 bg-gradient-to-r from-blue-500 to-cyan-400 mt-3 rounded-full"></div>
+                    </div>
+                    
+                    <div class="glass-card bg-gradient-to-br from-slate-900/50 to-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-xl p-6 hover:border-green-500/30 transition-all duration-300">
+                        <div class="text-3xl font-black text-white mb-2 counter" data-target="76.3" data-suffix="%">0</div>
+                        <div class="text-xs text-slate-400 uppercase tracking-widest font-bold">Prediction Accuracy</div>
+                        <div class="h-1 w-12 bg-gradient-to-r from-green-500 to-emerald-400 mt-3 rounded-full"></div>
+                    </div>
+                    
+                    <div class="glass-card bg-gradient-to-br from-slate-900/50 to-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-xl p-6 hover:border-orange-500/30 transition-all duration-300">
+                        <div class="text-3xl font-black text-white mb-2 counter" data-target="2" data-suffix="M+">0</div>
+                        <div class="text-xs text-slate-400 uppercase tracking-widest font-bold">Weekly Data Points</div>
+                        <div class="h-1 w-12 bg-gradient-to-r from-orange-500 to-red-400 mt-3 rounded-full"></div>
+                    </div>
+                    
+                    <div class="glass-card bg-gradient-to-br from-slate-900/50 to-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-xl p-6 hover:border-purple-500/30 transition-all duration-300">
+                        <div class="text-3xl font-black text-white mb-2 counter" data-target="25" data-suffix="">0</div>
+                        <div class="text-xs text-slate-400 uppercase tracking-widest font-bold">Analytical Metrics</div>
+                        <div class="h-1 w-12 bg-gradient-to-r from-purple-500 to-pink-400 mt-3 rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live AI Features -->
+    <div class="py-20 bg-gradient-to-b from-slate-900 to-slate-950">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">AI-Driven</span> 
+                    Features
+                </h2>
+                <p class="text-xl text-slate-400 max-w-3xl mx-auto">
+                    Powered by advanced machine learning algorithms and real-time data processing
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="glass-card bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-2xl p-8 hover:border-blue-500/50 transition-all duration-500 group hover:-translate-y-2">
+                    <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                        <i class="fas fa-brain text-blue-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-4">Neural Network Analysis</h3>
+                    <p class="text-slate-400 mb-6">
+                        Deep learning models analyze team form, player performance, and historical data with 25+ engineered features.
+                    </p>
+                    <a href="{{ url_for('neural_networks') }}" class="flex items-center text-blue-400 font-semibold hover:text-blue-300 transition-colors duration-300 cursor-pointer">
+                        <span>Explore AI Model</span>
+                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform duration-300"></i>
+                    </a>
+                </div>
+                
+                <div class="glass-card bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-2xl p-8 hover:border-green-500/50 transition-all duration-500 group hover:-translate-y-2">
+                    <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-green-500/20 to-green-500/5 border border-green-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                        <i class="fas fa-bolt text-green-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-4">Real-Time Data Sync</h3>
+                    <p class="text-slate-400 mb-6">
+                        Live match data, player statistics, and team news updated every 30 seconds from trusted global sources.
+                    </p>
+                    <a href="{{ url_for('real_time_data') }}" class="flex items-center text-green-400 font-semibold hover:text-green-300 transition-colors duration-300 cursor-pointer">
+                        <span>View Live Data</span>
+                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform duration-300"></i>
+                    </a>
+                </div>
+                
+                <div class="glass-card bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-2xl p-8 hover:border-purple-500/50 transition-all duration-500 group hover:-translate-y-2">
+                    <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 border border-purple-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                        <i class="fas fa-chart-pie text-purple-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-4">Probability Intelligence</h3>
+                    <p class="text-slate-400 mb-6">
+                        Win/Draw/Loss percentages with confidence scores, alternative scenarios, and risk assessments generated instantly.
+                    </p>
+                    <a href="{{ url_for('probability_intelligence') }}" class="flex items-center text-purple-400 font-semibold hover:text-purple-300 transition-colors duration-300 cursor-pointer">
+                        <span>See Probabilities</span>
+                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform duration-300"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Match Center -->
+    <div id="match-center" class="py-20 bg-gradient-to-b from-slate-950 to-slate-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Header with Date Picker -->
+            <div class="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
+                <div>
+                    <h2 class="text-4xl md:text-5xl font-bold text-white mb-2">
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Live</span> 
+                        Match Center
+                    </h2>
+                    <p class="text-slate-400">Real-time fixtures and predictions across 50+ leagues</p>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <!-- Date Picker -->
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-blue-400">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <input 
+                            type="date" 
+                            id="match-date" 
+                            value="{{ selected_date }}" 
+                            onchange="window.location.href='{{ url_for('home') }}?date=' + this.value"
+                            class="bg-slate-900 border border-slate-700 text-white text-sm rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 pr-4 py-3 cursor-pointer shadow-lg hover:border-blue-500/50 transition backdrop-blur-sm"
+                        >
+                    </div>
+                    
+                    <!-- Filter Button -->
+                    <button class="px-5 py-3 bg-gradient-to-r from-slate-800 to-slate-900 border border-slate-700 text-white rounded-xl hover:border-blue-500/50 transition flex items-center gap-2">
+                        <i class="fas fa-filter"></i>
+                        <span class="hidden md:inline">Filter</span>
+                    </button>
+                </div>
+            </div>
+
+            {% if matches %}
+                {% set league_map = {
+                    'E0': {'name': 'Premier League', 'flag': '🇬🇧', 'color': 'from-red-500 to-blue-500'},
+                    'SP1': {'name': 'La Liga', 'flag': '🇪🇸', 'color': 'from-yellow-500 to-red-500'},
+                    'D1': {'name': 'Bundesliga', 'flag': '🇩🇪', 'color': 'from-black to-red-500'},
+                    'I1': {'name': 'Serie A', 'flag': '🇮🇹', 'color': 'from-green-500 to-white'},
+                    'F1': {'name': 'Ligue 1', 'flag': '🇫🇷', 'color': 'from-blue-500 to-red-500'},
+                    'B1': {'name': 'Pro League', 'flag': '🇧🇪', 'color': 'from-yellow-500 to-red-500'},
+                    'P1': {'name': 'Liga Portugal', 'flag': '🇵🇹', 'color': 'from-green-500 to-red-500'},
+                    'SC0': {'name': 'Scottish Premiership', 'flag': '🏴󠁧󠁢󠁳󠁣󠁴󠁿', 'color': 'from-blue-500 to-white'}
+                } %}
+
+                <div class="space-y-8">
+                    {% for league_code, games in matches|groupby('league') %}
+                        {% set info = league_map.get(league_code, {'name': league_code, 'flag': '⚽', 'color': 'from-slate-600 to-slate-500'}) %}
+                        
+                        <div class="reveal">
+                            <!-- League Header -->
+                            <div class="mb-6 p-4 rounded-2xl bg-gradient-to-r {{ info.color }} bg-opacity-10 border border-slate-800 backdrop-blur-sm">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-xl bg-gradient-to-r {{ info.color }} flex items-center justify-center text-2xl shadow-lg">
+                                        {{ info.flag }}
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-white">{{ info.name }}</h3>
+                                        <p class="text-sm text-slate-400">{{ games|length }} matches scheduled</p>
+                                    </div>
+                                    <div class="ml-auto">
+                                        <span class="px-3 py-1 bg-slate-900/50 text-xs text-slate-300 rounded-full border border-slate-700">
+                                            {{ games[0].country if games[0].country else 'International' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Matches Grid -->
+                            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {% for match in games %}
+                                    <div class="group glass-card bg-gradient-to-br from-slate-900/50 to-slate-800/30 border border-slate-700 rounded-2xl p-5 hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                                        <!-- Live Indicator -->
+                                        {% if match.is_live %}
+                                            <div class="absolute top-3 right-3">
+                                                <span class="flex items-center gap-1.5 text-xs bg-gradient-to-r from-red-600 to-red-500 text-white px-3 py-1.5 rounded-full animate-pulse font-bold uppercase">
+                                                    <span class="w-2 h-2 bg-white rounded-full animate-ping"></span>
+                                                    LIVE
+                                                </span>
+                                            </div>
+                                        {% endif %}
+                                        
+                                        <!-- Match Time -->
+                                        <div class="flex items-center gap-3 mb-4">
+                                            <div class="w-12 h-12 rounded-xl bg-slate-900/50 border border-slate-700 flex flex-col items-center justify-center">
+                                                <span class="text-sm font-bold text-white">
+                                                    {# Simplified date formatting #}
+                                                    {% if match.date %}
+                                                        {% if match.date is string %}
+                                                            {{ match.date[5:7] }}/{{ match.date[8:10] }}
+                                                        {% else %}
+                                                            {{ match.date.strftime('%m/%d') if hasattr(match.date, 'strftime') else match.date }}
+                                                        {% endif %}
+                                                    {% else %}
+                                                        TBD
+                                                    {% endif %}
+                                                </span>
+                                                <span class="text-xs text-slate-400">{{ match.time if match.time else 'TBD' }}</span>
+                                            </div>
+                                            <div class="text-sm text-slate-400">
+                                                <i class="fas fa-clock mr-2"></i>
+                                                {% if match.is_live %}
+                                                    <span class="text-red-400 font-semibold">Live Now</span>
+                                                {% else %}
+                                                    Starting Soon
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Teams -->
+                                        <div class="space-y-4">
+                                            <!-- Home Team -->
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 flex items-center justify-center text-xs font-bold text-white">
+                                                        {% if match.home_team and match.home_team|length >= 2 %}
+                                                            {{ match.home_team[:2]|upper }}
+                                                        {% else %}
+                                                            HM
+                                                        {% endif %}
+                                                    </div>
+                                                    <span class="text-white font-semibold">{{ match.home_team if match.home_team else 'Home Team' }}</span>
+                                                </div>
+                                                {% if match.home_score is defined and match.home_score is not none %}
+                                                    <div class="text-xl font-bold text-white bg-slate-900/50 px-3 py-1 rounded-lg">
+                                                        {{ match.home_score }}
+                                                    </div>
+                                                {% else %}
+                                                    <div class="text-sm text-slate-400">-</div>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <!-- VS Separator -->
+                                            <div class="flex items-center justify-center my-2">
+                                                <div class="h-px flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent"></div>
+                                                <span class="px-3 py-1 text-xs font-bold text-slate-400 bg-slate-900/50 rounded-full">VS</span>
+                                                <div class="h-px flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent"></div>
+                                            </div>
+                                            
+                                            <!-- Away Team -->
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-red-500 to-pink-400 flex items-center justify-center text-xs font-bold text-white">
+                                                        {% if match.away_team and match.away_team|length >= 2 %}
+                                                            {{ match.away_team[:2]|upper }}
+                                                        {% else %}
+                                                            AW
+                                                        {% endif %}
+                                                    </div>
+                                                    <span class="text-white font-semibold">{{ match.away_team if match.away_team else 'Away Team' }}</span>
+                                                </div>
+                                                {% if match.away_score is defined and match.away_score is not none %}
+                                                    <div class="text-xl font-bold text-white bg-slate-900/50 px-3 py-1 rounded-lg">
+                                                        {{ match.away_score }}
+                                                    </div>
+                                                {% else %}
+                                                    <div class="text-sm text-slate-400">-</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Prediction Button -->
+                                        <div class="mt-6 pt-4 border-t border-slate-800">
+                                            <a href="{{ url_for('predict', home_team=match.home_team, away_team=match.away_team) }}" 
+                                               class="group/btn w-full px-4 py-3 bg-gradient-to-r from-slate-800 to-slate-900 hover:from-blue-900/30 hover:to-cyan-900/30 text-white font-semibold rounded-xl border border-slate-700 hover:border-blue-500/50 transition-all duration-300 flex items-center justify-center gap-2">
+                                                <i class="fas fa-chart-line text-blue-400 group-hover/btn:text-cyan-300"></i>
+                                                <span>Analyze Match</span>
+                                                <i class="fas fa-arrow-right text-sm group-hover/btn:translate-x-1 transition-transform"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+            {% else %}
+                <!-- Empty State -->
+                <div class="glass-card bg-gradient-to-br from-slate-900/50 to-slate-800/30 border border-dashed border-slate-700 rounded-3xl p-16 text-center">
+                    <div class="w-24 h-24 rounded-full bg-gradient-to-r from-slate-800 to-slate-900 border border-slate-700 flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-calendar-times text-5xl text-slate-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4">No Matches Scheduled</h3>
+                    <p class="text-slate-400 mb-8 max-w-md mx-auto">
+                        No fixtures found for the selected date. Try choosing a different date or check back later for updates.
+                    </p>
+                    <button onclick="document.getElementById('match-date').valueAsDate = new Date()" 
+                            class="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold rounded-xl transition">
+                        <i class="fas fa-redo mr-2"></i>Show Today's Matches
+                    </button>
+                </div>
+            {% endif %}
+
+            <!-- Load More -->
+            <div class="text-center mt-12">
+                <button class="group px-8 py-4 bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-white font-semibold rounded-2xl border border-slate-700 hover:border-slate-600 transition-all flex items-center gap-3 mx-auto">
+                    <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i>
+                    <span>Load More Matches</span>
+                    <i class="fas fa-arrow-down group-hover:translate-y-1 transition-transform"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="relative py-20 overflow-hidden">
+        <!-- Background -->
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-900/20 via-slate-900/50 to-cyan-900/20"></div>
+        <div class="absolute top-0 left-1/4 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-1/4 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl"></div>
+        
+        <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                Ready to Experience 
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">AI-Powered</span> 
+                Predictions?
+            </h2>
+            <p class="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
+                Join thousands of football enthusiasts making smarter decisions with professional-grade analytics.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                <a href="{{ url_for('predict') }}" 
+                   class="group px-12 py-5 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold rounded-2xl shadow-[0_0_30px_rgba(56,189,248,0.4)] transition-all transform hover:-translate-y-1 hover:scale-105">
+                    <span class="flex items-center justify-center gap-3">
+                        <i class="fas fa-rocket"></i>
+                        <span>Start Predicting Free</span>
+                        <i class="fas fa-arrow-right group-hover:translate-x-2 transition-transform"></i>
+                    </span>
+                </a>
+                
+                {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('register') }}" 
+                       class="group px-12 py-5 bg-slate-900/50 hover:bg-slate-800/50 text-white font-bold rounded-2xl border border-slate-700 hover:border-slate-600 transition-all">
+                        <span class="flex items-center justify-center gap-3">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Create Account</span>
+                            <i class="fas fa-arrow-right group-hover:translate-x-2 transition-transform"></i>
+                        </span>
+                    </a>
+                {% endif %}
+            </div>
+            
+            <p class="mt-8 text-sm text-slate-500">
+                <i class="fas fa-shield-alt mr-2"></i>
+                No credit card required • Free basic analysis • Cancel anytime
+            </p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const counters = document.querySelectorAll('.counter');
+            
+            const countOptions = {
+                threshold: 0.5 // Trigger when 50% visible
+            };
+
+            const counterObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const counter = entry.target;
+                        const target = parseFloat(counter.getAttribute('data-target'));
+                        const suffix = counter.getAttribute('data-suffix') || '';
+                        const duration = 2000; // 2 seconds to complete
+                        const startTime = performance.now();
+
+                        const updateCount = (currentTime) => {
+                            const elapsed = currentTime - startTime;
+                            const progress = Math.min(elapsed / duration, 1);
+                            
+                            // Use easing function for smoother animation
+                            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+                            let currentNum;
+                            
+                            if (target % 1 === 0) {
+                                // Integer target
+                                currentNum = Math.floor(easeOutQuart * target);
+                            } else {
+                                // Float target
+                                currentNum = parseFloat((easeOutQuart * target).toFixed(1));
+                            }
+                            
+                            // Update the counter text with suffix
+                            counter.textContent = currentNum + suffix;
+
+                            if (progress < 1) {
+                                requestAnimationFrame(updateCount);
+                            } else {
+                                // Animation complete - add subtle celebration
+                                counter.style.transform = 'scale(1.1)';
+                                setTimeout(() => {
+                                    counter.style.transform = 'scale(1)';
+                                }, 300);
+                            }
+                        };
+
+                        requestAnimationFrame(updateCount);
+                        observer.unobserve(counter); // Only animate once
+                    }
+                });
+            }, countOptions);
+
+            counters.forEach(c => counterObserver.observe(c));
+
+            // Original animations for reveal effect
+            function animateOnScroll() {
+                const reveals = document.querySelectorAll('.reveal');
+                reveals.forEach(el => {
+                    const windowHeight = window.innerHeight;
+                    const elementTop = el.getBoundingClientRect().top;
+                    const elementVisible = 150;
+                    
+                    if (elementTop < windowHeight - elementVisible) {
+                        el.classList.add('active');
+                    }
+                });
+            }
+
+            // Add scroll animation listener
+            window.addEventListener('scroll', animateOnScroll);
+            animateOnScroll(); // Initial check
+            
+            // Add gradient animation to hero text
+            const heroText = document.querySelector('.animate-gradient');
+            if (heroText) {
+                setInterval(() => {
+                    const colors = [
+                        'from-blue-400 via-cyan-300 to-blue-500',
+                        'from-cyan-400 via-blue-300 to-cyan-500',
+                        'from-blue-500 via-cyan-400 to-blue-300',
+                        'from-purple-400 via-blue-300 to-cyan-500'
+                    ];
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    heroText.className = `text-transparent bg-clip-text bg-gradient-to-r ${randomColor} animate-gradient`;
+                }, 8000);
+            }
+            
+            // Add hover effects to match cards
+            const matchCards = document.querySelectorAll('.glass-card');
+            matchCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-4px)';
+                    this.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.3)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+        });
+    </script>
+
+    <style>
+        /* Gradient animation */
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .animate-gradient {
+            background-size: 200% 200%;
+            animation: gradient 3s ease infinite;
+        }
+        
+        /* Reveal animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Glass card effect */
+        .glass-card {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #3b82f6, #06b6d4);
+            border-radius: 4px;
+        }
+        
+        /* Smooth transitions */
+        * {
+            transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+        }
+        
+        /* Hover effects */
+        .group:hover .group-hover\:text-cyan-300 {
+            color: #67e8f9;
+        }
+        
+        /* Counter animation */
+        .counter {
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+    </style>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Payment - ScorePulse AI{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12 max-w-5xl">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold gradient-text mb-4">Complete Your Upgrade</h1>
+        <p class="text-xl text-brand-muted max-w-2xl mx-auto">
+            Unlock premium predictions, advanced analytics, value bets, and priority support
+        </p>
+    </div>
+
+    <!-- Plan Summary -->
+    <div class="glass-dark rounded-2xl p-8 mb-10 border border-brand-accent/30">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div>
+                <h2 class="text-2xl font-bold text-white mb-2">Premium Plan</h2>
+                <p class="text-brand-muted">Monthly • Billed now</p>
+            </div>
+            
+            <div class="text-center md:text-right">
+                <div class="text-5xl font-bold text-brand-accent">KSh 1,999</div>
+                <p class="text-brand-muted text-sm">per month • Cancel anytime</p>
+            </div>
+        </div>
+
+        <div class="mt-8 pt-8 border-t border-slate-700">
+            <h3 class="text-lg font-semibold text-white mb-4">What's included:</h3>
+            <ul class="space-y-3 text-brand-muted">
+                <li class="flex items-center gap-3">
+                    <i class="fas fa-check-circle text-brand-accent"></i>
+                    Unlimited AI predictions & custom models
+                </li>
+                <li class="flex items-center gap-3">
+                    <i class="fas fa-check-circle text-brand-accent"></i>
+                    Real-time value bets & edge detection
+                </li>
+                <li class="flex items-center gap-3">
+                    <i class="fas fa-check-circle text-brand-accent"></i>
+                    Advanced team analysis & head-to-head
+                </li>
+                <li class="flex items-center gap-3">
+                    <i class="fas fa-check-circle text-brand-accent"></i>
+                    Priority support & early feature access
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Payment Form -->
+    <div class="grid md:grid-cols-2 gap-8">
+        <!-- Left: Payment Details -->
+        <div class="glass-dark rounded-2xl p-8">
+            <h2 class="text-2xl font-bold text-white mb-6">Payment Details</h2>
+            
+            <form method="POST" action="{{ url_for('process_payment') }}" id="payment-form">
+                {{ form.hidden_tag() }}
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-brand-muted mb-2">Card Number</label>
+                    <input type="text" name="card_number" class="w-full px-4 py-3 bg-brand-dark/60 border border-brand-muted/50 rounded-lg text-white placeholder-brand-muted focus:outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/30" placeholder="1234 5678 9012 3456" required autocomplete="cc-number">
+                </div>
+
+                <div class="grid grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-brand-muted mb-2">Expiry Date</label>
+                        <input type="text" name="expiry" class="w-full px-4 py-3 bg-brand-dark/60 border border-brand-muted/50 rounded-lg text-white placeholder-brand-muted focus:outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/30" placeholder="MM / YY" required autocomplete="cc-exp">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-brand-muted mb-2">CVC</label>
+                        <input type="text" name="cvc" class="w-full px-4 py-3 bg-brand-dark/60 border border-brand-muted/50 rounded-lg text-white placeholder-brand-muted focus:outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/30" placeholder="123" required autocomplete="cc-csc">
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-brand-muted mb-2">Cardholder Name</label>
+                    <input type="text" name="name" class="w-full px-4 py-3 bg-brand-dark/60 border border-brand-muted/50 rounded-lg text-white placeholder-brand-muted focus:outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/30" placeholder="John Doe" required autocomplete="cc-name">
+                </div>
+
+                <div class="mb-8">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" class="w-5 h-5 accent-brand-accent">
+                        <span class="text-brand-muted">Save card for future payments</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="w-full py-4 bg-gradient-to-r from-brand-accent to-cyan-600 hover:from-cyan-500 hover:to-brand-accent text-white font-bold text-lg rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-xl">
+                    Pay KSh 1,999 • Secure Checkout
+                </button>
+            </form>
+
+            <div class="mt-6 text-center text-sm text-brand-muted">
+                <i class="fas fa-lock mr-2"></i> Secured by M-Pesa / Card • SSL Encrypted
+            </div>
+        </div>
+
+        <!-- Right: Order Summary -->
+        <div class="glass-dark rounded-2xl p-8 h-fit">
+            <h2 class="text-2xl font-bold text-white mb-6">Order Summary</h2>
+            
+            <div class="space-y-4 mb-8">
+                <div class="flex justify-between text-brand-muted">
+                    <span>Premium Plan (Monthly)</span>
+                    <span>KSh 1,999</span>
+                </div>
+                <div class="flex justify-between text-brand-muted">
+                    <span>VAT (16%)</span>
+                    <span>KSh 319.84</span>
+                </div>
+                <div class="pt-4 border-t border-slate-700 flex justify-between font-bold text-white text-lg">
+                    <span>Total Due Today</span>
+                    <span class="text-brand-accent">KSh 2,318.84</span>
+                </div>
+            </div>
+
+            <div class="text-sm text-brand-muted space-y-3">
+                <p>• Your subscription will auto-renew monthly</p>
+                <p>• Cancel anytime from your account settings</p>
+                <p>• First payment processed immediately</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

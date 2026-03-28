@@ -1,0 +1,504 @@
+{% extends "base.html" %}
+{% block title %}Pricing Plans | ScorePulse AI{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24">
+    <!-- Header Section -->
+    <div class="text-center mb-16">
+        <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-brand-accent/10 text-brand-accent mb-4">
+            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+            </svg>
+            Transparent Pricing
+        </span>
+        
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-white via-white to-brand-accent bg-clip-text text-transparent mb-4">
+            Choose Your <span class="text-brand-accent">Winning</span> Edge
+        </h1>
+        
+        <p class="text-xl text-slate-300 max-w-3xl mx-auto mb-8">
+            Get AI-powered soccer predictions with accuracy rates up to 78%. 
+            Start free, upgrade when you're ready to win.
+        </p>
+
+        <!-- Billing Toggle -->
+        <div class="flex items-center justify-center space-x-4 mb-12">
+            <span class="text-slate-400 font-medium">Monthly</span>
+            <div class="relative">
+                <div class="w-14 h-8 bg-slate-800 rounded-full cursor-pointer" id="billingToggle">
+                    <div class="absolute top-1 left-1 w-6 h-6 rounded-full bg-brand-accent transition-transform duration-300" id="toggleCircle"></div>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <span class="text-white font-semibold">Annual</span>
+                <span class="ml-2 px-2 py-1 text-xs font-bold bg-emerald-500/20 text-emerald-400 rounded-full">
+                    Save 20%
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing Cards -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto mb-20">
+        <!-- Starter Plan -->
+        <div class="relative group">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-slate-700 to-slate-900 rounded-3xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
+            <div class="relative glass-card p-8 rounded-3xl h-full border border-slate-800 hover:border-slate-700 transition-all duration-300">
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Starter</h3>
+                    <p class="text-slate-400 text-sm">Perfect for beginners exploring predictions</p>
+                </div>
+                
+                <div class="mb-8">
+                    <div class="flex items-baseline">
+                        <span class="text-5xl font-extrabold text-white">Free</span>
+                    </div>
+                    <p class="text-slate-500 text-sm mt-2">No credit card required</p>
+                </div>
+
+                <ul class="space-y-4 mb-8 flex-grow">
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 text-emerald-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-slate-300">Basic match predictions</span>
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 text-emerald-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-slate-300">10 predictions per day</span>
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 text-emerald-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-slate-300">Win/Loss predictions only</span>
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 text-slate-600 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-slate-500">No advanced models</span>
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 text-slate-600 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-slate-500">Basic statistics only</span>
+                    </li>
+                </ul>
+
+                <a href="{{ url_for('register') }}" 
+                   class="block w-full text-center bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3.5 rounded-xl transition-all duration-200 hover:shadow-lg">
+                    Get Started Free
+                </a>
+            </div>
+        </div>
+
+        <!-- Silver Plan (Popular) -->
+        <div class="relative lg:scale-105 z-10">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-brand-accent to-blue-500 rounded-3xl blur opacity-50 animate-pulse"></div>
+            <div class="relative glass-card p-8 rounded-3xl h-full border-2 border-brand-accent shadow-[0_0_60px_rgba(56,189,248,0.25)]">
+                <!-- Popular Badge -->
+                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <div class="bg-gradient-to-r from-brand-accent to-blue-500 text-slate-900 text-sm font-bold px-6 py-2 rounded-full shadow-lg">
+                        MOST POPULAR
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-brand-accent mb-2">Silver Pro</h3>
+                    <p class="text-slate-400 text-sm">For serious bettors wanting consistent wins</p>
+                </div>
+
+                <div class="mb-8">
+                    <div class="flex items-baseline">
+                        <span class="text-6xl font-extrabold text-white" id="silverPrice">KES 500</span>
+                        <span class="text-slate-400 ml-2 text-lg">/month</span>
+                    </div>
+                    <div class="text-emerald-400 text-sm font-medium mt-2 hidden" id="silverAnnual">
+                        <span class="line-through text-slate-500 mr-2">KES 6,000/year</span>
+                        KES 4,800/year (Save KES 1,200)
+                    </div>
+                    <p class="text-slate-500 text-sm mt-1">~16.7 KES/day for premium predictions</p>
+                </div>
+
+                <ul class="space-y-4 mb-8">
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 text-brand-accent mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-white font-medium">Unlimited daily predictions</span>
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 text-brand-accent mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-white">Advanced Random Forest Model</span>
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 text-brand-accent mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-white">Over/Under & Both Teams to Score</span>
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 text-brand-accent mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-white">Detailed match statistics</span>
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 text-brand-accent mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-white">Priority customer support</span>
+                    </li>
+                </ul>
+
+                <div class="space-y-3">
+                    <button onclick="showPaymentModal('silver')"
+                            class="w-full bg-gradient-to-r from-brand-accent to-blue-500 hover:from-brand-accent/90 hover:to-blue-600 text-white font-bold py-4 rounded-xl transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-xl hover:shadow-brand-accent/25 flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
+                            <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/>
+                        </svg>
+                        Choose Silver Pro
+                    </button>
+                    
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="text-center text-slate-500">
+                            <div class="flex items-center justify-center">
+                                <svg class="w-4 h-4 text-green-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                M-PESA
+                            </div>
+                        </div>
+                        <div class="text-center text-slate-500">
+                            <div class="flex items-center justify-center">
+                                <svg class="w-4 h-4 text-blue-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                PayPal
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gold Plan -->
+        <div class="relative group">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-yellow-600 to-yellow-400 rounded-3xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
+            <div class="relative glass-card p-8 rounded-3xl h-full border border-yellow-500/30 hover:border-yellow-500/50 transition-all duration-300">
+                <div class="mb-6">
+                    <div class="flex items-center mb-2">
+                        <h3 class="text-2xl font-bold text-yellow-400 mr-2">Gold Elite</h3>
+                        <span class="px-2 py-1 text-xs font-bold bg-yellow-500/20 text-yellow-400 rounded-full">
+                            HIGHEST ACCURACY
+                        </span>
+                    </div>
+                    <p class="text-slate-400 text-sm">For professional bettors & analysts</p>
+                </div>
+
+                <div class="mb-8">
+                    <div class="flex items-baseline">
+                        <span class="text-5xl font-extrabold text-white" id="goldPrice">KES 1,200</span>
+                        <span class="text-slate-400 ml-2 text-lg">/month</span>
+                    </div>
+                    <div class="text-emerald-400 text-sm font-medium mt-2 hidden" id="goldAnnual">
+                        <span class="line-through text-slate-500 mr-2">KES 14,400/year</span>
+                        KES 11,520/year (Save KES 2,880)
+                    </div>
+                    <p class="text-slate-500 text-sm mt-1">~40 KES/day for elite predictions</p>
+                </div>
+
+                <ul class="space-y-4 mb-8">
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 text-yellow-400 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-white font-medium">Everything in Silver Pro</span>
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 text-yellow-400 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-white font-medium">Advanced Neural Network Model</span>
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 text-yellow-400 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-white">Confidence scores & probability %</span>
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 text-yellow-400 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-white">Value bet identification</span>
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 text-yellow-400 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-white">24/7 premium support</span>
+                    </li>
+                </ul>
+
+                <button onclick="showPaymentModal('gold')"
+                        class="w-full bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-400 hover:from-yellow-500 hover:to-yellow-300 text-white font-bold py-4 rounded-xl transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-xl hover:shadow-yellow-500/25 flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clip-rule="evenodd"/>
+                    </svg>
+                    Upgrade to Gold Elite
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enterprise/Team Section -->
+    <div class="max-w-4xl mx-auto mb-20">
+        <div class="glass-card p-8 rounded-3xl border border-slate-800">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Need a Custom Solution?</h3>
+                    <p class="text-slate-300 mb-6">
+                        Are you a betting group, sports analyst firm, or organization needing 
+                        custom AI models, API access, or dedicated support?
+                    </p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-brand-accent mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-slate-300">Custom AI model training</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-brand-accent mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-slate-300">API access with high rate limits</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-brand-accent mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-slate-300">White-label solutions</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="text-center lg:text-right">
+                    <a href="{{ url_for('contact') if url_for('contact') else '#' }}"
+                       class="inline-flex items-center bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-bold px-8 py-4 rounded-xl transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-xl hover:shadow-purple-500/25">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                        </svg>
+                        Contact Sales Team
+                    </a>
+                    <p class="text-slate-500 text-sm mt-3">Get a custom quote within 24 hours</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="max-w-4xl mx-auto">
+        <h2 class="text-3xl font-bold text-white text-center mb-12">Frequently Asked Questions</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- FAQ Items -->
+            <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 hover:border-slate-700 transition">
+                <h4 class="font-semibold text-white mb-3">Can I upgrade or downgrade anytime?</h4>
+                <p class="text-slate-400 text-sm">
+                    Yes! You can change your plan at any time. Upgrades take effect immediately, 
+                    while downgrades apply at the start of your next billing cycle.
+                </p>
+            </div>
+            
+            <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 hover:border-slate-700 transition">
+                <h4 class="font-semibold text-white mb-3">What payment methods do you accept?</h4>
+                <p class="text-slate-400 text-sm">
+                    We accept M-PESA for Kenyan customers and PayPal for international payments. 
+                    All transactions are secured with SSL encryption.
+                </p>
+            </div>
+            
+            <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 hover:border-slate-700 transition">
+                <h4 class="font-semibold text-white mb-3">What's your refund policy?</h4>
+                <p class="text-slate-400 text-sm">
+                    We offer a 7-day money-back guarantee for all paid plans. If you're not satisfied 
+                    with our predictions, contact support for a full refund.
+                </p>
+            </div>
+            
+            <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 hover:border-slate-700 transition">
+                <h4 class="font-semibold text-white mb-3">How accurate are your predictions?</h4>
+                <p class="text-slate-400 text-sm">
+                    Our Silver plan achieves 70-72% accuracy, while Gold reaches 75-78% accuracy 
+                    based on historical data. Actual results may vary.
+                </p>
+            </div>
+        </div>
+        
+        <div class="text-center mt-10">
+            <p class="text-slate-400">
+                Still have questions? <a href="{{ url_for('contact') if url_for('contact') else '#' }}" 
+                class="text-brand-accent hover:text-brand-accent/80 font-semibold transition">Contact our support team</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal (Hidden by default) -->
+<div id="paymentModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="glass-card p-8 rounded-2xl max-w-md w-full border border-slate-700 transform scale-95 opacity-0 transition-all duration-300">
+        <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white transition">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+        </button>
+        
+        <div class="text-center mb-6">
+            <h3 class="text-2xl font-bold text-white mb-2" id="modalTitle">Upgrade to Silver Pro</h3>
+            <p class="text-slate-400" id="modalDescription">Complete your payment to unlock premium features</p>
+        </div>
+        
+        <div class="bg-slate-900/50 rounded-xl p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-slate-300">Plan</span>
+                <span class="font-bold text-white" id="modalPlan">Silver Pro</span>
+            </div>
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-slate-300">Billing</span>
+                <span class="font-bold text-white" id="modalBilling">Monthly</span>
+            </div>
+            <div class="flex justify-between items-center pt-4 border-t border-slate-800">
+                <span class="text-lg font-semibold text-white">Total</span>
+                <span class="text-2xl font-bold text-brand-accent" id="modalPrice">KES 500</span>
+            </div>
+        </div>
+        
+        <div class="space-y-3">
+            <button onclick="processPayment('mpesa')"
+                    class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3.5 rounded-xl transition flex items-center justify-center">
+                <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1z" clip-rule="evenodd"/>
+                </svg>
+                Pay with M-PESA
+            </button>
+            
+            <button onclick="processPayment('paypal')"
+                    class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition flex items-center justify-center">
+                <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                </svg>
+                Pay with PayPal
+            </button>
+        </div>
+        
+        <p class="text-xs text-slate-500 text-center mt-6">
+            By proceeding, you agree to our <a href="#" class="text-brand-accent hover:underline">Terms of Service</a> 
+            and <a href="#" class="text-brand-accent hover:underline">Privacy Policy</a>
+        </p>
+    </div>
+</div>
+
+<script>
+    // Billing Toggle Logic
+    const billingToggle = document.getElementById('billingToggle');
+    const toggleCircle = document.getElementById('toggleCircle');
+    const silverPrice = document.getElementById('silverPrice');
+    const goldPrice = document.getElementById('goldPrice');
+    const silverAnnual = document.getElementById('silverAnnual');
+    const goldAnnual = document.getElementById('goldAnnual');
+    let isAnnual = false;
+
+    billingToggle.addEventListener('click', () => {
+        isAnnual = !isAnnual;
+        
+        if (isAnnual) {
+            toggleCircle.style.transform = 'translateX(28px)';
+            silverPrice.textContent = 'KES 4,800';
+            goldPrice.textContent = 'KES 11,520';
+            silverAnnual.classList.remove('hidden');
+            goldAnnual.classList.remove('hidden');
+        } else {
+            toggleCircle.style.transform = 'translateX(0)';
+            silverPrice.textContent = 'KES 500';
+            goldPrice.textContent = 'KES 1,200';
+            silverAnnual.classList.add('hidden');
+            goldAnnual.classList.add('hidden');
+        }
+    });
+
+    // Payment Modal Logic
+    const paymentModal = document.getElementById('paymentModal');
+    const modalContent = paymentModal.querySelector('.glass-card');
+    let selectedPlan = 'silver';
+
+    function showPaymentModal(plan) {
+        selectedPlan = plan;
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDescription = document.getElementById('modalDescription');
+        const modalPlan = document.getElementById('modalPlan');
+        const modalBilling = document.getElementById('modalBilling');
+        const modalPrice = document.getElementById('modalPrice');
+        
+        if (plan === 'silver') {
+            modalTitle.textContent = 'Upgrade to Silver Pro';
+            modalDescription.textContent = 'Complete your payment to unlock premium features';
+            modalPlan.textContent = 'Silver Pro';
+            modalPrice.textContent = isAnnual ? 'KES 4,800' : 'KES 500';
+        } else if (plan === 'gold') {
+            modalTitle.textContent = 'Upgrade to Gold Elite';
+            modalDescription.textContent = 'Get the highest accuracy predictions with our neural network model';
+            modalPlan.textContent = 'Gold Elite';
+            modalPrice.textContent = isAnnual ? 'KES 11,520' : 'KES 1,200';
+        }
+        
+        modalBilling.textContent = isAnnual ? 'Annual (Save 20%)' : 'Monthly';
+        
+        paymentModal.classList.remove('hidden');
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closePaymentModal() {
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            paymentModal.classList.add('hidden');
+        }, 300);
+    }
+
+    function processPayment(method) {
+        // In a real application, this would redirect to payment gateway
+        // For demo purposes, we'll simulate a payment process
+        
+        closePaymentModal();
+        
+        // Show success message
+        setTimeout(() => {
+            alert(`Payment via ${method.toUpperCase()} initiated for ${selectedPlan} plan!`);
+            // In production, redirect to payment gateway or process payment
+            window.location.href = "{{ url_for('dashboard') }}";
+        }, 400);
+    }
+
+    // Close modal on ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closePaymentModal();
+    });
+
+    // Close modal when clicking outside
+    paymentModal.addEventListener('click', function(e) {
+        if (e.target === paymentModal) closePaymentModal();
+    });
+</script>
+{% endblock %}

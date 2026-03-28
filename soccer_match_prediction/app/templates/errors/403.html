@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 - Access Denied | ScorePulse AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .error-code {
+            font-size: 120px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff9a00 0%, #ffcc00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+        
+        .error-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .error-message {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .access-type {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .access-premium {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .access-admin {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+        
+        .upgrade-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .price {
+            font-size: 36px;
+            font-weight: 800;
+            margin: 10px 0;
+        }
+        
+        .per-month {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .admin-info {
+            background: rgba(220, 53, 69, 0.1);
+            border-left: 4px solid #dc3545;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .feature-list {
+            text-align: left;
+            margin: 25px 0;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .feature-list li {
+            margin-bottom: 10px;
+            color: #555;
+            display: flex;
+            align-items: center;
+        }
+        
+        .feature-list li:before {
+            content: "✓";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .error-code {
+                font-size: 80px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-code">403</div>
+        
+        <!-- Dynamic badge based on access type -->
+        {% if access_type == 'admin' %}
+            <div class="access-type access-admin">🔐 ADMIN ACCESS REQUIRED</div>
+            <div class="error-title">Administrator Access Only</div>
+            <div class="error-message">
+                This area is restricted to ScorePulse administrators only.
+            </div>
+            
+            <div class="admin-info">
+                <strong>🔒 Why you're seeing this:</strong>
+                <ul style="margin: 10px 0 10px 20px;">
+                    <li>You're not logged in as an administrator</li>
+                    <li>Your account doesn't have admin privileges</li>
+                    <li>This route requires special permissions</li>
+                </ul>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                    📊 Back to Dashboard
+                </a>
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">
+                    🔄 Switch Account
+                </a>
+            </div>
+            
+            <div style="margin-top: 20px; color: #999; font-size: 14px;">
+                If you believe this is an error, contact <a href="mailto:admin@scorepulse.ai" style="color: #dc3545;">admin@scorepulse.ai</a>
+            </div>
+            
+        {% else %}
+            <div class="access-type access-premium">💎 PREMIUM ACCESS REQUIRED</div>
+            <div class="error-title">Premium Access Required</div>
+            
+            <div class="error-message">
+                This feature requires a premium subscription. Upgrade now to unlock:
+            </div>
+            
+            <ul class="feature-list">
+                <li>10 high-confidence predictions daily</li>
+                <li>Advanced AI analysis with 85% accuracy</li>
+                <li>Value bet identification</li>
+                <li>Live match tracking</li>
+                <li>Priority customer support</li>
+            </ul>
+            
+            <div class="upgrade-box">
+                <div>Premium Package</div>
+                <div class="price">KES 50</div>
+                <div class="per-month">One-time payment • 10 predictions</div>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="{{ url_for('pricing') }}" class="btn btn-primary">
+                    💎 Upgrade to Premium
+                </a>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                    ↩️ Back to Dashboard
+                </a>
+            </div>
+            
+            <div style="margin-top: 20px; color: #999; font-size: 14px;">
+                Already upgraded? <a href="{{ url_for('support') }}" style="color: #667eea;">Contact support</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

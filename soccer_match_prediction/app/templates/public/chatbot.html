@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+
+{% block title %}Pitch Commander Orchestrator{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">⚽ Pitch Commander Orchestrator</h1>
+    
+    <div class="row">
+        <!-- Status Panel -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">System Status</h5>
+                </div>
+                <div class="card-body">
+                    <div id="status-indicators">
+                        <p><span id="commander-status" class="badge bg-secondary">Loading...</span> Pitch Commander</p>
+                        <p><span id="data-agent-status" class="badge bg-secondary">Loading...</span> Data Agent</p>
+                        <p><span id="analyst-agent-status" class="badge bg-secondary">Loading...</span> Analyst Agent</p>
+                        <p><span id="bankroll-agent-status" class="badge bg-secondary">Loading...</span> Bankroll Agent</p>
+                        <p><span id="critic-agent-status" class="badge bg-secondary">Loading...</span> Critic Agent</p>
+                    </div>
+                    <button id="refresh-status" class="btn btn-sm btn-outline-primary mt-2">
+                        Refresh Status
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Orchestration Form -->
+        <div class="col-md-8 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Run Orchestration Pipeline</h5>
+                </div>
+                <div class="card-body">
+                    <form id="orchestration-form">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="home-team" class="form-label">Home Team</label>
+                                <input type="text" class="form-control" id="home-team" 
+                                       placeholder="e.g., Arsenal" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="away-team" class="form-label">Away Team</label>
+                                <input type="text" class="form-control" id="away-team" 
+                                       placeholder="e.g., Liverpool" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="market-odds" class="form-label">Market Odds (Optional JSON)</label>
+                            <textarea class="form-control" id="market-odds" rows="2" 
+                                      placeholder='{"home_win_odds": 2.10, "draw_odds": 3.40, "away_win_odds": 3.20}'></textarea>
+                            <div class="form-text">Enter odds in JSON format for bankroll calculations</div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success" id="run-orchestration">
+                            🚀 Run Full Orchestration
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Results Panel -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Orchestration Results</h5>
+                </div>
+                <div class="card-body">
+                    <div id="results-container">
+                        <div class="alert alert-info" id="no-results">
+                            Run an orchestration to see results here...
+                        </div>
+                        <div id="orchestration-results" style="display: none;"></div>
+                    </div>
+                    <div id="execution-time" class="mt-3" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- History Panel -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Orchestration History</h5>
+                </div>
+                <div class="card-body">
+                    <div id="history-container">
+                        Loading history...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load initial status
+    loadSystemStatus();
+    loadOrchestrationHistory();
+    
+    // Refresh status button
+    document.getElementById('refresh-status').addEventListener('click', loadSystemStatus);
+    
+    // Orchestration form submission
+    document.getElementById('orchestration-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        runOrchestration();
+    });
+});
+
+function loadSystemStatus() {
+    fetch('/chatbot/orchestrate/status')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateStatusIndicators(data.status);
+            }
+        });
+}
+
+function updateStatusIndicators(status) {
+    const agents = status.agents_available;
+    
+    document.getElementById('commander-status').className = 
+        status.pitch_commander_initialized ? 'badge bg-success' : 'badge bg-danger';
+    document.getElementById('commander-status').textContent = 
+        status.pitch_commander_initialized ? '✅ Online' : '❌ Offline';
+    
+    // Update each agent status
+    for (const [agent, available] of Object.entries(agents)) {
+        const elementId = `${agent.replace('_', '-')}-status`;
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.className = available ? 'badge bg-success' : 'badge bg-warning';
+            element.textContent = available ? '✅ Online' : '⚠️ Unavailable';
+        }
+    }
+}
+
+function runOrchestration() {
+    const homeTeam = document.getElementById('home-team').value;
+    const awayTeam = document.getElementById('away-team').value;
+    const marketOdds = document.getElementById('market-odds').value;
+    
+    const runButton = document.getElementById('run-orchestration');
+    runButton.disabled = true;
+    runButton.innerHTML = '⏳ Running...';
+    
+    const payload = {
+        home_team: homeTeam,
+        away_team: awayTeam
+    };
+    
+    if (marketOdds) {
+        try {
+            payload.market_odds = JSON.parse(marketOdds);
+        } catch (e) {
+            alert('Invalid JSON for market odds');
+            runButton.disabled = false;
+            runButton.innerHTML = '🚀 Run Full Orchestration';
+            return;
+        }
+    }
+    
+    fetch('/chatbot/orchestrate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displayResults(data.result, data.execution_time);
+            loadOrchestrationHistory(); // Refresh history
+        } else {
+            alert('Orchestration failed: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('Error: ' + error);
+    })
+    .finally(() => {
+        runButton.disabled = false;
+        runButton.innerHTML = '🚀 Run Full Orchestration';
+    });
+}
+
+function displayResults(result, executionTime) {
+    const resultsDiv = document.getElementById('orchestration-results');
+    const noResultsDiv = document.getElementById('no-results');
+    const timeDiv = document.getElementById('execution-time');
+    
+    noResultsDiv.style.display = 'none';
+    resultsDiv.style.display = 'block';
+    timeDiv.style.display = 'block';
+    
+    let html = `
+        <div class="alert alert-success">
+            <h5>✅ Orchestration Complete: ${result.match}</h5>
+            <p><strong>Timestamp:</strong> ${result.timestamp}</p>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0">Prediction Results</h6>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Home Win:</strong> ${(result.prediction?.home_win_prob * 100).toFixed(1)}%</p>
+                        <p><strong>Draw:</strong> ${(result.prediction?.draw_prob * 100).toFixed(1)}%</p>
+                        <p><strong>Away Win:</strong> ${(result.prediction?.away_win_prob * 100).toFixed(1)}%</p>
+                        <p><strong>Expected Score:</strong> ${result.prediction?.expected_score}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header bg-warning text-white">
+                        <h6 class="mb-0">Bankroll Strategy</h6>
+                    </div>
+                    <div class="card-body">
+    `;
+    
+    if (result.betting_strategy) {
+        html += `<p><strong>Kelly Fraction:</strong> ${(result.betting_strategy.kelly_fraction * 100).toFixed(2)}%</p>`;
+        html += `<p><strong>Recommended Stake:</strong> $${result.betting_strategy.recommended_stake?.toFixed(2) || 'N/A'}</p>`;
+    } else {
+        html += '<p>No betting strategy generated (odds not provided)</p>';
+    }
+    
+    html += `
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">Analysis</h6>
+            </div>
+            <div class="card-body">
+                <pre style="white-space: pre-wrap; font-size: 0.9rem;">${result.analysis || 'No analysis available'}</pre>
+            </div>
+        </div>
+    `;
+    
+    resultsDiv.innerHTML = html;
+    timeDiv.innerHTML = `<strong>Execution Time:</strong> ${executionTime.toFixed(2)} seconds`;
+}
+
+function loadOrchestrationHistory() {
+    fetch('/chatbot/orchestrate/history?per_page=5')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayHistory(data.logs);
+            }
+        });
+}
+
+function displayHistory(logs) {
+    const container = document.getElementById('history-container');
+    
+    if (!logs || logs.length === 0) {
+        container.innerHTML = '<p class="text-muted">No orchestration history yet.</p>';
+        return;
+    }
+    
+    let html = '<div class="list-group">';
+    
+    logs.forEach(log => {
+        const statusBadge = log.status === 'success' ? 'success' : 'danger';
+        html += `
+            <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">${log.match}</h6>
+                    <small><span class="badge bg-${statusBadge}">${log.status}</span></small>
+                </div>
+                <p class="mb-1">
+                    <strong>Time:</strong> ${new Date(log.timestamp).toLocaleString()}
+                    <br>
+                    <strong>Execution:</strong> ${log.execution_time?.toFixed(2) || 'N/A'}s
+                </p>
+                <small>Home Win: ${(log.prediction?.home_win_prob * 100 || 0).toFixed(1)}%</small>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+</script>
+{% endblock %}

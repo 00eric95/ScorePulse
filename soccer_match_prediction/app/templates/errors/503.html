@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>503 - Maintenance | ScorePulse AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .error-code {
+            font-size: 120px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+        
+        .error-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .error-message {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .maintenance-details {
+            background: rgba(142, 45, 226, 0.1);
+            border-left: 4px solid #8e2de2;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .progress-container {
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(142, 45, 226, 0.1);
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+            width: {{ progress or 75 }}%;
+            border-radius: 5px;
+            animation: progress-animation 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes progress-animation {
+            0% { width: {{ progress or 75 }}%; opacity: 0.8; }
+            100% { width: calc({{ progress or 75 }}% + 5%); opacity: 1; }
+        }
+        
+        .status-timeline {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .status-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #ddd;
+            border-radius: 50%;
+            margin: 0 auto 5px;
+        }
+        
+        .status-dot.active {
+            background: #8e2de2;
+            box-shadow: 0 0 10px #8e2de2;
+        }
+        
+        .service-status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+            color: white;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .error-code {
+                font-size: 80px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .status-timeline {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-code">503</div>
+        
+        <div class="service-status">🚧 UNDER MAINTENANCE</div>
+        
+        <div class="error-title">Service Temporarily Unavailable</div>
+        
+        <div class="error-message">
+            ScorePulse AI is currently undergoing scheduled maintenance to improve our prediction engines.
+        </div>
+        
+        <div class="maintenance-details">
+            <strong>🛠️ What we're improving:</strong>
+            <ul style="margin: 10px 0 10px 20px;">
+                <li>Updating AI models with new match data</li>
+                <li>Enhancing prediction accuracy algorithms</li>
+                <li>Database optimization for faster results</li>
+                <li>Security and performance improvements</li>
+                {% if maintenance_message %}
+                <li>{{ maintenance_message }}</li>
+                {% endif %}
+            </ul>
+            
+            <div class="progress-container">
+                <strong>Progress:</strong> {{ progress or 75 }}%
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-timeline">
+            <div class="status-item">
+                <div class="status-dot {% if progress >= 0 %}active{% endif %}"></div>
+                <div>Started</div>
+                <div>{{ start_time or "14:00 UTC" }}</div>
+            </div>
+            <div class="status-item">
+                <div class="status-dot {% if progress >= 50 %}active{% endif %}"></div>
+                <div>In Progress</div>
+                <div>Now</div>
+            </div>
+            <div class="status-item">
+                <div class="status-dot {% if progress >= 100 %}active{% endif %}"></div>
+                <div>Expected</div>
+                <div>{{ end_time or "16:00 UTC" }}</div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <a href="https://t.me/ScorePulse_bot" class="btn btn-primary" target="_blank">
+                🤖 Telegram Bot (Available)
+            </a>
+            <a href="javascript:location.reload()" class="btn btn-secondary">
+                🔄 Check Status
+            </a>
+        </div>
+        
+        <div style="margin-top: 25px; color: #999; font-size: 14px;">
+            Follow <a href="https://twitter.com/ScorePulseAI" style="color: #8e2de2;" target="_blank">@ScorePulseAI</a> 
+            for real-time updates
+        </div>
+        
+        <div style="margin-top: 15px; font-size: 12px; color: #999;">
+            Estimated completion: {{ end_time or "16:00 UTC" }}
+        </div>
+    </div>
+</body>
+</html>

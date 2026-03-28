@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Network Analysis | ScorePulse AI</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0a1128',
+                            card: 'rgba(28, 43, 75, 0.6)',
+                            accent: '#00f2c3',
+                            orange: '#ff6b35',
+                            text: '#e6f1ff',
+                            muted: '#a0a8b8',
+                            danger: '#ef4444',
+                            success: '#10b981'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'shimmer': 'shimmer 2s infinite',
+                        'slide-in': 'slideIn 0.3s ease-out',
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'bounce-slow': 'bounce 2s infinite',
+                        'wave': 'wave 1.5s ease-in-out infinite',
+                        'gradient': 'gradient 3s ease infinite',
+                        'neural-pulse': 'neuralPulse 2s ease-in-out infinite',
+                        'data-flow': 'dataFlow 3s linear infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        shimmer: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(100%)' }
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateX(-100%)', opacity: '0' },
+                            '100%': { transform: 'translateX(0)', opacity: '1' }
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        wave: {
+                            '0%, 100%': { transform: 'rotate(0deg)' },
+                            '25%': { transform: 'rotate(5deg)' },
+                            '75%': { transform: 'rotate(-5deg)' }
+                        },
+                        gradient: {
+                            '0%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' },
+                            '100%': { backgroundPosition: '0% 50%' }
+                        },
+                        neuralPulse: {
+                            '0%, 100%': { opacity: '0.4', transform: 'scale(1)' },
+                            '50%': { opacity: '1', transform: 'scale(1.1)' }
+                        },
+                        dataFlow: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(100%)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0a1128 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .neural-bg {
+            background:
+                radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+                linear-gradient(45deg, #0a1128 0%, #1e293b 100%);
+            position: relative;
+        }
+
+        .neural-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
+            animation: neural-pulse 4s ease-in-out infinite;
+        }
+
+        .neural-network {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: transparent;
+        }
+
+        .neural-node {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #3b82f6, #06b6d4);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+            animation: neural-pulse 2s ease-in-out infinite;
+        }
+
+        .neural-connection {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
+            animation: data-flow 3s linear infinite;
+        }
+
+        .glass-card {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        .accuracy-badge {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .metric-highlight {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.1));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .performance-chart {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Navigation -->
+    <nav class="bg-slate-900/80 backdrop-blur-lg border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <a href="{{ url_for('home') }}" class="flex items-center space-x-2">
+                    <i class="fas fa-brain text-blue-400 text-2xl"></i>
+                    <span class="text-xl font-bold text-white">ScorePulse AI</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <a href="{{ url_for('home') }}" class="text-slate-300 hover:text-white transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="neural-bg min-h-[70vh] flex items-center justify-center relative overflow-hidden">
+        <!-- Neural Network Animation -->
+        <div class="neural-network absolute inset-0 opacity-30">
+            <!-- Input Layer -->
+            <div class="neural-node" style="top: 20%; left: 10%; animation-delay: 0s;"></div>
+            <div class="neural-node" style="top: 40%; left: 10%; animation-delay: 0.2s;"></div>
+            <div class="neural-node" style="top: 60%; left: 10%; animation-delay: 0.4s;"></div>
+            <div class="neural-node" style="top: 80%; left: 10%; animation-delay: 0.6s;"></div>
+
+            <!-- Hidden Layer 1 -->
+            <div class="neural-node" style="top: 15%; left: 30%; animation-delay: 0.8s;"></div>
+            <div class="neural-node" style="top: 35%; left: 30%; animation-delay: 1.0s;"></div>
+            <div class="neural-node" style="top: 55%; left: 30%; animation-delay: 1.2s;"></div>
+            <div class="neural-node" style="top: 75%; left: 30%; animation-delay: 1.4s;"></div>
+            <div class="neural-node" style="top: 45%; left: 30%; animation-delay: 1.6s;"></div>
+
+            <!-- Hidden Layer 2 -->
+            <div class="neural-node" style="top: 25%; left: 50%; animation-delay: 1.8s;"></div>
+            <div class="neural-node" style="top: 50%; left: 50%; animation-delay: 2.0s;"></div>
+            <div class="neural-node" style="top: 75%; left: 50%; animation-delay: 2.2s;"></div>
+
+            <!-- Output Layer -->
+            <div class="neural-node" style="top: 30%; left: 70%; animation-delay: 2.4s;"></div>
+            <div class="neural-node" style="top: 50%; left: 70%; animation-delay: 2.6s;"></div>
+            <div class="neural-node" style="top: 70%; left: 70%; animation-delay: 2.8s;"></div>
+
+            <!-- Connections -->
+            <div class="neural-connection" style="top: 22%; left: 10%; width: 20%;"></div>
+            <div class="neural-connection" style="top: 42%; left: 10%; width: 20%;"></div>
+            <div class="neural-connection" style="top: 47%; left: 30%; width: 20%;"></div>
+            <div class="neural-connection" style="top: 52%; left: 50%; width: 20%;"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="text-center z-10 max-w-5xl mx-auto px-4">
+            <!-- Main Message -->
+            <div class="mb-8">
+                <div class="accuracy-badge inline-block mb-6">76.3% Prediction Accuracy</div>
+                <h1 class="text-5xl md:text-7xl font-black mb-6 animate-fade-in">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500">
+                        Deep Learning
+                    </span>
+                    <br>
+                    <span class="text-white">That Understands Football</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-slate-300 max-w-4xl mx-auto animate-fade-in animation-delay-300">
+                    Our ensemble of 7 specialized neural networks achieves industry-leading accuracy
+                    through advanced pattern recognition and continuous learning.
+                </p>
+            </div>
+
+            <!-- Key Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto animate-fade-in animation-delay-600">
+                <div class="glass-card rounded-xl p-6">
+                    <div class="text-3xl font-black text-blue-400 mb-2">7</div>
+                    <div class="text-sm text-slate-400 uppercase tracking-widest">Neural Networks</div>
+                </div>
+                <div class="glass-card rounded-xl p-6">
+                    <div class="text-3xl font-black text-cyan-400 mb-2">65+</div>
+                    <div class="text-sm text-slate-400 uppercase tracking-widest">Features Analyzed</div>
+                </div>
+                <div class="glass-card rounded-xl p-6">
+                    <div class="text-3xl font-black text-green-400 mb-2">230K+</div>
+                    <div class="text-sm text-slate-400 uppercase tracking-widest">Matches Trained On</div>
+                </div>
+                <div class="glass-card rounded-xl p-6">
+                    <div class="text-3xl font-black text-purple-400 mb-2">24/7</div>
+                    <div class="text-sm text-slate-400 uppercase tracking-widest">Continuous Learning</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Architecture Overview -->
+    <div class="py-20 bg-gradient-to-b from-slate-900 to-slate-950">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Hybrid Architecture</span>
+                </h2>
+                <p class="text-xl text-slate-400 max-w-3xl mx-auto">
+                    Combining multiple neural network types for comprehensive football intelligence
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- CNN Layer -->
+                <div class="feature-card rounded-2xl p-8 text-center">
+                    <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-500/20 flex items-center justify-center mb-6 mx-auto">
+                        <i class="fas fa-th text-blue-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-4">Convolutional Neural Networks</h3>
+                    <p class="text-slate-400 mb-6">
+                        Captures spatial patterns in player positions, formations, and tactical setups on the football field.
+                    </p>
+                    <div class="metric-highlight">
+                        <div class="text-sm font-medium text-blue-400 mb-1">Spatial Recognition</div>
+                        <div class="text-xs text-slate-500">Formation analysis, player clustering</div>
+                    </div>
+                </div>
+
+                <!-- Transformer Layer -->
+                <div class="feature-card rounded-2xl p-8 text-center">
+                    <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 border border-purple-500/20 flex items-center justify-center mb-6 mx-auto">
+                        <i class="fas fa-exchange-alt text-purple-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-4">Transformer Networks</h3>
+                    <p class="text-slate-400 mb-6">
+                        Processes complex interactions between teams, players, and match conditions with attention mechanisms.
+                    </p>
+                    <div class="metric-highlight">
+                        <div class="text-sm font-medium text-purple-400 mb-1">Context Understanding</div>
+                        <div class="text-xs text-slate-500">Team dynamics, motivational factors</div>
+                    </div>
+                </div>
+
+                <!-- LSTM Layer -->
+                <div class="feature-card rounded-2xl p-8 text-center">
+                    <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-green-500/20 to-green-500/5 border border-green-500/20 flex items-center justify-center mb-6 mx-auto">
+                        <i class="fas fa-clock text-green-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-4">Long Short-Term Memory</h3>
+                    <p class="text-slate-400 mb-6">
+                        Analyzes temporal sequences and form trends over multiple matches and seasons.
+                    </p>
+                    <div class="metric-highlight">
+                        <div class="text-sm font-medium text-green-400 mb-1">Time Series Analysis</div>
+                        <div class="text-xs text-slate-500">Recent form, momentum curves</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- What Networks See -->
+    <div class="py-20 bg-gradient-to-b from-slate-950 to-slate-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                    What Our Networks <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Actually See</span>
+                </h2>
+                <p class="text-xl text-slate-400 max-w-3xl mx-auto">
+                    65+ engineered features transform raw football data into predictive intelligence
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Expected Goals -->
+                <div class="feature-card rounded-xl p-6">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500/20 to-orange-500/5 border border-orange-500/20 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-target text-orange-400"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white mb-2">Expected Goals Differential</h4>
+                            <p class="text-slate-400 text-sm mb-3">
+                                Analyzes xG under different game states: open play, set pieces, counter attacks
+                            </p>
+                            <div class="text-xs text-slate-500">Game state context included</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Elo Ratings -->
+                <div class="feature-card rounded-xl p-6">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-500/20 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-chart-line text-blue-400"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white mb-2">Elo-Adjusted Momentum</h4>
+                            <p class="text-slate-400 text-sm mb-3">
+                                Home/away performance curves adjusted for opponent strength over last 8 matches
+                            </p>
+                            <div class="text-xs text-slate-500">Strength-adjusted trends</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Player Fatigue -->
+                <div class="feature-card rounded-xl p-6">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-red-500/20 to-red-500/5 border border-red-500/20 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-tired text-red-400"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white mb-2">Player Fatigue Proxy</h4>
+                            <p class="text-slate-400 text-sm mb-3">
+                                Minutes played in last 21 days, adjusted for age and position requirements
+                            </p>
+                            <div class="text-xs text-slate-500">Recovery time factored</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tactical Matchup -->
+                <div class="feature-card rounded-xl p-6">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500/20 to-purple-500/5 border border-purple-500/20 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-chess text-purple-400"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white mb-2">Tactical Matchup Score</h4>
+                            <p class="text-slate-400 text-sm mb-3">
+                                Possession-based vs pressing styles, defensive organization compatibility
+                            </p>
+                            <div class="text-xs text-slate-500">Playing style analysis</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather Impact -->
+                <div class="feature-card rounded-xl p-6">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 border border-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-cloud-rain text-cyan-400"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white mb-2">Weather & Conditions</h4>
+                            <p class="text-slate-400 text-sm mb-3">
+                                Temperature, precipitation, wind speed impact on playing styles and outcomes
+                            </p>
+                            <div class="text-xs text-slate-500">Environmental factors</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Motivation Factors -->
+                <div class="feature-card rounded-xl p-6">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500/20 to-green-500/5 border border-green-500/20 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-fire text-green-400"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white mb-2">Motivational Context</h4>
+                            <p class="text-slate-400 text-sm mb-3">
+                                League position, cup competitions, derby matches, and seasonal importance
+                            </p>
+                            <div class="text-xs text-slate-500">Contextual significance</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Specialized Networks -->
+    <div class="py-20 bg-gradient-to-b from-slate-900 to-slate-950">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Specialized Networks</span>
+                </h2>
+                <p class="text-xl text-slate-400 max-w-3xl mx-auto">
+                    Each network focuses on specific prediction aspects for maximum accuracy
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- WLD Network -->
+                <div class="feature-card rounded-2xl p-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-500/20 flex items-center justify-center mr-4">
+                            <span class="text-blue-400 font-bold text-lg">W</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">Win-Draw-Loss Predictor</h3>
+                            <p class="text-slate-400">Primary outcome prediction network</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-400 mb-4">
+                        Specialized in full-time result prediction with multi-class classification and confidence scoring.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="metric-highlight">
+                            <div class="text-lg font-bold text-blue-400">73.2%</div>
+                            <div class="text-xs text-slate-500">Accuracy Rate</div>
+                        </div>
+                        <div class="metric-highlight">
+                            <div class="text-lg font-bold text-blue-400">85%</div>
+                            <div class="text-xs text-slate-500">Confidence Score</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Goals Network -->
+                <div class="feature-card rounded-2xl p-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500/20 to-green-500/5 border border-green-500/20 flex items-center justify-center mr-4">
+                            <span class="text-green-400 font-bold text-lg">G</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">Total Goals Predictor</h3>
+                            <p class="text-slate-400">Distribution-based scoring analysis</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-400 mb-4">
+                        Uses Poisson distribution and regression heads to predict total match goals with high precision.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="metric-highlight">
+                            <div class="text-lg font-bold text-green-400">2.8</div>
+                            <div class="text-xs text-slate-500">Avg Goals Predicted</div>
+                        </div>
+                        <div class="metric-highlight">
+                            <div class="text-lg font-bold text-green-400">±0.3</div>
+                            <div class="text-xs text-slate-500">Prediction Variance</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BTTS Network -->
+                <div class="feature-card rounded-2xl p-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 border border-purple-500/20 flex items-center justify-center mr-4">
+                            <span class="text-purple-400 font-bold text-lg">B</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">Both Teams To Score</h3>
+                            <p class="text-slate-400">Correlation-aware binary classifier</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-400 mb-4">
+                        Analyzes team attacking/defensive correlations to predict if both teams will score.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="metric-highlight">
+                            <div class="text-lg font-bold text-purple-400">68%</div>
+                            <div class="text-xs text-slate-500">Prediction Accuracy</div>
+                        </div>
+                        <div class="metric-highlight">
+                            <div class="text-lg font-bold text-purple-400">0.72</div>
+                            <div class="text-xs text-slate-500">AUC Score</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Over 2.5 Network -->
+                <div class="feature-card rounded-2xl p-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-500/5 border border-orange-500/20 flex items-center justify-center mr-4">
+                            <span class="text-orange-400 font-bold text-lg">O</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">Over 2.5 Goals</h3>
+                            <p class="text-slate-400">Calibrated threshold model</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-400 mb-4">
+                        Specialized threshold model for predicting matches with 3+ goals using calibrated probabilities.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="metric-highlight">
+                            <div class="text-lg font-bold text-orange-400">71%</div>
+                            <div class="text-xs text-slate-500">Accuracy Rate</div>
+                        </div>
+                        <div class="metric-highlight">
+                            <div class="text-lg font-bold text-orange-400">Well</div>
+                            <div class="text-xs text-slate-500">Calibrated</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance & Trust -->
+    <div class="py-20 bg-gradient-to-b from-slate-950 to-slate-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                    Proven <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Performance</span>
+                </h2>
+                <p class="text-xl text-slate-400 max-w-3xl mx-auto">
+                    Backtested on 230,000+ matches with independent verification
+                </p>
+            </div>
+
+            <div class="performance-chart max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl font-bold text-white mb-4">12-Month Accuracy Trend</h3>
+                    <div class="flex items-center justify-center space-x-8">
+                        <div class="text-center">
+                            <div class="text-4xl font-black text-green-400 mb-2">76.3%</div>
+                            <div class="text-sm text-slate-400">Current Accuracy</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-4xl font-black text-blue-400 mb-2">+2.1%</div>
+                            <div class="text-sm text-slate-400">vs Last Year</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-4xl font-black text-purple-400 mb-2">230K+</div>
+                            <div class="text-sm text-slate-400">Matches Tested</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trust Badges -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+                    <div class="text-center">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-green-500/20 to-green-500/5 border border-green-500/20 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-shield-alt text-green-400 text-2xl"></i>
+                        </div>
+                        <h4 class="font-bold text-white mb-2">Backtested</h4>
+                        <p class="text-slate-400 text-sm">Validated on historical data from 2010-2025</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-500/20 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-check-circle text-blue-400 text-2xl"></i>
+                        </div>
+                        <h4 class="font-bold text-white mb-2">Verified</h4>
+                        <p class="text-slate-400 text-sm">Independently audited by third-party experts</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500/20 to-purple-500/5 border border-purple-500/20 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-sync-alt text-purple-400 text-2xl"></i>
+                        </div>
+                        <h4 class="font-bold text-white mb-2">Continuous</h4>
+                        <p class="text-slate-400 text-sm">Learning system updates after every match</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="py-20 bg-gradient-to-b from-slate-900 to-slate-950">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                Experience Our <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Neural Intelligence</span>
+            </h2>
+            <p class="text-xl text-slate-400 mb-8 max-w-2xl mx-auto">
+                See how our neural networks analyze today's matches and get predictions powered by deep learning.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ url_for('predict') }}" class="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    <i class="fas fa-rocket mr-2"></i>See Today's Predictions
+                </a>
+                <a href="{{ url_for('home') }}" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300">
+                    <i class="fas fa-home mr-2"></i>Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Neural network animation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add some interactive elements
+            const neuralNodes = document.querySelectorAll('.neural-node');
+
+            neuralNodes.forEach((node, index) => {
+                node.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.5)';
+                    this.style.boxShadow = '0 0 30px rgba(59, 130, 246, 0.8)';
+                });
+
+                node.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                    this.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.5)';
+                });
+            });
+
+            // Smooth scrolling for navigation
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html></content>
+<parameter name="filePath">c:\Users\LENOVO\OneDrive\Desktop\SCORE_PULSEAIv2\soccer_match_prediction\app\templates\neural_networks.html

@@ -1,0 +1,493 @@
+<!-- templates/admin/analytics.html -->
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-white mb-2">Analytics Command Center</h1>
+            <p class="text-slate-400">Real-time insights and performance metrics</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="date-filter active" data-period="7d">Last 7 days</div>
+            <div class="date-filter" data-period="30d">Last 30 days</div>
+            <div class="date-filter" data-period="90d">Last 90 days</div>
+        </div>
+    </div>
+    
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Total Users Card -->
+        <div class="stat-card">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <p class="text-sm text-slate-400 mb-1">Total Users</p>
+                    <h3 class="text-2xl font-bold text-white">{{ stats.total_users|default(0) }}</h3>
+                    <div class="flex items-center mt-2">
+                        <i class="fas fa-arrow-up text-xs text-green-400 mr-1"></i>
+                        <span class="text-xs text-green-400">+{{ stats.user_growth|default(0) }}% growth</span>
+                    </div>
+                </div>
+                <div class="stat-icon bg-blue-500/20 text-blue-400">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill bg-gradient-to-r from-brand-primary to-brand-secondary" 
+                     style="width: {{ (stats.active_users|default(0) / stats.total_users|default(1) * 100)|round }}%"></div>
+            </div>
+            <p class="text-xs text-slate-400 mt-2">{{ stats.active_users|default(0) }} active users</p>
+        </div>
+        
+        <!-- Active Users Card -->
+        <div class="stat-card">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <p class="text-sm text-slate-400 mb-1">Active Users (7d)</p>
+                    <h3 class="text-2xl font-bold text-white">{{ stats.active_users|default(0) }}</h3>
+                    <div class="flex items-center mt-2">
+                        <i class="fas fa-chart-line text-xs text-green-400 mr-1"></i>
+                        <span class="text-xs text-green-400">Daily avg: {{ (stats.active_users|default(0) / 7)|round|int }}</span>
+                    </div>
+                </div>
+                <div class="stat-icon bg-green-500/20 text-green-400">
+                    <i class="fas fa-user-check"></i>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill bg-gradient-to-r from-green-500 to-emerald-600" 
+                     style="width: {{ (stats.active_users|default(0) / stats.total_users|default(1) * 100)|round }}%"></div>
+            </div>
+            <p class="text-xs text-slate-400 mt-2">{{ ((stats.active_users|default(0) / stats.total_users|default(1)) * 100)|round }}% of total</p>
+        </div>
+        
+        <!-- Prediction Accuracy Card -->
+        <div class="stat-card">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <p class="text-sm text-slate-400 mb-1">Prediction Accuracy</p>
+                    <h3 class="text-2xl font-bold text-white">{{ stats.prediction_accuracy|default(0) }}%</h3>
+                    <div class="flex items-center mt-2">
+                        <i class="fas fa-bullseye text-xs text-blue-400 mr-1"></i>
+                        <span class="text-xs text-blue-400">Target: 75%</span>
+                    </div>
+                </div>
+                <div class="stat-icon bg-purple-500/20 text-purple-400">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill bg-gradient-to-r from-purple-500 to-pink-600" 
+                     style="width: {{ stats.prediction_accuracy|default(0) }}%"></div>
+            </div>
+            <p class="text-xs text-slate-400 mt-2">Based on {{ stats.total_predictions|default(0) }} predictions</p>
+        </div>
+        
+        <!-- Revenue Card -->
+        <div class="stat-card">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <p class="text-sm text-slate-400 mb-1">Total Revenue</p>
+                    <h3 class="text-2xl font-bold text-white">${{ stats.total_revenue|default(0)|round(2) }}</h3>
+                    <div class="flex items-center mt-2">
+                        <i class="fas fa-arrow-up text-xs text-green-400 mr-1"></i>
+                        <span class="text-xs text-green-400">+12.5% from last period</span>
+                    </div>
+                </div>
+                <div class="stat-icon bg-orange-500/20 text-orange-400">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill bg-gradient-to-r from-orange-500 to-red-600" style="width: 75%"></div>
+            </div>
+            <p class="text-xs text-slate-400 mt-2">Monthly target: ${{ (stats.total_revenue|default(0) * 1.33)|round(2) }}</p>
+        </div>
+    </div>
+    
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- User Activity -->
+        <div class="lg:col-span-2 glass-card p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-white">User Activity Heatmap</h3>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-slate-400">Peak:</span>
+                    <span class="text-xs font-bold text-brand-primary">{{ stats.peak_hour|default('6-8 PM') }}</span>
+                </div>
+            </div>
+            
+            {% if activity_data %}
+            <div class="mb-4">
+                <div class="flex justify-between mb-2">
+                    <span class="text-xs text-slate-400">Low activity</span>
+                    <span class="text-xs text-slate-400">High activity</span>
+                </div>
+                <div class="grid grid-cols-12 gap-1">
+                    {% for hour_data in activity_data[:24] %}
+                    <div class="heatmap-cell" 
+                         style="background: rgba(0, 242, 195, {{ hour_data.intensity|default(0.3) }});">
+                        <div class="heatmap-tooltip">
+                            {{ hour_data.hour }}:00 - {{ hour_data.users|default(0) }} users
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="flex justify-between mt-2 text-xs text-slate-400">
+                    <span>12 AM</span>
+                    <span>6 AM</span>
+                    <span>12 PM</span>
+                    <span>6 PM</span>
+                    <span>12 AM</span>
+                </div>
+            </div>
+            <p class="text-sm text-slate-400 mt-4">
+                <i class="fas fa-info-circle mr-2"></i>
+                Activity data for {{ activity_data|length }} hours showing peak usage at {{ stats.peak_hour|default('evening hours') }}
+            </p>
+            {% else %}
+            <div class="flex flex-col items-center justify-center py-12">
+                <i class="fas fa-chart-bar text-4xl text-slate-700 mb-4"></i>
+                <p class="text-slate-400">No activity data available</p>
+                <p class="text-sm text-slate-400 mt-2">Data will appear when users become active</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- League Success Rates -->
+        <div class="glass-card p-6">
+            <h3 class="text-lg font-bold text-white mb-6">League Success Rates</h3>
+            
+            {% if league_success %}
+            <div class="space-y-4">
+                {% for league in league_success %}
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mr-3">
+                            <i class="fas fa-futbol text-xs text-slate-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-white">{{ league.league }}</p>
+                            <p class="text-xs text-slate-400">{{ league.predictions }} predictions</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-bold text-white">{{ league.accuracy }}%</p>
+                        <div class="progress-bar mt-1" style="width: 80px;">
+                            <div class="progress-fill {% if league.accuracy > 70 %}bg-green-500{% elif league.accuracy > 60 %}bg-yellow-500{% else %}bg-red-500{% endif %}" 
+                                 style="width: {{ league.accuracy }}%"></div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="mt-6 pt-6 border-t border-white/10">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-slate-400">Average Accuracy:</span>
+                    <span class="text-sm font-bold text-brand-primary">
+                        {% set total_accuracy = league_success|sum(attribute='accuracy') %}
+                        {% set avg_accuracy = total_accuracy / league_success|length if league_success|length > 0 else 0 %}
+                        {{ avg_accuracy|round(1) }}%
+                    </span>
+                </div>
+            </div>
+            {% else %}
+            <div class="flex flex-col items-center justify-center py-12">
+                <i class="fas fa-trophy text-4xl text-slate-700 mb-4"></i>
+                <p class="text-slate-400">No league data available</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- User Growth & Revenue -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- User Growth -->
+        <div class="glass-card p-6">
+            <h3 class="text-lg font-bold text-white mb-6">User Growth Trend</h3>
+            <div class="flex items-end justify-between mb-4">
+                <div>
+                    <p class="text-sm text-slate-400">Total Growth (30d)</p>
+                    <h4 class="text-2xl font-bold text-white">{{ stats.user_growth|default(0) }}%</h4>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center">
+                        <i class="fas fa-chart-line text-white"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between text-sm">
+                <div class="text-center">
+                    <p class="font-bold text-white">{{ stats.new_users_today|default(0) }}</p>
+                    <p class="text-slate-400">Today</p>
+                </div>
+                <div class="text-center">
+                    <p class="font-bold text-white">{{ stats.new_users_week|default(0) }}</p>
+                    <p class="text-slate-400">This Week</p>
+                </div>
+                <div class="text-center">
+                    <p class="font-bold text-white">{{ stats.new_users_month|default(0) }}</p>
+                    <p class="text-slate-400">This Month</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Revenue Trend -->
+        <div class="glass-card p-6">
+            <h3 class="text-lg font-bold text-white mb-6">Revenue Trend (7d)</h3>
+            
+            {% if stats.revenue_trend %}
+            <div class="space-y-3">
+                {% for day in stats.revenue_trend %}
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mr-3">
+                            <span class="text-xs font-bold text-slate-400">{{ day.date[:3] }}</span>
+                        </div>
+                        <span class="text-sm text-white">{{ day.date }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-sm font-bold text-white mr-2">${{ day.revenue|round(2) }}</span>
+                        {% if day.change > 0 %}
+                            <i class="fas fa-arrow-up text-xs text-green-400"></i>
+                        {% elif day.change < 0 %}
+                            <i class="fas fa-arrow-down text-xs text-red-400"></i>
+                        {% else %}
+                            <i class="fas fa-minus text-xs text-slate-400"></i>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="mt-6 pt-6 border-t border-white/10">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-slate-400">7-Day Total:</span>
+                    <span class="text-sm font-bold text-brand-primary">
+                        ${{ stats.revenue_trend|sum(attribute='revenue')|round(2) }}
+                    </span>
+                </div>
+            </div>
+            {% else %}
+            <div class="flex flex-col items-center justify-center py-12">
+                <i class="fas fa-coins text-4xl text-slate-700 mb-4"></i>
+                <p class="text-slate-400">No revenue data available</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Recent Predictions Table -->
+    <div class="glass-card p-6">
+        <h3 class="text-lg font-bold text-white mb-6">Recent Predictions</h3>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-white/10">
+                        <th class="pb-3 text-left text-sm text-slate-400">Match</th>
+                        <th class="pb-3 text-left text-sm text-slate-400">Prediction</th>
+                        <th class="pb-3 text-left text-sm text-slate-400">Accuracy</th>
+                        <th class="pb-3 text-left text-sm text-slate-400">League</th>
+                        <th class="pb-3 text-left text-sm text-slate-400">Date</th>
+                        <th class="pb-3 text-left text-sm text-slate-400">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pred in recent_predictions|default([]) %}
+                    <tr class="border-b border-white/5 hover:bg-white/5">
+                        <td class="py-3 font-medium text-white">{{ pred.match }}</td>
+                        <td class="py-3">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-white">
+                                {{ pred.prediction }}
+                            </span>
+                        </td>
+                        <td class="py-3">
+                            <div class="flex items-center">
+                                <div class="progress-bar mr-2" style="width: 60px;">
+                                    <div class="progress-fill bg-gradient-to-r from-brand-primary to-brand-secondary" style="width: {{ pred.accuracy }}%"></div>
+                                </div>
+                                <span class="text-sm text-white">{{ pred.accuracy }}%</span>
+                            </div>
+                        </td>
+                        <td class="py-3 text-slate-400">{{ pred.league }}</td>
+                        <td class="py-3 text-slate-400">{{ pred.date }}</td>
+                        <td class="py-3">
+                            {% if pred.status == 'correct' %}
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-500/20 text-green-400">
+                                <i class="fas fa-check mr-1"></i> Correct
+                            </span>
+                            {% elif pred.status == 'incorrect' %}
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-400">
+                                <i class="fas fa-times mr-1"></i> Incorrect
+                            </span>
+                            {% else %}
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-400">
+                                <i class="fas fa-clock mr-1"></i> Pending
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="flex justify-between items-center mt-6 pt-6 border-t border-white/10">
+            <p class="text-sm text-slate-400">Showing {{ recent_predictions|default([])|length }} of {{ stats.total_predictions|default(0) }} total predictions</p>
+            <button onclick="window.location.href='{{ url_for('admin_predictions') }}'" 
+                    class="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition">
+                View All Predictions
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.progress-bar {
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease-in-out;
+}
+
+.heatmap-cell {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    margin: 2px;
+    transition: all 0.2s ease;
+    position: relative;
+    cursor: pointer;
+}
+
+.heatmap-cell:hover {
+    transform: scale(1.2);
+    z-index: 10;
+    box-shadow: 0 0 15px rgba(0, 242, 195, 0.3);
+}
+
+.heatmap-tooltip {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(10, 17, 40, 0.95);
+    border: 1px solid rgba(0, 242, 195, 0.3);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+}
+
+.heatmap-cell:hover .heatmap-tooltip {
+    opacity: 1;
+}
+
+.date-filter {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    outline: none;
+}
+
+.date-filter:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.date-filter.active {
+    background: rgba(0, 242, 195, 0.1);
+    border-color: rgba(0, 242, 195, 0.3);
+    color: var(--brand-primary);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Date filter functionality
+    const dateFilters = document.querySelectorAll('.date-filter');
+    dateFilters.forEach(filter => {
+        filter.addEventListener('click', function() {
+            dateFilters.forEach(f => f.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Load data for selected period
+            loadAnalyticsData(this.dataset.period);
+        });
+    });
+    
+    // Animate progress bars on scroll
+    const observerOptions = {
+        threshold: 0.2,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const progressBars = entry.target.querySelectorAll('.progress-fill');
+                progressBars.forEach(bar => {
+                    const targetWidth = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = targetWidth;
+                    }, 300);
+                });
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all stat cards
+    document.querySelectorAll('.stat-card, .glass-card').forEach(card => {
+        observer.observe(card);
+    });
+    
+    // Heatmap hover enhancement
+    const heatmapCells = document.querySelectorAll('.heatmap-cell');
+    heatmapCells.forEach(cell => {
+        cell.addEventListener('mouseenter', function() {
+            heatmapCells.forEach(c => {
+                if (c !== this) {
+                    c.style.opacity = '0.6';
+                }
+            });
+        });
+        
+        cell.addEventListener('mouseleave', function() {
+            heatmapCells.forEach(c => {
+                c.style.opacity = '1';
+            });
+        });
+    });
+});
+
+async function loadAnalyticsData(period) {
+    try {
+        const data = await AdminUtils.fetchAPI(`/api/admin/analytics?period=${period}`);
+        // Update UI with new data
+        // Implementation depends on your backend response structure
+        AdminUtils.showToast(`Loaded data for ${period} period`, 'success');
+    } catch (error) {
+        console.error('Failed to load analytics data:', error);
+    }
+}
+</script>
+{% endblock %}
