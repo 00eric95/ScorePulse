@@ -20,14 +20,14 @@ def run_worker():
     
     # Start worker for different queues
     worker_cmd = [
-        'celery', '-A', 'app.celery', 'worker',
+        'celery', '-A', 'celery_worker.celery', 'worker',   # ← changed
         '--loglevel=info',
-        '--concurrency=4',  # Number of worker processes
-        '--pool=gevent',  # Changed from eventlet to gevent for Windows compatibility
+        '--concurrency=4',
+        '--pool=gevent',   # or 'solo' on Windows if gevent fails
         '--queues=default,email,predictions,reports,maintenance',
         '--hostname=worker1@%h',
         '--max-tasks-per-child=1000',
-        '--autoscale=10,3',  # Max 10, min 3 workers
+        '--autoscale=10,3',
     ]
     
     try:
@@ -176,11 +176,10 @@ if __name__ == '__main__':
             print("-" * 40)
             
             simple_cmd = [
-                'celery', '-A', 'app.celery', 'worker',
+                'celery', '-A', 'celery_worker.celery', 'worker',
                 '--loglevel=info',
-                '--pool=gevent',
+                '--pool=solo',
                 '--concurrency=2',
-                '--max-tasks-per-child=100',
             ]
             
             try:
@@ -193,7 +192,7 @@ if __name__ == '__main__':
             simple_cmd = [
                 'celery', '-A', 'app.celery', 'worker',
                 '--loglevel=info',
-                '--pool=gevent',
+                '--pool=solo',
                 '--concurrency=2',
                 '--max-tasks-per-child=100',
             ]

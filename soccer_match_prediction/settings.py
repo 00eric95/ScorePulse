@@ -141,6 +141,16 @@ class Config:
     REDIS_PASSWORD = os.environ.get('REDIS_PASSWORD', None)
     REDIS_SSL = os.environ.get('REDIS_SSL', 'false').lower() == 'true'
     
+    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', f"redis://{REDIS_HOST}:{REDIS_PORT}/0")
+    CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', f"redis://{REDIS_HOST}:{REDIS_PORT}/0")
+    CELERY_TASK_ALWAYS_EAGER = os.environ.get('CELERY_TASK_ALWAYS_EAGER', 'false').lower() == 'true'
+    CELERY_TASK_SERIALIZER = 'json'
+    CELERY_RESULT_SERIALIZER = 'json'
+    CELERY_ACCEPT_CONTENT = ['json']
+    CELERY_TIMEZONE = 'Africa/Nairobi'
+    CELERY_ENABLE_UTC = True
+    CELERY_WORKER_POOL = 'solo'
+    
     # Cache Configuration
     CACHE_TYPE = 'redis'
     CACHE_REDIS_HOST = REDIS_HOST

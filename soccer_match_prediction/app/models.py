@@ -3,10 +3,14 @@ from app import db, login_manager
 from flask import current_app
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import Index, UniqueConstraint, ForeignKey, Text, JSON, Boolean, Integer, Float, String, DateTime, Table
+from sqlalchemy import Index, MetaData, UniqueConstraint, ForeignKey, Text, JSON, Boolean, Integer, Float, String, DateTime, Table
 import json
 import jwt
 from time import time
+
+
+#db.metadata = MetaData()
+#db.metadata.clear()
 
 # Login manager user loader
 @login_manager.user_loader
@@ -59,6 +63,7 @@ user_favorite_leagues = db.Table('user_favorite_leagues',
 class User(db.Model, UserMixin):
     """User model with authentication and profile information"""
     __tablename__ = 'users'
+    __table_args__ = {'extend_existing': True}
     
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False, index=True)
@@ -284,6 +289,7 @@ class User(db.Model, UserMixin):
 class UserActivity(db.Model):
     """Track user activities for analytics"""
     __tablename__ = 'user_activities'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
@@ -316,6 +322,7 @@ class UserActivity(db.Model):
 class UserSettings(db.Model):
     """User preferences and settings"""
     __tablename__ = 'user_settings'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True, nullable=False)
@@ -360,6 +367,7 @@ class UserSettings(db.Model):
 class CreditTransaction(db.Model):
     """Track credit transactions"""
     __tablename__ = 'credit_transactions'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
@@ -394,6 +402,7 @@ class CreditTransaction(db.Model):
 class TeamNameMapping(db.Model):
     """Map different team name variations to standard names"""
     __tablename__ = 'team_name_mappings'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     original_name = db.Column(db.String(100), nullable=False, index=True)  # Changed from standard_name
@@ -420,6 +429,7 @@ class TeamNameMapping(db.Model):
 class League(db.Model):
     """League/Competition model"""
     __tablename__ = 'leagues'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -450,6 +460,7 @@ class League(db.Model):
 class Season(db.Model):
     """Season model for leagues"""
     __tablename__ = 'seasons'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20))  # e.g., "2025/26"
@@ -469,6 +480,7 @@ class Season(db.Model):
 class Team(db.Model):
     """Team model with tactical and statistical data"""
     __tablename__ = 'teams'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
@@ -546,6 +558,7 @@ class Team(db.Model):
 class Venue(db.Model):
     """Stadium/Venue model"""
     __tablename__ = 'venues'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -566,6 +579,7 @@ class Venue(db.Model):
 class Player(db.Model):
     """Player model (basic structure - can be expanded)"""
     __tablename__ = 'players'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -592,6 +606,7 @@ class Player(db.Model):
 class Match(db.Model):
     """Football match model"""
     __tablename__ = 'matches'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     
@@ -717,6 +732,7 @@ class Match(db.Model):
 class TeamStats(db.Model):
     """Model for caching team statistics"""
     __tablename__ = 'team_stats'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), unique=True, nullable=False)
@@ -751,6 +767,7 @@ class TeamStats(db.Model):
 class Prediction(db.Model):
     """User prediction model"""
     __tablename__ = 'predictions'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
@@ -893,6 +910,7 @@ class Prediction(db.Model):
 class StoredPrediction(db.Model):
     """Store predictions for later comparison with actual results"""
     __tablename__ = 'stored_predictions'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     match_id = db.Column(db.Integer, db.ForeignKey('matches.id'), unique=True, nullable=False, index=True)
@@ -937,6 +955,7 @@ class StoredPrediction(db.Model):
 class CustomPrediction(db.Model):
     """Model for storing advanced/custom predictions"""
     __tablename__ = 'custom_predictions'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -967,6 +986,7 @@ class CustomPrediction(db.Model):
 class PredictionPerformance(db.Model):
     """Track prediction performance over time periods (daily, weekly, monthly)."""
     __tablename__ = 'prediction_performances'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
@@ -1027,6 +1047,7 @@ class PredictionPerformance(db.Model):
 class Payment(db.Model):
     """Payment transaction model"""
     __tablename__ = 'payments'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
@@ -1072,6 +1093,7 @@ class Payment(db.Model):
 class Coupon(db.Model):
     """Store coupon codes"""
     __tablename__ = 'coupons'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(20), unique=True, nullable=False, index=True)
@@ -1134,6 +1156,7 @@ class Coupon(db.Model):
 class Feedback(db.Model):
     """Model for user feedback and bug reports"""
     __tablename__ = 'feedbacks'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -1166,6 +1189,7 @@ class Feedback(db.Model):
 class Leaderboard(db.Model):
     """Model for user leaderboard rankings"""
     __tablename__ = 'leaderboards'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True, nullable=False)
@@ -1208,6 +1232,7 @@ class Leaderboard(db.Model):
 class Notification(db.Model):
     """Model for user notifications"""
     __tablename__ = 'notifications'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -1246,6 +1271,7 @@ class Notification(db.Model):
 class OrchestrationLog(db.Model):
     """Log for orchestration pipeline runs"""
     __tablename__ = 'orchestration_logs'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     match_id = db.Column(db.String(100))
@@ -1293,6 +1319,7 @@ class OrchestrationLog(db.Model):
 class OrchestrationSession(db.Model):
     """Track orchestration sessions"""
     __tablename__ = 'orchestration_sessions'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.String(100), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
@@ -1323,6 +1350,7 @@ class OrchestrationSession(db.Model):
 class AgentPerformance(db.Model):
     """Track performance metrics for each agent"""
     __tablename__ = 'agent_performances'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     agent_name = db.Column(db.String(50))  # data_agent, analyst_agent, etc.
@@ -1350,6 +1378,7 @@ class AgentPerformance(db.Model):
 class DataAgentState(db.Model):
     """Track the state of the data agent for persistence"""
     __tablename__ = 'data_agent_states'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     agent_name = db.Column(db.String(100), nullable=False, index=True)
@@ -1380,6 +1409,7 @@ class DataAgentState(db.Model):
 class ModelEvaluation(db.Model):
     """Model for tracking model evaluation metrics"""
     __tablename__ = 'model_evaluations'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     model_name = db.Column(db.String(100), nullable=False, index=True)
@@ -1438,9 +1468,10 @@ class ModelEvaluation(db.Model):
 class LearningReport(db.Model):
     """Store learning system reports"""
     __tablename__ = 'learning_reports'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     report_type = db.Column(db.String(20))  # daily, weekly, monthly
     period_start = db.Column(db.DateTime)
     period_end = db.Column(db.DateTime)
@@ -1487,6 +1518,7 @@ class LearningReport(db.Model):
 class DataValidationLog(db.Model):
     """Log data validation results"""
     __tablename__ = 'data_validation_logs'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     source_name = db.Column(db.String(200))
@@ -1517,6 +1549,7 @@ class DataValidationLog(db.Model):
 class FeatureCache(db.Model):
     """Cache for computed features to improve performance"""
     __tablename__ = 'feature_cache'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     cache_key = db.Column(db.String(255), unique=True, nullable=False, index=True)
@@ -1547,6 +1580,7 @@ class FeatureCache(db.Model):
 class SystemLog(db.Model):
     """System logging for monitoring and debugging"""
     __tablename__ = 'system_logs'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     level = db.Column(db.String(20))
@@ -1567,6 +1601,7 @@ class SystemLog(db.Model):
 class ChatSession(db.Model):
     """Chat session model"""
     __tablename__ = 'chat_sessions'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -1581,6 +1616,7 @@ class ChatSession(db.Model):
 class ChatMessage(db.Model):
     """Chat message model"""
     __tablename__ = 'chat_messages'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     session_id = db.Column(db.Integer, db.ForeignKey('chat_sessions.id'), nullable=False)
@@ -1601,6 +1637,7 @@ class ChatMessage(db.Model):
 class NewsletterSubscription(db.Model):
     """Store newsletter subscriptions"""
     __tablename__ = 'newsletter_subscriptions'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
@@ -1625,6 +1662,7 @@ class NewsletterSubscription(db.Model):
 class PendingRegistration(db.Model):
     """Temporary storage for unverified registrations"""
     __tablename__ = 'pending_registrations'
+    __table_args__ = {'extend_existing': True}  
     
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
@@ -1649,7 +1687,4 @@ class PendingRegistration(db.Model):
             created_at=datetime.utcnow()
         )
         return user
-
-
-
 

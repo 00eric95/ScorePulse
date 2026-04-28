@@ -63,7 +63,7 @@ try:
         update_prediction_outcomes, generate_user_report, generate_platform_report,
         update_leaderboard_task, cleanup_old_tasks, update_platform_stats,
         refresh_ai_models, send_daily_reports_task, send_notification_task,
-        process_unprocessed_learning
+        process_unprocessed_learning, run_prediction_task
     )
     CELERY_AVAILABLE = True
 except ImportError:
@@ -80,8 +80,17 @@ except ImportError:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Instead of initializing globally at the top of the file:
+# ai_engine = main.MatchPredictor() 
+
+def get_ai_engine():
+    if not hasattr(current_app, 'ai_engine'):
+        from main import MatchPredictor
+        current_app.ai_engine = MatchPredictor()
+    return current_app.ai_engine
+
 # Global variables for AI engines (will be initialized in register_routes)
-ai_engine = None
+#ai_engine = None
 value_bet_finder = None
 live_tracker = None
 performance_analyzer = None
@@ -1242,6 +1251,16 @@ def get_cached_team_stats(team_name):
     if hasattr(current_app, 'cache'):
         return current_app.cache.get(key)
     return None
+
+def get_cached_teams():
+    """Get all teams from cache, or compute and cache."""
+    cache_key = "all_teams"
+    teams = current_app.cache.get(cache_key) if hasattr(current_app, 'cache') and current_app.cache else None
+    if teams is None:
+        teams = get_all_teams()  # your existing function
+        if hasattr(current_app, 'cache') and current_app.cache:
+            current_app.cache.set(cache_key, teams, timeout=3600)
+    return teams
 
 def cache_head_to_head(team1, team2, stats, timeout=1800):
     """Cache head-to-head statistics"""
@@ -3119,7 +3138,13 @@ def create_routes(app):
                     # Get prediction from AI engine with correct method and subscription tier
                     subscription_tier = getattr(current_user, 'subscription_tier', 'free')
                     print(f"📊 Subscription tier: {subscription_tier}")
-                    result = ai_engine.predict_for_web(home, away, subscription_tier)
+                    #result = ai_engine.predict_for_web(home, away, subscription_tier)
+                    task = run_prediction_task.delay(
+                        current_user.id,
+                        home,
+                        away,
+                        current_user.subscription_tier
+                    )
                     print(f"✅ [ROUTES] AI Prediction received successfully")
                     logger.info(f"AI prediction generated successfully")
                     
@@ -3127,7 +3152,8 @@ def create_routes(app):
                     if 'error' in result:
                         flash(f'AI Prediction Error: {result["error"]}', 'danger')
                         logger.error(f"AI Engine error: {result['error']}")
-                        return redirect(url_for('predict'))
+                        #return redirect(url_for('predict'))
+                        return redirect(url_for('prediction_status', task_id=task.id))
                     
                     print(f"✅ [ROUTES] AI Prediction received successfully")
                     
@@ -3326,7 +3352,21 @@ def create_routes(app):
                             default_away=default_away)
     
     
-        # Add to the routes section (around other prediction-related routes)
+    # Add to the routes section (around other prediction-related routes)\
+    @app.route('/prediction-status/<task_id>')
+    @login_required
+    def prediction_status(task_id):
+        from app.tasks import run_prediction_task
+        task = run_prediction_task.AsyncResult(task_id)
+        if task.state == 'SUCCESS':
+            prediction_id = task.result
+            return redirect(url_for('view_prediction', prediction_id=prediction_id))
+        elif task.state == 'FAILURE':
+            flash('Prediction failed. Please try again.', 'danger')
+            return redirect(url_for('predict'))
+        else:
+            # Still processing – show a waiting page
+            return render_template('features/prediction_processing.html', task_id=task_id)
 
     @app.route("/performance", methods=['GET'])
     @login_required
@@ -4313,7 +4353,7 @@ def create_routes(app):
             flash('Error loading analytics', 'danger')
             return redirect(url_for('dashboard'))
 
-    @app.route("/leaderboard")
+    @app.route("/leaderboard", endpoint='leaderboard')
     def leaderboard_view():
         """Global leaderboard"""
         period = request.args.get('period', 'all')  # all, weekly, monthly

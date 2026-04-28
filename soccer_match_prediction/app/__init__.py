@@ -17,6 +17,7 @@ from flask_socketio import SocketIO
 from flask_migrate import Migrate
 from flask_apscheduler import APScheduler
 from celery import Celery, Task
+from .celery_factory import make_celery
 from celery.schedules import crontab
 import redis
 import pickle
@@ -263,14 +264,15 @@ login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 mail = Mail()
-socketio = SocketIO()
+socketio = SocketIO(async_mode='threading')
 migrate = Migrate()
 scheduler = APScheduler()
-celery = Celery(__name__)
+celery = None
 redis_cache = RedisCache()
 
 
 def create_app(config_class=Config):
+    global celery
     """Application factory function."""
     print("🚀 Starting ScorePulse AI app...")
     app_start = time.time()
@@ -298,6 +300,7 @@ def create_app(config_class=Config):
     mail.init_app(app)
     migrate.init_app(app, db)
     socketio.init_app(app, cors_allowed_origins="*")
+    celery = make_celery(app)
     scheduler.init_app(app)
     print(f"✅ Extensions initialized in {time.time()-t:.2f}s")
 
@@ -307,76 +310,18 @@ def create_app(config_class=Config):
     app.cache = redis_cache
     print(f"✅ Redis cache initialized in {time.time()-t:.2f}s")
 
-    # --- Celery ---
-    def init_celery(celery_app):
-        class FlaskTask(Task):
-            def __call__(self, *args, **kwargs):
-                with app.app_context():
-                    return self.run(*args, **kwargs)
-
-        celery_app.conf.update(
-            broker_url=app.config.get('CELERY_BROKER_URL'),
-            result_backend=app.config.get('CELERY_RESULT_BACKEND'),
-            task_serializer=app.config.get('CELERY_TASK_SERIALIZER', 'json'),
-            result_serializer=app.config.get('CELERY_RESULT_SERIALIZER', 'json'),
-            accept_content=app.config.get('CELERY_ACCEPT_CONTENT', ['json']),
-            timezone=app.config.get('CELERY_TIMEZONE', 'UTC'),
-            enable_utc=app.config.get('CELERY_ENABLE_UTC', True),
-            task_always_eager=app.config.get('CELERY_TASK_ALWAYS_EAGER', False),
-            task_track_started=True,
-            task_time_limit=30 * 60,
-            task_soft_time_limit=25 * 60,
-            worker_pool=app.config.get('CELERY_WORKER_POOL', 'solo'),
-            worker_concurrency=4,
-            broker_connection_retry_on_startup=True,
-            broker_connection_max_retries=None,
-        )
-        celery_app.conf.task_routes = {
-            'app.tasks.send_*': {'queue': 'email'},
-            'app.tasks.process_*': {'queue': 'predictions'},
-            'app.tasks.generate_*': {'queue': 'reports'},
-            'app.tasks.cleanup_*': {'queue': 'maintenance'},
-            'app.tasks.update_*': {'queue': 'maintenance'},
-        }
-        celery_app.conf.task_queues = {
-            'default': {'exchange': 'default', 'routing_key': 'default'},
-            'email': {'exchange': 'email', 'routing_key': 'email'},
-            'predictions': {'exchange': 'predictions', 'routing_key': 'predictions'},
-            'reports': {'exchange': 'reports', 'routing_key': 'reports'},
-            'maintenance': {'exchange': 'maintenance', 'routing_key': 'maintenance'},
-        }
-        celery_app.Task = FlaskTask
-        celery_app.set_default()
-        celery_app.conf.beat_schedule = {
-            'update-leaderboard-every-hour': {
-                'task': 'app.tasks.update_leaderboard_task',
-                'schedule': 3600.0,
-                'args': (),
-                'options': {'queue': 'maintenance'}
-            },
-            'send-daily-reports': {
-                'task': 'app.tasks.send_daily_reports_task',
-                'schedule': crontab(hour=9, minute=0),
-                'options': {'queue': 'email'}
-            },
-            'cleanup-old-tasks': {
-                'task': 'app.tasks.cleanup_old_tasks',
-                'schedule': 86400.0,
-                'options': {'queue': 'maintenance'}
-            },
-            'refresh-learning-every-6h': {
-                'task': 'app.tasks.periodic_learning_refresh',
-                'schedule': crontab(minute=0, hour='*/6'),
-                'options': {'queue': 'maintenance'}
-            }
-        }
-        return celery_app
 
     t = time.time()
-    celery_app = init_celery(celery)
-    app.celery = celery_app
+    
+    app.celery = celery
     print(f"✅ Celery configured in {time.time()-t:.2f}s")
 
+    try:
+        from . import tasks
+        print("✅ Celery tasks imported")
+    except ImportError as e:
+        print(f"⚠️ Could not import tasks module: {e}")
+        
     # --- Lazy loaders for heavy AI components ---
     def load_match_predictor():
         from main import MatchPredictor
@@ -416,9 +361,11 @@ def create_app(config_class=Config):
         app.health_checker = HealthChecker(app)
         app.alert_manager = AlertSystem()
         app.metrics_collector = MetricsCollector(app)
-        app.metrics_collector.start()
-        app.training_logger = get_logger("INFO")
-        app.dashboard_builder = Dashboard()
+        
+        with app.app_context():
+            app.metrics_collector.start()
+            app.training_logger = get_logger("INFO")
+            app.dashboard_builder = Dashboard()
         print("✅ Monitoring components initialized")
     except ImportError as e:
         print(f"⚠️ Could not import monitoring components: {e}")
@@ -612,6 +559,11 @@ def create_app(config_class=Config):
             return {'chatbot_enabled': False, 'chatbot_available': False, 'chatbot_error': 'Initialization failed'}
 
     # --- Error handlers ---
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+    # Pass the error to the template so you can debug in the browser
+        return render_template("errors/500.html", error=str(e)), 500
+    
     @app.errorhandler(404)
     def not_found_error(error):
         return render_template('errors/404.html', error=error), 404

@@ -760,50 +760,6 @@
                         {% endif %}
                     </div>
                 </div>
-            </div>
-        </div>
-                        {% for notif in notifications %}
-                        <div class="list-group-item border-0 px-0 py-2 notification-item unread">
-                            <div class="d-flex align-items-start">
-                                <div class="me-2">
-                                    {% if notif.title %}
-                                        {% if 'won' in notif.title.lower() or 'success' in notif.title.lower() %}
-                                        <i class="bi bi-check-circle-fill text-green-400"></i>
-                                        {% elif 'warning' in notif.title.lower() or 'alert' in notif.title.lower() %}
-                                        <i class="bi bi-exclamation-triangle-fill text-yellow-400"></i>
-                                        {% elif 'error' in notif.title.lower() or 'failed' in notif.title.lower() %}
-                                        <i class="bi bi-x-circle-fill text-red-400"></i>
-                                        {% else %}
-                                        <i class="bi bi-info-circle-fill text-blue-400"></i>
-                                        {% endif %}
-                                    {% else %}
-                                        <i class="bi bi-info-circle-fill text-blue-400"></i>
-                                    {% endif %}
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between">
-                                        <strong class="mb-1 text-white">{{ notif.title if notif.title else 'Notification' }}</strong>
-                                        <small class="text-muted">{{ notif.created_at.strftime('%H:%M') if notif.created_at else '' }}</small>
-                                    </div>
-                                    <p class="mb-1 small text-slate-300">{{ notif.message if notif.message else '' }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <div class="text-center mt-2">
-                        <a href="{{ url_for('notifications') }}" 
-                           class="btn btn-sm btn-outline-primary">
-                            View All Notifications
-                        </a>
-                    </div>
-                    {% else %}
-                    <div class="text-center py-3">
-                        <i class="bi bi-bell display-4 text-slate-600 mb-3"></i>
-                        <p class="text-slate-400">No new notifications</p>
-                    </div>
-                    {% endif %}
-                </div>
 
                 <!-- Leaderboard Position -->
                 {% if leaderboard %}

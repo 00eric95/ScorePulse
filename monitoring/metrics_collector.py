@@ -55,7 +55,7 @@ class MetricsCollector:
         current_app.logger.info("Metrics collector stopped")
     
     def _collector_loop(self):
-        """Background collection loop"""
+        """Background collection loop – safe for both Flask app and Celery workers."""
         while self.running:
             try:
                 self.collect_system_metrics()
@@ -63,7 +63,14 @@ class MetricsCollector:
                 self.collect_user_metrics()
                 time.sleep(60)  # Collect every minute
             except Exception as e:
-                current_app.logger.error(f"Metrics collection error: {e}")
+                # Safe logging: try to use current_app, fall back to print if no context
+                try:
+                    from flask import current_app
+                    current_app.logger.error(f"Metrics collection error: {e}")
+                except RuntimeError:
+                    # No application context (e.g., Celery worker or CLI script)
+                    import sys
+                    print(f"Metrics collection error (no app context): {e}", file=sys.stderr)
                 time.sleep(30)
     
     def collect_system_metrics(self):

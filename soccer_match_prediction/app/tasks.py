@@ -12,6 +12,7 @@ from flask import current_app, render_template
 from flask_mail import Message
 from sqlalchemy import func
 
+
 from . import db, mail, celery
 from .models import (
     User, Prediction, Payment, Notification, 
@@ -722,6 +723,128 @@ def send_notification_task(user_id: int, title: str, message: str,
         logger.error(f"Notification task failed: {e}")
         raise
 
+
+@celery.task(bind=True, queue='predictions')
+def run_prediction_task(self, user_id, home_team, away_team, subscription_tier='free', user_prediction=None):
+    """Background task: runs AI prediction, saves to DB, updates user stats."""
+
+    try:
+        # 1. Get user
+        user = User.query.get(user_id)
+        if not user:
+            raise ValueError(f"User {user_id} not found")
+
+        # 2. Get AI engine from Flask app context
+        ai_engine = current_app.ai_engine
+        if not ai_engine:
+            raise RuntimeError("AI engine not available")
+
+        # 3. Run prediction (blocking but in background)
+        t0 = time.time()
+        result = ai_engine.predict_for_web(home_team, away_team, subscription_tier)
+        current_app.logger.info(f"AI prediction completed in {time.time()-t0:.2f}s for {home_team} vs {away_team}")
+
+        if 'error' in result:
+            raise RuntimeError(result['error'])
+
+        # 4. Extract data (mirroring your /predict route)
+        ai_outcome = result.get('prediction_outcome', 'D')
+        final_outcome = user_prediction if user_prediction else ai_outcome
+
+        # Predicted score
+        score_data = result.get('score', {})
+        pred_home_score = score_data.get('home', 0)
+        pred_away_score = score_data.get('away', 0)
+
+        # Probabilities
+        win_prob = result.get('win_prob', {})
+        mcmc_home_prob = win_prob.get('home', result.get('mcmc_home_prob', 0))
+        mcmc_draw_prob = win_prob.get('draw', result.get('mcmc_draw_prob', 0))
+        mcmc_away_prob = win_prob.get('away', result.get('mcmc_away_prob', 0))
+
+        # Betting & advanced stats
+        recommended_stake = result.get('recommended_stake', 2.5)
+        kelly_fraction = result.get('kelly_fraction', 0.5)
+        market_odds = result.get('market_odds', 2.5)
+        risk_level = result.get('risk_level', 'MEDIUM')
+        btts_probability = result.get('btts', 50.0)
+        over25_probability = result.get('over25', 50.0)
+        total_goals_pred = result.get('total_goals', 2.5)
+        confidence = result.get('prediction_confidence', result.get('confidence_score', 50.0))
+        model_used = result.get('model_used', 'Random Forest')
+
+        # 5. Create Prediction object
+        prediction = Prediction(
+            user_id=user.id,
+            home_team=home_team,
+            away_team=away_team,
+            match_date=date.today(),
+            pred_outcome=final_outcome,
+            ai_prediction=ai_outcome,
+            user_prediction=user_prediction,
+            pred_home_score=pred_home_score,
+            pred_away_score=pred_away_score,
+            confidence=confidence,
+            mcmc_home_prob=mcmc_home_prob,
+            mcmc_draw_prob=mcmc_draw_prob,
+            mcmc_away_prob=mcmc_away_prob,
+            btts_probability=btts_probability,
+            over25_probability=over25_probability,
+            total_goals_pred=total_goals_pred,
+            recommended_stake=recommended_stake,
+            kelly_fraction=kelly_fraction,
+            market_odds=market_odds,
+            risk_level=risk_level,
+            model_used=model_used,
+            status='Pending',          # Will be updated when match result is known
+            created_at=datetime.utcnow(),
+            odds=market_odds,
+            stake=10.0,
+            potential_payout=market_odds * 10 if final_outcome == 'H' else 0,
+            notes=f"AI Analysis:\n"
+                  f"- Total Goals: {total_goals_pred:.1f}\n"
+                  f"- BTTS Probability: {btts_probability:.1f}%\n"
+                  f"- Over 2.5 Probability: {over25_probability:.1f}%\n"
+                  f"- Risk Level: {risk_level}\n"
+                  f"- Model: {model_used}"
+        )
+
+        db.session.add(prediction)
+
+        # 6. Update user's daily prediction count (atomic within same transaction)
+        user.predictions_today = (user.predictions_today or 0) + 1
+        db.session.commit()
+
+        # 7. Store in online learning system (if available)
+        if ai_engine and hasattr(ai_engine, 'prediction_storage') and ai_engine.prediction_storage:
+            try:
+                match_id = f"{home_team}_{away_team}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+                ai_engine.prediction_storage.store_prediction(
+                    match_id=match_id,
+                    home_team=home_team,
+                    away_team=away_team,
+                    match_date=datetime.utcnow().isoformat(),
+                    predicted_data=result
+                )
+                current_app.logger.info(f"Stored prediction in online learning system: {match_id}")
+            except Exception as e:
+                current_app.logger.error(f"Failed to store in online learning: {e}")
+
+        # 8. Log activity (optional, if log_activity function exists)
+        try:
+            from app.routes import log_activity
+            log_activity(user.id, 'prediction_made',
+                        f'{home_team} vs {away_team}: {final_outcome} (AI: {ai_outcome}, Confidence: {confidence}%)')
+        except ImportError:
+            pass
+
+        return prediction.id
+
+    except Exception as e:
+        current_app.logger.error(f"Prediction task failed for user {user_id}: {e}", exc_info=True)
+        # Retry with exponential backoff
+        self.retry(exc=e, countdown=60, max_retries=3)
+        
 # ==================== UTILITY FUNCTIONS ====================
 
 # Add near other Celery-related functions

@@ -1,3 +1,4 @@
+# Core Flask Application
 Flask
 Flask-SQLAlchemy
 Flask-Login
@@ -7,97 +8,71 @@ Flask-Mail
 Flask-Migrate
 Flask-SocketIO
 Flask-APScheduler
-eventlet
+
+# Authentication & Security
 Werkzeug
 itsdangerous
 authlib
 PyJWT
-python-dotenv
-redis
-requests
+cryptography
+
+# Database
 sqlalchemy
-celery
+mysql-connector-python
+alembic
+
+# Data Science & ML
 pandas
 numpy
-joblib
 scikit-learn
-lightgbm
 xgboost
+lightgbm
+torch
+joblib
+scipy
+
+# Visualization
 matplotlib
 seaborn
-scipy
 plotly
-torch
-mysql-connector-python
-wtforms
-urllib3
-telegram
+
+# Asynchronous & Background Tasks
+celery
+redis
+python-socketio
+eventlet
+gevent
+greenlet
+
+# Telegram Bot
+python-telegram-bot
+
+# Utilities
+python-dotenv
+requests
 colorama
-psutil
 schedule
 beautifulsoup4
 lxml
-catboost
-imbalanced-learn
-alembic
+psutil
 email_validator
-cryptography
-statsmodels
-flask-caching
-flask-admin
-flask-restful
-selenium==4.16.0
-webdriver-manager==4.0.1
-aiohttp==3.9.1
-async-timeout==4.0.3
+wtforms
+urllib3
 
-# Real-time & Async
-python-socketio==5.10.0
-eventlet==0.35.1
-gevent==23.9.1
-greenlet==3.0.3
+# Web Server
+gunicorn
 
-# Telegram Bot
-python-telegram-bot==20.6
-
-# Data Visualization
-plotly==5.18.0
-dash==2.15.0
-dash-bootstrap-components==1.5.0
-bokeh==3.3.4
-
-# Utilities
-gunicorn==21.2.0
-celery==5.3.4
-redis==5.0.1
-redis-py==5.0.1
-python-memcached==1.59
-
-# File Processing
-openpyxl==3.1.2
-xlrd==2.0.1
-xlwt==1.3.0
-pyarrow==14.0.2
-
-# Monitoring & Logging
-prometheus-client==0.19.0
-statsd==4.0.1
-structlog==23.3.0
-loguru==0.7.2
-
-# Testing
-pytest==7.4.3
-pytest-flask==1.3.0
-pytest-cov==4.1.0
-pytest-mock==3.12.0
-coverage==7.4.0
-Faker==21.1.0
-
-# Development Tools
-black==23.11.0
-flake8==6.1.0
-isort==5.12.0
-mypy==1.7.0
+# Development & Testing (optional for production)
+pytest
+pytest-flask
+pytest-cov
+pytest-mock
+coverage
+Faker
+black
+flake8
+isort
+mypy
 pre-commit==3.5.0
 pylint==3.0.2
 
