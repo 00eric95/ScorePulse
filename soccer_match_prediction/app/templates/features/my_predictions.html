@@ -4,75 +4,7 @@
 
 {% block extra_css %}
 <style>
-    .prediction-card {
-        transition: all 0.3s ease;
-    }
-    
-    .prediction-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 40px rgba(0, 242, 195, 0.1);
-    }
-    
-    .status-badge {
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .status-won {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
-        color: #10b981;
-        border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-    
-    .status-lost {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
-        color: #ef4444;
-        border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-    
-    .status-pending {
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1));
-        color: #f59e0b;
-        border: 1px solid rgba(245, 158, 11, 0.3);
-    }
-    
-    .confidence-meter {
-        width: 100px;
-        height: 6px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 3px;
-        overflow: hidden;
-        position: relative;
-    }
-    
-    .confidence-fill {
-        height: 100%;
-        border-radius: 3px;
-        transition: width 1s ease;
-    }
-    
-    .filter-btn {
-        transition: all 0.2s ease;
-    }
-    
-    .filter-btn.active {
-        background: rgba(0, 242, 195, 0.2);
-        color: #00f2c3;
-        border-color: rgba(0, 242, 195, 0.4);
-    }
-    
-    .prediction-actions {
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-    
-    .prediction-card:hover .prediction-actions {
-        opacity: 1;
-    }
+    /* ... existing styles ... */
 </style>
 {% endblock %}
 
@@ -83,9 +15,7 @@
         <div class="flex justify-between items-center mb-4">
             <div>
                 <h1 class="text-3xl font-bold text-white mb-2">My Predictions</h1>
-                <p class="text-brand-muted">
-                    Track your prediction history, performance, and results
-                </p>
+                <p class="text-brand-muted">Track your prediction history, performance, and results</p>
             </div>
             <div class="flex items-center gap-4">
                 <div class="text-right">
@@ -109,9 +39,7 @@
                     <i class="fas fa-trophy text-white"></i>
                 </div>
                 <div>
-                    <div class="text-2xl font-bold text-white">
-                        {{ stats.wins if stats is defined and stats.wins is defined else 0 }}
-                    </div>
+                    <div class="text-2xl font-bold text-white">{{ stats.wins|default(0) }}</div>
                     <div class="text-sm text-brand-muted">Wins</div>
                 </div>
             </div>
@@ -123,7 +51,7 @@
                     <i class="fas fa-times text-white"></i>
                 </div>
                 <div>
-                    <div class="text-2xl font-bold text-white">{{ stats.losses }}</div>
+                    <div class="text-2xl font-bold text-white">{{ stats.losses|default(0) }}</div>
                     <div class="text-sm text-brand-muted">Losses</div>
                 </div>
             </div>
@@ -135,7 +63,7 @@
                     <i class="fas fa-clock text-white"></i>
                 </div>
                 <div>
-                    <div class="text-2xl font-bold text-white">{{ stats.pending }}</div>
+                    <div class="text-2xl font-bold text-white">{{ stats.pending|default(0) }}</div>
                     <div class="text-sm text-brand-muted">Pending</div>
                 </div>
             </div>
@@ -147,7 +75,7 @@
                     <i class="fas fa-percentage text-white"></i>
                 </div>
                 <div>
-                    <div class="text-2xl font-bold text-white">{{ "%.1f"|format(stats.accuracy) }}%</div>
+                    <div class="text-2xl font-bold text-white">{{ "%.1f"|format(stats.accuracy|default(0)) }}%</div>
                     <div class="text-sm text-brand-muted">Accuracy</div>
                 </div>
             </div>
@@ -174,16 +102,6 @@
                class="filter-btn px-4 py-2 rounded-lg border border-white/10 hover:bg-white/5 {{ 'active' if current_status == 'Pending' else '' }}">
                 Pending ({{ stats.pending }})
             </a>
-            
-            <div class="ml-auto flex items-center gap-2">
-                <span class="text-brand-muted text-sm">Sort by:</span>
-                <select class="bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent/50">
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                    <option value="confidence">Highest Confidence</option>
-                    <option value="stake">Highest Stake</option>
-                </select>
-            </div>
         </div>
     </div>
 
@@ -197,16 +115,11 @@
                     <div class="flex-1">
                         <div class="flex flex-wrap items-center gap-4 mb-3">
                             <span class="text-xs text-brand-muted bg-white/5 px-3 py-1 rounded-full">
-                                {{ prediction.match_date.strftime('%b %d, %Y') }}
+                                {{ prediction.match_date.strftime('%b %d, %Y') if prediction.match_date else 'Date TBD' }}
                             </span>
-                            <span class="status-badge status-{{ prediction.status.lower() }}">
-                                {{ prediction.status }}
+                            <span class="status-badge status-{{ prediction.status.lower() if prediction.status else 'pending' }}">
+                                {{ prediction.status if prediction.status else 'Pending' }}
                             </span>
-                            {% if prediction.is_premium %}
-                            <span class="text-xs bg-gradient-to-r from-purple-500 to-pink-600 px-3 py-1 rounded-full">
-                                <i class="fas fa-crown mr-1"></i> Premium
-                            </span>
-                            {% endif %}
                         </div>
                         
                         <div class="flex items-center gap-4 mb-4">
@@ -217,11 +130,6 @@
                             
                             <div class="text-center">
                                 <div class="text-3xl font-black text-brand-accent">VS</div>
-                                <div class="text-xs text-brand-muted">
-                                    {% if prediction.match_time %}
-                                    {{ prediction.match_time }}
-                                    {% endif %}
-                                </div>
                             </div>
                             
                             <div class="text-center">
@@ -277,7 +185,7 @@
                             {% endif %}
                         </div>
                         
-                        <!-- AI Analysis -->
+                        <!-- AI Model & Notes -->
                         {% if prediction.model_used %}
                         <div class="mt-4 pt-4 border-t border-white/10">
                             <div class="text-sm text-brand-muted">AI Model: 
@@ -318,28 +226,23 @@
                 </div>
                 
                 <!-- Actual Result (if available) -->
-                {% if prediction.actual_home_score is not none and prediction.actual_away_score is not none %}
+                {% if prediction.actual_score %}
                 <div class="mt-4 pt-4 border-t border-white/10">
                     <div class="flex items-center justify-between">
                         <div>
                             <span class="text-sm text-brand-muted">Actual Result:</span>
                             <span class="ml-2 text-lg font-bold text-white">
-                                {{ prediction.actual_home_score }} - {{ prediction.actual_away_score }}
+                                {{ prediction.actual_score }}
                             </span>
                         </div>
-                        {% if prediction.result_analysis %}
-                        <div class="text-sm text-brand-muted">
-                            {{ prediction.result_analysis }}
-                        </div>
-                        {% endif %}
                     </div>
                 </div>
                 {% endif %}
             </div>
             {% endfor %}
             
-            <!-- Pagination -->
-            {% if predictions.pages > 1 %}
+            <!-- Pagination (if route supports it) -->
+            {% if predictions.pages and predictions.pages > 1 %}
             <div class="glass p-4 rounded-2xl mt-6">
                 <div class="flex justify-center items-center gap-2">
                     {% if predictions.has_prev %}
@@ -396,13 +299,11 @@
     </div>
 </div>
 
-<!-- Confirmation Modal -->
+<!-- Delete Modal (unchanged) -->
 <div id="deleteModal" class="fixed inset-0 z-[1000] bg-black/50 backdrop-blur-sm hidden items-center justify-center">
     <div class="bg-brand-dark/95 backdrop-blur-xl border border-white/10 rounded-2xl p-6 max-w-md w-full mx-4">
         <h3 class="text-xl font-bold text-white mb-4">Delete Prediction</h3>
-        <p class="text-brand-muted mb-6">
-            Are you sure you want to delete this prediction? This action cannot be undone.
-        </p>
+        <p class="text-brand-muted mb-6">Are you sure you want to delete this prediction? This action cannot be undone.</p>
         <div class="flex gap-4">
             <button onclick="closeDeleteModal()" 
                     class="flex-1 glass border border-white/10 text-white py-3 rounded-xl hover:bg-white/5 transition">
@@ -456,14 +357,12 @@
         });
     });
     
-    // Close modal on overlay click
     document.getElementById('deleteModal').addEventListener('click', function(e) {
         if (e.target === this) {
             closeDeleteModal();
         }
     });
     
-    // Keyboard shortcut for delete modal
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeDeleteModal();

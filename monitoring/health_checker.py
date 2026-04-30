@@ -21,9 +21,6 @@ from sqlalchemy import text
 from flask import current_app
 import logging
 
-from app import db
-from app.models import SystemLog
-
 logger = logging.getLogger(__name__)
 
 class HealthChecker:
@@ -79,6 +76,7 @@ class HealthChecker:
             
             # 1. Test connection
             with self.app.app_context():
+                from app import db
                 result = db.session.execute(text('SELECT 1')).fetchone()
             
             # 2. Check connection pool
@@ -430,15 +428,20 @@ class HealthChecker:
         }
         
         # Log to DB
-        log = SystemLog(
-            level='INFO',
-            module='health_checker',
-            log_type='health_check',
-            message=f"Overall status: {overall_status}",
-            data=json.dumps(self.last_check)
-        )
-        db.session.add(log)
-        db.session.commit()
+        try:
+            from app import db
+            from app.models import SystemLog
+            log = SystemLog(
+                level='INFO',
+                module='health_checker',
+                log_type='health_check',
+                message=f"Overall status: {overall_status}",
+                data=json.dumps(self.last_check)
+            )
+            db.session.add(log)
+            db.session.commit()
+        except Exception as e:
+            logger.error(f"Failed to log health check to DB: {e}")
         
         return self.last_check
     

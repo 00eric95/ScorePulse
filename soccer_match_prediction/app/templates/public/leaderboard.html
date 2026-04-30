@@ -13,31 +13,34 @@
             <p class="text-slate-400 text-lg">Top predictors ranked by accuracy and profit</p>
         </div>
 
-        <!-- Time Filters -->
+        <!-- Time Period Filters -->
         <div class="glass-card bg-slate-900/50 rounded-2xl p-4 mb-8 border border-slate-700">
             <div class="flex flex-wrap gap-2 justify-center">
-                <button onclick="filterLeaderboard('all')" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium">
+                <a href="{{ url_for('leaderboard', period='all') }}" 
+                   class="px-4 py-2 rounded-lg font-medium {% if period == 'all' %}bg-blue-600 text-white{% else %}bg-slate-800 hover:bg-slate-700 text-white{% endif %}">
                     All Time
-                </button>
-                <button onclick="filterLeaderboard('monthly')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-medium">
+                </a>
+                <a href="{{ url_for('leaderboard', period='monthly') }}" 
+                   class="px-4 py-2 rounded-lg font-medium {% if period == 'monthly' %}bg-blue-600 text-white{% else %}bg-slate-800 hover:bg-slate-700 text-white{% endif %}">
                     This Month
-                </button>
-                <button onclick="filterLeaderboard('weekly')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-medium">
+                </a>
+                <a href="{{ url_for('leaderboard', period='weekly') }}" 
+                   class="px-4 py-2 rounded-lg font-medium {% if period == 'weekly' %}bg-blue-600 text-white{% else %}bg-slate-800 hover:bg-slate-700 text-white{% endif %}">
                     This Week
-                </button>
-                <button onclick="filterLeaderboard('daily')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-medium">
-                    Today
-                </button>
+                </a>
             </div>
         </div>
 
-        <!-- Top 3 Winners -->
+        <!-- Top 3 Winners (from the leaderboard list) -->
+        {% if users and users|length >= 3 %}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            {% for user in top_three %}
+            {% for i in range(3) %}
+            {% set user = users[i] %}
             <div class="relative {{ 'scale-110 z-10' if loop.index == 1 else '' }}">
                 <!-- Podium Position -->
                 <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg {{ 'bg-yellow-500' if loop.index == 1 else 'bg-slate-600' if loop.index == 2 else 'bg-amber-700' }}">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg 
+                                {{ 'bg-yellow-500' if loop.index == 1 else 'bg-slate-600' if loop.index == 2 else 'bg-amber-700' }}">
                         {{ loop.index }}
                     </div>
                 </div>
@@ -57,7 +60,7 @@
                     <div class="space-y-3 mb-6">
                         <div class="flex justify-between text-sm">
                             <span class="text-slate-400">Accuracy</span>
-                            <span class="text-white font-bold">{{ user.accuracy }}%</span>
+                            <span class="text-white font-bold">{{ "%.1f"|format(user.accuracy) }}%</span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-slate-400">Predictions</span>
@@ -65,7 +68,7 @@
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-slate-400">Profit</span>
-                            <span class="font-bold {{ 'text-green-400' if user.profit > 0 else 'text-red-400' }}">{{ user.profit }} KES</span>
+                            <span class="font-bold {{ 'text-green-400' if user.profit > 0 else 'text-red-400' }}">{{ "%.2f"|format(user.profit) }} KES</span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-slate-400">Streak</span>
@@ -81,6 +84,7 @@
             </div>
             {% endfor %}
         </div>
+        {% endif %}
 
         <!-- Full Leaderboard Table -->
         <div class="glass-card bg-slate-900/50 rounded-2xl border border-slate-700 overflow-hidden">
@@ -92,11 +96,6 @@
                                class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 pl-10 text-white focus:outline-none focus:border-blue-500 w-48">
                         <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
                     </div>
-                    <select class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500">
-                        <option>Sort by Accuracy</option>
-                        <option>Sort by Profit</option>
-                        <option>Sort by Streak</option>
-                    </select>
                 </div>
             </div>
             
@@ -109,25 +108,21 @@
                             <th class="p-4 text-left text-sm text-slate-400 font-bold">Accuracy</th>
                             <th class="p-4 text-left text-sm text-slate-400 font-bold">Predictions</th>
                             <th class="p-4 text-left text-sm text-slate-400 font-bold">Wins</th>
-                            <th class="p-4 text-left text-sm text-slate-400 font-bold">Profit</th>
+                            <th class="p-4 text-left text-sm text-slate-400 font-bold">Profit (KES)</th>
                             <th class="p-4 text-left text-sm text-slate-400 font-bold">Streak</th>
                             <th class="p-4 text-left text-sm text-slate-400 font-bold">Last Active</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-800">
-                        {% for user in leaderboard %}
+                        {% for user in users %}
                         <tr class="hover:bg-slate-800/50 transition {{ 'bg-blue-900/20' if current_user.is_authenticated and user.user_id == current_user.id else '' }}">
                             <td class="p-4">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-lg {{ 'bg-yellow-500' if user.rank == 1 else 'bg-slate-600' if user.rank == 2 else 'bg-amber-700' if user.rank == 3 else 'bg-slate-800' }} flex items-center justify-center text-white font-bold">
+                                    <div class="w-8 h-8 rounded-lg 
+                                        {{ 'bg-yellow-500' if user.rank == 1 else 'bg-slate-600' if user.rank == 2 else 'bg-amber-700' if user.rank == 3 else 'bg-slate-800' }} 
+                                        flex items-center justify-center text-white font-bold">
                                         {{ user.rank }}
                                     </div>
-                                    {% if user.rank_change %}
-                                    <div class="flex items-center gap-1 text-xs {{ 'text-green-400' if user.rank_change > 0 else 'text-red-400' }}">
-                                        <i class="fas fa-arrow-{{ 'up' if user.rank_change > 0 else 'down' }}"></i>
-                                        <span>{{ abs(user.rank_change) }}</span>
-                                    </div>
-                                    {% endif %}
                                 </div>
                             </td>
                             <td class="p-4">
@@ -137,7 +132,6 @@
                                     </div>
                                     <div>
                                         <div class="text-white font-medium">{{ user.username }}</div>
-                                        <div class="text-slate-500 text-xs">Level {{ user.level|default(1) }}</div>
                                     </div>
                                 </div>
                             </td>
@@ -147,7 +141,7 @@
                                         <div class="h-2 {{ 'bg-green-500' if user.accuracy > 70 else 'bg-yellow-500' if user.accuracy > 50 else 'bg-red-500' }} rounded-full" 
                                              style="width: {{ user.accuracy }}%"></div>
                                     </div>
-                                    <span class="text-white font-bold">{{ user.accuracy }}%</span>
+                                    <span class="text-white font-bold">{{ "%.1f"|format(user.accuracy) }}%</span>
                                 </div>
                             </td>
                             <td class="p-4">
@@ -158,7 +152,7 @@
                             </td>
                             <td class="p-4">
                                 <span class="font-bold {{ 'text-green-400' if user.profit > 0 else 'text-red-400' }}">
-                                    {{ user.profit }} KES
+                                    {{ "%.2f"|format(user.profit) }}
                                 </span>
                             </td>
                             <td class="p-4">
@@ -178,19 +172,21 @@
                 </table>
             </div>
             
-            <!-- User Position (if authenticated) -->
-            {% if current_user_position %}
+            <!-- Current User Position (if authenticated and user_entry exists) -->
+            {% if current_user.is_authenticated and user_entry %}
             <div class="p-6 border-t border-slate-800 bg-blue-900/10">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
                         <div class="text-white font-bold">Your Position:</div>
                         <div class="flex items-center gap-2">
                             <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold">
-                                {{ current_user_position.rank }}
+                                {{ user_entry.rank }}
                             </div>
                             <div>
                                 <div class="text-white font-medium">{{ current_user.username }}</div>
-                                <div class="text-slate-400 text-sm">Top {{ (current_user_position.rank / leaderboard|length * 100)|round(1) }}%</div>
+                                <div class="text-slate-400 text-sm">
+                                    Top {{ ((user_entry.rank / (users|length)) * 100)|round(1) if users|length > 0 else 0 }}%
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -201,61 +197,10 @@
             </div>
             {% endif %}
         </div>
-
-        <!-- Stats Section -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-            <div class="glass-card bg-slate-900/50 p-6 rounded-2xl border border-slate-700">
-                <div class="text-4xl font-bold text-white mb-2">{{ total_users }}</div>
-                <div class="text-slate-400">Total Predictors</div>
-                <div class="mt-4 text-sm text-slate-500">
-                    <i class="fas fa-users mr-2"></i>
-                    {{ active_users }} active this week
-                </div>
-            </div>
-            <div class="glass-card bg-slate-900/50 p-6 rounded-2xl border border-slate-700">
-                <div class="text-4xl font-bold text-white mb-2">{{ total_predictions }}</div>
-                <div class="text-slate-400">Predictions Made</div>
-                <div class="mt-4 text-sm text-slate-500">
-                    <i class="fas fa-chart-line mr-2"></i>
-                    {{ avg_accuracy }}% average accuracy
-                </div>
-            </div>
-            <div class="glass-card bg-slate-900/50 p-6 rounded-2xl border border-slate-700">
-                <div class="text-4xl font-bold text-white mb-2">{{ total_profit|abs }}</div>
-                <div class="text-slate-400">Community Profit</div>
-                <div class="mt-4 text-sm text-slate-500">
-                    <i class="fas fa-coins mr-2"></i>
-                    {{ profitable_users }} profitable predictors
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
 <script>
-    function filterLeaderboard(timeframe) {
-        // Update active button
-        document.querySelectorAll('.glass-card button').forEach(btn => {
-            btn.classList.remove('bg-blue-600');
-            btn.classList.add('bg-slate-800', 'hover:bg-slate-700');
-        });
-        event.target.classList.remove('bg-slate-800', 'hover:bg-slate-700');
-        event.target.classList.add('bg-blue-600');
-        
-        // Fetch filtered leaderboard
-        fetch(`/api/leaderboard/${timeframe}`)
-            .then(response => response.json())
-            .then(data => updateLeaderboard(data))
-            .catch(err => console.error('Failed to filter leaderboard:', err));
-    }
-    
-    function updateLeaderboard(data) {
-        // Update top 3
-        // Update table
-        // This would require more complex UI updating
-        console.log('Leaderboard updated with:', data);
-    }
-    
     function viewProfile(userId) {
         window.location.href = `/profile/${userId}`;
     }
@@ -266,11 +211,10 @@
         const rows = document.querySelectorAll('tbody tr');
         
         rows.forEach(row => {
-            const username = row.querySelector('td:nth-child(2) .text-white').textContent.toLowerCase();
-            if (username.includes(searchTerm)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
+            const usernameCell = row.querySelector('td:nth-child(2) .text-white');
+            if (usernameCell) {
+                const username = usernameCell.textContent.toLowerCase();
+                row.style.display = username.includes(searchTerm) ? '' : 'none';
             }
         });
     });

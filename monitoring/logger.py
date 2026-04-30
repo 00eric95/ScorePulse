@@ -28,8 +28,6 @@ import warnings
 warnings.filterwarnings('ignore')
 
 from flask import current_app
-from app import db
-from app.models import SystemLog
 
 class TrainingLogger:
     def __init__(self, log_level="INFO"):
@@ -153,6 +151,8 @@ class TrainingLogger:
 
         # C. Log to DB using SystemLog
         try:
+            from app import db
+            from app.models import SystemLog
             db_log = SystemLog(
                 level=level.upper(),
                 module=component or 'system',

@@ -25,7 +25,7 @@ from monitoring.logger import get_logger
 from .errors import PaymentRequired, PremiumAccessRequired, RateLimitExceeded, MaintenanceMode
 
 # Use relative imports to avoid Circular Import Error
-from . import db, login_manager, mail, socketio
+from . import db, login_manager, mail, socketio, celery
 from .forms import (
     RegistrationForm, LoginForm, PredictForm, ResetPasswordRequestForm, 
     ResetPasswordForm, ProfileUpdateForm, PaymentForm, FeedbackForm, 
@@ -52,7 +52,7 @@ from .models import (
     Player, Venue, Season, ChatSession, ChatMessage,
     NewsletterSubscription, SystemLog, AgentPerformance,
     ModelEvaluation, LearningReport, DataAgentState,
-    StoredPrediction, PredictionPerformance
+    StoredPrediction, PredictionPerformance, ModelLiveStats
 )
 
 # Import Celery tasks if available
@@ -289,6 +289,7 @@ def update_leaderboard_sync():
     except Exception as e:
         logger.error(f"Failed to update leaderboard: {e}")
         db.session.rollback()
+        
 
 def update_prediction_outcomes_sync(match_id=None, batch_size=50):
     """
@@ -389,17 +390,10 @@ def _update_single_match_predictions(match_id):
         
         db.session.commit()
         
-        # Update user statistics and leaderboard for affected users
-        user_ids = set([pred.user_id for pred in predictions])
-        for user_id in user_ids:
-            _update_user_statistics(user_id)
         
         # Trigger leaderboard update
         celery_update_leaderboard()
         
-        # Log activity
-        log_activity(None, 'prediction_update', 
-                    f'Updated {updated_count} predictions for match {match_id} ({match.home} vs {match.away})')
         
         return {
             'success': True,
@@ -424,6 +418,152 @@ def _update_single_match_predictions(match_id):
             'updated': 0,
             'errors': 0
         }
+
+def _process_prediction_sync(user_id, home, away, subscription_tier, user_prediction=None, custom_params=None):
+    """
+    Core prediction processing logic – synchronous version.
+    Handles cache lookup, AI engine call, extraction, DB save, online learning, etc.
+    Returns the ID of the newly created Prediction.
+    """
+    from flask import current_app
+    from . import db
+    from .models import Prediction, User
+    from datetime import date, datetime
+    import logging
+    logger = logging.getLogger(__name__)
+
+    user = User.query.get(user_id)
+    if not user:
+        raise ValueError(f"User {user_id} not found")
+
+    # 1. Check cache
+    cache_key = cache_key_generator("prediction_result", home, away, subscription_tier, str(custom_params) if custom_params else "standard")
+    cached_result = current_app.cache.get(cache_key) if hasattr(current_app, 'cache') and current_app.cache else None
+
+    if cached_result is not None:
+        print(f"✅ Using cached prediction for {home} vs {away}")
+        result = cached_result
+    else:
+        print(f"🔄 Cache miss for {home} vs {away}")
+
+        # Ensure AI engine is available
+        ai_engine = get_ai_engine()  # or current_app.ai_engine
+        if not ai_engine:
+            raise RuntimeError("AI Prediction Engine is currently offline.")
+
+        print(f"🔮 Calling AI engine for {home} vs {away}")
+        result = ai_engine.predict_for_web(home, away, subscription_tier)
+
+        if custom_params:
+            # Apply advanced filters (e.g., confidence threshold, exclude data sources)
+            result = apply_advanced_filters(result, custom_params)
+        
+        if 'error' in result:
+            raise RuntimeError(result['error'])
+
+        # Cache the result for 30 minutes
+        if hasattr(current_app, 'cache') and current_app.cache:
+            current_app.cache.set(cache_key, result, timeout=1800)
+
+    # ============================================
+    # Extract data from AI result (same as original)
+    # ============================================
+    ai_outcome = result.get('prediction_outcome', 'D')
+    final_outcome = user_prediction if user_prediction else ai_outcome
+
+    score_data = result.get('score', {})
+    predicted_home_score = score_data.get('home', 0)
+    predicted_away_score = score_data.get('away', 0)
+
+    win_prob = result.get('win_prob', {})
+    mcmc_home_prob = win_prob.get('home', result.get('mcmc_home_prob', 0))
+    mcmc_draw_prob = win_prob.get('draw', result.get('mcmc_draw_prob', 0))
+    mcmc_away_prob = win_prob.get('away', result.get('mcmc_away_prob', 0))
+
+    recommended_stake = result.get('recommended_stake', 2.5)
+    kelly_fraction = result.get('kelly_fraction', 0.5)
+    market_odds = result.get('market_odds', 2.5)
+    risk_level = result.get('risk_level', 'MEDIUM')
+    btts_probability = result.get('btts', 50.0)
+    over25_probability = result.get('over25', 50.0)
+    total_goals_pred = result.get('total_goals', 2.5)
+    confidence = result.get('prediction_confidence', result.get('confidence_score', 50.0))
+    model_used = result.get('model_used', 'Random Forest')
+        
+    # ============================================
+    # Save to Prediction model
+    # ============================================
+    notes_suffix = ""
+    if custom_params:
+        notes_suffix = f"\n\nADVANCED SETTINGS: {json.dumps(custom_params)}"
+    prediction = Prediction(
+        user_id=user.id,
+        home_team=home,
+        away_team=away,
+        match_date=date.today(),
+        pred_outcome=final_outcome,
+        ai_prediction=ai_outcome,
+        user_prediction=user_prediction,
+        pred_home_score=predicted_home_score,
+        pred_away_score=predicted_away_score,
+        confidence=confidence,
+        mcmc_home_prob=mcmc_home_prob,
+        mcmc_draw_prob=mcmc_draw_prob,
+        mcmc_away_prob=mcmc_away_prob,
+        btts_probability=btts_probability,
+        over25_probability=over25_probability,
+        total_goals_pred=total_goals_pred,
+        recommended_stake=recommended_stake,
+        kelly_fraction=kelly_fraction,
+        market_odds=market_odds,
+        risk_level=risk_level,
+        model_used=model_used,
+        status='Pending',
+        created_at=datetime.utcnow(),
+        odds=market_odds,
+        stake=10.0,
+        potential_payout=market_odds * 10 if final_outcome == 'H' else 0,
+        notes=f"AI Analysis:\n"
+              f"- Total Goals: {total_goals_pred:.1f}\n"
+              f"- BTTS Probability: {btts_probability:.1f}%\n"
+              f"- Over 2.5 Probability: {over25_probability:.1f}%\n"
+              f"- Risk Level: {risk_level}\n"
+              f"- Model: {model_used}"
+    )
+
+    db.session.add(prediction)
+    db.session.commit()
+    print(f"💾 Prediction saved with ID: {prediction.id}")
+
+    # ============================================
+    # Online Learning Integration
+    # ============================================
+    ai_engine = get_ai_engine()
+    if ai_engine and hasattr(ai_engine, 'prediction_storage') and ai_engine.prediction_storage:
+        try:
+            match_id = f"{home}_{away}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+            ai_engine.prediction_storage.store_prediction(
+                match_id=match_id,
+                home_team=home,
+                away_team=away,
+                match_date=datetime.utcnow().isoformat(),
+                predicted_data=result
+            )
+            print(f"📚 Stored in online learning system with ID: {match_id}")
+        except Exception as e:
+            logger.error(f"Failed to store prediction in online learning: {e}")
+
+    # ============================================
+    # Log Activity
+    # ============================================
+    log_activity(user.id, 'prediction_made',
+                 f'{home} vs {away}: {final_outcome} (AI: {ai_outcome}, Confidence: {confidence}%)')
+
+    # Update user's daily prediction count
+    user.predictions_today = getattr(user, 'predictions_today', 0) + 1
+    db.session.commit()
+
+    return prediction.id
 
 def _update_batch_predictions(batch_size):
     """Update predictions in batch mode"""
@@ -506,19 +646,12 @@ def _update_batch_predictions(batch_size):
             # Get unique user IDs from updated predictions
             updated_predictions = Prediction.query.filter(
                 Prediction.status.in_(['Won', 'Lost']),
-                Prediction.outcome_date >= datetime.utcnow() - timedelta(minutes=5)
+                Prediction.match_date >= datetime.utcnow() - timedelta(minutes=5)
             ).all()
             
-            user_ids = set([pred.user_id for pred in updated_predictions])
-            for user_id in user_ids:
-                _update_user_statistics(user_id)
             
             # Trigger leaderboard update
             celery_update_leaderboard()
-        
-        # Log activity
-        log_activity(None, 'batch_prediction_update', 
-                    f'Batch update completed. Updated {total_updated} predictions across {matches_processed} matches')
         
         return {
             'success': True,
@@ -540,68 +673,15 @@ def _update_batch_predictions(batch_size):
             'total_errors': 0,
             'matches_processed': 0
         }
-
-def _update_user_statistics(user_id):
-    """Update user statistics after prediction outcomes"""
-    try:
-        user = User.query.get(user_id)
-        if not user:
-            return
-        
-        # Calculate new statistics
-        predictions = Prediction.query.filter_by(user_id=user_id).all()
-        
-        total = len(predictions)
-        wins = sum(1 for p in predictions if p.status == 'Won')
-        losses = sum(1 for p in predictions if p.status == 'Lost')
-        pending = sum(1 for p in predictions if p.status == 'Pending')
-        
-        # Update user fields if they exist
-        if hasattr(user, 'total_predictions'):
-            user.total_predictions = total
-        
-        if hasattr(user, 'wins'):
-            user.wins = wins
-        
-        if hasattr(user, 'losses'):
-            user.losses = losses
-        
-        if hasattr(user, 'pending_predictions'):
-            user.pending_predictions = pending
-        
-        # Calculate profit if field exists
-        if hasattr(user, 'total_profit'):
-            total_profit = sum(p.profit_loss or 0 for p in predictions if p.profit_loss is not None)
-            user.total_profit = total_profit
-        
-        # Update accuracy
-        if hasattr(user, 'accuracy'):
-            settled = wins + losses
-            if settled > 0:
-                user.accuracy = (wins / settled) * 100
-            else:
-                user.accuracy = 0
-        
-        # Calculate streak
-        if hasattr(user, 'current_streak'):
-            user.current_streak = calculate_streak(user_id)
-        
-        db.session.commit()
-        
-        logger.debug(f"Updated statistics for user {user_id}: {wins}W/{losses}L/{pending}P, Accuracy: {user.accuracy if hasattr(user, 'accuracy') else 'N/A'}")
-        
-    except Exception as e:
-        logger.error(f"Error updating user statistics for {user_id}: {e}")
-        db.session.rollback()
         
 def update_prediction_performance(prediction_id, actual_outcome):
     """
-    Update performance metrics for a specific prediction.
-    
+    Update performance metrics for a specific prediction after match outcome is known.
+
     Args:
         prediction_id (int): ID of the prediction
         actual_outcome (str): Actual match outcome ('H', 'D', 'A')
-    
+
     Returns:
         dict: Updated performance metrics
     """
@@ -609,65 +689,43 @@ def update_prediction_performance(prediction_id, actual_outcome):
         prediction = Prediction.query.get(prediction_id)
         if not prediction:
             return {'success': False, 'error': 'Prediction not found'}
-        
+
         # Determine if prediction was correct
         is_correct = prediction.pred_outcome == actual_outcome
-        
-        # Calculate performance metrics
+
+        # Calculate profit/loss (simple model: stake * odds - stake if win, else -stake)
+        stake = prediction.stake or 10.0
+        odds = prediction.odds or 1.8
         if is_correct:
-            profit_loss = (prediction.odds or 1.8) * (prediction.stake or 10) - (prediction.stake or 10)
+            profit_loss = (odds * stake) - stake
             status = 'Won'
         else:
-            profit_loss = -(prediction.stake or 10)
+            profit_loss = -stake
             status = 'Lost'
-        
+
         # Update prediction record
         prediction.status = status
         prediction.profit_loss = profit_loss
         prediction.outcome_date = datetime.utcnow()
-        
-        # Update or create PredictionPerformance record
-        performance = PredictionPerformance.query.filter_by(
-            prediction_id=prediction_id
-        ).first()
-        
-        if not performance:
-            performance = PredictionPerformance(
-                prediction_id=prediction_id,
-                user_id=prediction.user_id,
-                match_date=prediction.match_date,
-                home_team=prediction.home_team,
-                away_team=prediction.away_team,
-                predicted_outcome=prediction.pred_outcome,
-                actual_outcome=actual_outcome,
-                is_correct=is_correct,
-                confidence_score=prediction.confidence or 50.0,
-                profit_loss=profit_loss,
-                odds_used=prediction.odds or 1.8,
-                stake=prediction.stake or 10,
-                model_used=prediction.model_used or 'Unknown',
-                notes=f'Updated via prediction outcome update on {datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")}'
-            )
-            db.session.add(performance)
-        else:
-            # Update existing record
-            performance.actual_outcome = actual_outcome
-            performance.is_correct = is_correct
-            performance.profit_loss = profit_loss
-            performance.updated_at = datetime.utcnow()
-            performance.notes = (performance.notes or '') + f'\nRe-evaluated on {datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")}'
-        
         db.session.commit()
-        
-        # Update user statistics
-        update_user_prediction_stats(prediction.user_id)
-        
-        # Update model performance if applicable
-        if prediction.model_used:
-            update_model_performance(prediction.model_used, is_correct, prediction.confidence or 50.0)
-        
-        logger.info(f"Prediction performance updated for prediction {prediction_id}: {status} with profit/loss: {profit_loss}")
-        
+
+        # 🆕 Record live stats for the model used
+        model_name = prediction.model_used or 'Unknown'
+        ModelLiveStats.record_prediction(
+            model_name=model_name,
+            is_correct=is_correct,
+            confidence=prediction.confidence or 50.0,
+            profit_loss=profit_loss
+        )
+
+        # (Optional) Update user statistics if you keep that function
+        # update_user_prediction_stats(prediction.user_id)
+
+        logger.info(
+            f"Prediction performance updated for prediction {prediction_id}: "
+            f"{status} with profit/loss: {profit_loss:.2f}"
+        )
+
         return {
             'success': True,
             'prediction_id': prediction_id,
@@ -675,15 +733,15 @@ def update_prediction_performance(prediction_id, actual_outcome):
             'actual': actual_outcome,
             'is_correct': is_correct,
             'profit_loss': profit_loss,
-            'status': status,
-            'performance_id': performance.id
+            'status': status
         }
-        
+
     except Exception as e:
         db.session.rollback()
         logger.error(f"Error updating prediction performance for {prediction_id}: {e}", exc_info=True)
         return {'success': False, 'error': str(e)}
-
+    
+    
 def update_user_prediction_stats(user_id):
     """
     Update user's prediction statistics based on their PredictionPerformance records.
@@ -792,49 +850,6 @@ def calculate_current_streak(user_id):
         logger.error(f"Error calculating streak for user {user_id}: {e}")
         return 0
 
-def update_model_performance(model_name, is_correct, confidence):
-    """
-    Update performance metrics for a specific model.
-    
-    Args:
-        model_name (str): Name of the model
-        is_correct (bool): Whether prediction was correct
-        confidence (float): Confidence score
-    """
-    try:
-        # Check if ModelEvaluation exists in your models
-        if 'ModelEvaluation' in globals():
-            evaluation = ModelEvaluation.query.filter_by(
-                model_name=model_name
-            ).first()
-            
-            if not evaluation:
-                evaluation = ModelEvaluation(
-                    model_name=model_name,
-                    total_predictions=0,
-                    correct_predictions=0,
-                    total_confidence=0,
-                    average_confidence=0,
-                    last_used=datetime.utcnow()
-                )
-                db.session.add(evaluation)
-            
-            # Update metrics
-            evaluation.total_predictions += 1
-            if is_correct:
-                evaluation.correct_predictions += 1
-            
-            evaluation.total_confidence += confidence
-            evaluation.average_confidence = evaluation.total_confidence / evaluation.total_predictions
-            evaluation.accuracy = (evaluation.correct_predictions / evaluation.total_predictions * 100) if evaluation.total_predictions > 0 else 0
-            evaluation.last_used = datetime.utcnow()
-            
-            db.session.commit()
-            
-            logger.debug(f"Updated model performance for {model_name}: {evaluation.correct_predictions}/{evaluation.total_predictions} ({evaluation.accuracy:.1f}%)")
-        
-    except Exception as e:
-        logger.error(f"Error updating model performance for {model_name}: {e}")
 
 def get_prediction_performance_summary(user_id=None, start_date=None, end_date=None, model=None):
     """
@@ -1200,8 +1215,6 @@ def generate_performance_recommendations(summary):
     recommendations.append("Consider using bankroll management strategies.")
     
     return recommendations        
-
-# ==================== EXISTING CODE CONTINUES ====================
 
 
 # Add to the top of routes.py after imports
@@ -1678,53 +1691,73 @@ def get_league_success_rates():
         return []
 
 def get_head_to_head_stats(team1, team2):
-    """Get head-to-head statistics between two teams"""
+    """
+    Get head-to-head statistics between two teams.
+    Uses the home_score and away_score columns from the Match model.
+    """
     try:
+        # Find all matches between the two teams (ignoring order)
         matches = Match.query.filter(
             ((Match.home == team1) & (Match.away == team2)) |
             ((Match.home == team2) & (Match.away == team1))
         ).all()
-        
-        total_matches = len(matches)
+
+        total_matches = 0
         team1_wins = 0
         team2_wins = 0
         draws = 0
-        
+
         for match in matches:
-            if match.result:
-                home_score = match.result.split('-')[0].strip()
-                away_score = match.result.split('-')[1].strip()
-                
-                if home_score > away_score:
-                    if match.home == team1:
-                        team1_wins += 1
-                    else:
-                        team2_wins += 1
-                elif away_score > home_score:
-                    if match.away == team1:
-                        team1_wins += 1
-                    else:
-                        team2_wins += 1
+            # Only consider matches that have a final score (both scores not null)
+            if match.home_score is None or match.away_score is None:
+                continue
+
+            total_matches += 1
+            home_score = match.home_score
+            away_score = match.away_score
+
+            # Determine outcome based on scores
+            if home_score > away_score:
+                # Home team won
+                if match.home == team1:
+                    team1_wins += 1
                 else:
-                    draws += 1
-        
+                    team2_wins += 1
+            elif away_score > home_score:
+                # Away team won
+                if match.away == team1:
+                    team1_wins += 1
+                else:
+                    team2_wins += 1
+            else:
+                draws += 1
+
+        # Calculate percentages
+        if total_matches > 0:
+            team1_win_pct = (team1_wins / total_matches) * 100
+            team2_win_pct = (team2_wins / total_matches) * 100
+            draw_pct = (draws / total_matches) * 100
+        else:
+            team1_win_pct = team2_win_pct = draw_pct = 0
+
         return {
             'total_matches': total_matches,
             'team1_wins': team1_wins,
             'team2_wins': team2_wins,
             'draws': draws,
-            'team1_win_percentage': (team1_wins / total_matches * 100) if total_matches > 0 else 0,
-            'team2_win_percentage': (team2_wins / total_matches * 100) if total_matches > 0 else 0,
-            'draw_percentage': (draws / total_matches * 100) if total_matches > 0 else 0
+            'team1_win_percentage': round(team1_win_pct, 1),
+            'team2_win_percentage': round(team2_win_pct, 1),
+            'draw_percentage': round(draw_pct, 1)
         }
+
     except Exception as e:
         logger.error(f"Error getting head-to-head stats: {e}")
         return {}
-
+    
 def generate_team_stats(team_name, matches):
-    """Generate statistics for a team"""
+    """Generate statistics for a team based on actual match scores."""
     stats = {
-        'total_matches': len(matches),
+        'total_matches': 0,
         'wins': 0,
         'draws': 0,
         'losses': 0,
@@ -1734,41 +1767,44 @@ def generate_team_stats(team_name, matches):
     }
     
     for match in matches:
-        if match.result:
-            home_team = match.home
-            away_team = match.away
-            home_score = int(match.result.split('-')[0].strip())
-            away_score = int(match.result.split('-')[1].strip())
+        # Only count matches that have a final score
+        if match.home_score is None or match.away_score is None:
+            continue
+        
+        stats['total_matches'] += 1
+        
+        # Check if this match involves the team we're analyzing
+        if match.home == team_name:
+            stats['goals_scored'] += match.home_score
+            stats['goals_conceded'] += match.away_score
             
-            if home_team == team_name:
-                stats['goals_scored'] += home_score
-                stats['goals_conceded'] += away_score
+            if match.home_score > match.away_score:
+                stats['wins'] += 1
+            elif match.home_score == match.away_score:
+                stats['draws'] += 1
+            else:
+                stats['losses'] += 1
+            
+            if match.away_score == 0:
+                stats['clean_sheets'] += 1
                 
-                if home_score > away_score:
-                    stats['wins'] += 1
-                elif home_score == away_score:
-                    stats['draws'] += 1
-                else:
-                    stats['losses'] += 1
-                    
-                if away_score == 0:
-                    stats['clean_sheets'] += 1
-                    
-            elif away_team == team_name:
-                stats['goals_scored'] += away_score
-                stats['goals_conceded'] += home_score
-                
-                if away_score > home_score:
-                    stats['wins'] += 1
-                elif away_score == home_score:
-                    stats['draws'] += 1
-                else:
-                    stats['losses'] += 1
-                    
-                if home_score == 0:
-                    stats['clean_sheets'] += 1
+        elif match.away == team_name:
+            stats['goals_scored'] += match.away_score
+            stats['goals_conceded'] += match.home_score
+            
+            if match.away_score > match.home_score:
+                stats['wins'] += 1
+            elif match.away_score == match.home_score:
+                stats['draws'] += 1
+            else:
+                stats['losses'] += 1
+            
+            if match.home_score == 0:
+                stats['clean_sheets'] += 1
+        # else: match does not involve team_name – ignore (should not happen if filter is correct)
     
     return stats
+
 
 # Flask-Login user loader
 def load_user(user_id):
@@ -3041,10 +3077,10 @@ def create_routes(app):
     @app.route("/predict", methods=['GET', 'POST'])
     @login_required
     def predict():
-        """Page to make match predictions"""
+        """Page to make match predictions – with async Celery and sync fallback."""
         form = PredictForm()
-        
-        # Generate hierarchy for dynamic dropdowns - WITH CACHING
+
+        # --- Hierarchy building (unchanged) ---
         if ai_engine:
             try:
                 cache_key = "team_hierarchy"
@@ -3052,12 +3088,11 @@ def create_routes(app):
                 if hierarchy is None:
                     hierarchy = ai_engine.get_team_hierarchy()
                     if hasattr(current_app, 'cache') and current_app.cache:
-                        current_app.cache.set(cache_key, hierarchy, timeout=3600)  # 1 hour cache
+                        current_app.cache.set(cache_key, hierarchy, timeout=3600)
             except Exception as e:
                 logger.warning(f"Could not get team hierarchy from AI engine: {e}")
                 hierarchy = {}
         else:
-            # Fallback: Build simple hierarchy from database
             hierarchy = {}
             try:
                 leagues = Match.query.with_entities(Match.league).distinct().all()
@@ -3072,292 +3107,109 @@ def create_routes(app):
                             if match.away_team: 
                                 teams.add(match.away_team)
                         hierarchy[league] = sorted(list(teams))
-                        
             except Exception as e:
                 logger.warning(f"Could not build hierarchy: {e}")
                 hierarchy = {}
-        
-        # Transform hierarchy to map league codes to proper league names
+
         from config.constants import Constants
         transformed_hierarchy = {}
         for country, leagues_dict in hierarchy.items():
             transformed_hierarchy[country] = {}
             for league_code_or_name, teams in leagues_dict.items():
-                # Check if this is a league code that needs mapping
                 league_display_name = league_code_or_name
                 if league_code_or_name in Constants.DIVISION_MAP:
-                    # This is a league code, use the proper name from constants
                     _, league_display_name = Constants.DIVISION_MAP[league_code_or_name]
                 transformed_hierarchy[country][league_display_name] = teams
-        
         hierarchy = transformed_hierarchy
-        
-        # Populate team choices
+
         teams_list = get_all_teams()
         form.home_team.choices = [(team, team) for team in teams_list]
         form.away_team.choices = [(team, team) for team in teams_list]
-        
-        # Handle form submission
+
+        # --- Form submission (POST) ---
         if form.validate_on_submit():
-            print(f"✅ [FORM] Form validated successfully")
             logger.info("Prediction form validated")
             home = form.home_team.data
             away = form.away_team.data
-            print(f"📝 [FORM] Home: {home}, Away: {away}")
-            
-            # Validate teams are different
+
             if home == away:
                 flash('Home and away teams cannot be the same.', 'danger')
                 return redirect(url_for('predict'))
-            
-            # Check for cached prediction
-            cache_key = cache_key_generator("prediction_result", home, away, current_user.subscription_tier)
-            cached_result = current_app.cache.get(cache_key) if hasattr(current_app, 'cache') and current_app.cache else None
-            
-            if cached_result is not None:
-                print(f"✅ Using cached prediction for {home} vs {away}")
-                result = cached_result
-            else:
-                print(f"🔄 Cache miss for {home} vs {away}")
-                
-                # Check if AI engine is available
-                if not ai_engine:
-                    flash('AI Prediction Engine is currently offline. Please try again later.', 'danger')
-                    logger.error("AI Engine not available")
-                    return redirect(url_for('predict'))
-                
-                # Check if user has prediction credits or is within limits
-                if not current_user.can_make_prediction():
-                    flash('Daily prediction limit reached! Please upgrade your plan.', 'warning')
-                    return redirect(url_for('upgrade'))
-                
-                try:
-                    print(f"🔮 [ROUTES] Starting prediction for: {home} vs {away}")
-                    logger.info(f"Starting prediction: {home} vs {away}")
-                    
-                    # Get prediction from AI engine with correct method and subscription tier
-                    subscription_tier = getattr(current_user, 'subscription_tier', 'free')
-                    print(f"📊 Subscription tier: {subscription_tier}")
-                    #result = ai_engine.predict_for_web(home, away, subscription_tier)
+
+            # Check daily limit
+            if not current_user.can_make_prediction():
+                flash('Daily prediction limit reached! Please upgrade your plan.', 'warning')
+                return redirect(url_for('upgrade'))
+
+            # Get user's optional override prediction
+            user_prediction = request.form.get('user_prediction', 'None')
+            if user_prediction == 'None':
+                user_prediction = None
+
+            # ============================================
+            # Decide async or sync based on Celery availability
+            # ============================================
+            try:
+                if CELERY_AVAILABLE:
+                    # Async path using Celery
+                    from .tasks import run_prediction_task
                     task = run_prediction_task.delay(
                         current_user.id,
                         home,
                         away,
-                        current_user.subscription_tier
+                        current_user.subscription_tier,
+                        user_prediction
                     )
-                    print(f"✅ [ROUTES] AI Prediction received successfully")
-                    logger.info(f"AI prediction generated successfully")
-                    
-                    # Check for AI engine errors
-                    if 'error' in result:
-                        flash(f'AI Prediction Error: {result["error"]}', 'danger')
-                        logger.error(f"AI Engine error: {result['error']}")
-                        #return redirect(url_for('predict'))
-                        return redirect(url_for('prediction_status', task_id=task.id))
-                    
-                    print(f"✅ [ROUTES] AI Prediction received successfully")
-                    
-                    # Cache the result for 30 minutes
-                    if hasattr(current_app, 'cache') and current_app.cache:
-                        current_app.cache.set(cache_key, result, timeout=1800)
-                    
-                    # ============================================
-                    # Extract data from AI result
-                    # ============================================
-                    
-                    # 1. Get AI's predicted outcome
-                    ai_outcome = result.get('prediction_outcome', 'D')  # H, D, or A
-                    
-                    # 2. Get user's optional prediction from form
-                    user_prediction = request.form.get('user_prediction', 'None')
-                    if user_prediction == 'None':
-                        user_prediction = None
-                    
-                    # 3. Determine final prediction (user's choice if provided, otherwise AI's)
-                    final_outcome = user_prediction if user_prediction else ai_outcome
-                    
-                    # 4. Extract predicted score
-                    score_data = result.get('score', {})
-                    predicted_home_score = score_data.get('home', 0)
-                    predicted_away_score = score_data.get('away', 0)
-                    
-                    # 5. Extract probabilities
-                    win_prob = result.get('win_prob', {})
-                    mcmc_home_prob = win_prob.get('home', result.get('mcmc_home_prob', 0))
-                    mcmc_draw_prob = win_prob.get('draw', result.get('mcmc_draw_prob', 0))
-                    mcmc_away_prob = win_prob.get('away', result.get('mcmc_away_prob', 0))
-                    
-                    # 6. Extract betting analysis
-                    recommended_stake = result.get('recommended_stake', 2.5)
-                    kelly_fraction = result.get('kelly_fraction', 0.5)
-                    market_odds = result.get('market_odds', 2.5)
-                    risk_level = result.get('risk_level', 'MEDIUM')
-                    
-                    # 7. Extract advanced stats
-                    btts_probability = result.get('btts', 50.0)
-                    over25_probability = result.get('over25', 50.0)
-                    total_goals_pred = result.get('total_goals', 2.5)
-                    
-                    # 8. Extract confidence
-                    confidence = result.get('prediction_confidence', result.get('confidence_score', 50.0))
-                    
-                    # 9. Get model used
-                    model_used = result.get('model_used', 'Random Forest')
-                    
-                    # ============================================
-                    # Save to Prediction model
-                    # ============================================
-                    
-                    print(f"💾 [ROUTES] Saving prediction to database...")
-                    
-                    # Create new Prediction object
-                    prediction = Prediction(
-                        # Basic info
-                        user_id=current_user.id,
-                        home_team=home,
-                        away_team=away,
-                        match_date=date.today(),
-                        
-                        # Prediction outcomes
-                        pred_outcome=final_outcome,          # Final prediction (user or AI)
-                        ai_prediction=ai_outcome,            # AI's prediction
-                        user_prediction=user_prediction,     # User's choice (if any)
-                        
-                        # Predicted scores
-                        pred_home_score=predicted_home_score,
-                        pred_away_score=predicted_away_score,
-                        
-                        # AI confidence and probabilities
-                        confidence=confidence,
-                        mcmc_home_prob=mcmc_home_prob,
-                        mcmc_draw_prob=mcmc_draw_prob,
-                        mcmc_away_prob=mcmc_away_prob,
-                        
-                        # Advanced stats
-                        btts_probability=btts_probability,
-                        over25_probability=over25_probability,
-                        total_goals_pred=total_goals_pred,
-                        
-                        # Betting analysis
-                        recommended_stake=recommended_stake,
-                        kelly_fraction=kelly_fraction,
-                        market_odds=market_odds,
-                        risk_level=risk_level,
-                        
-                        # Model info
-                        model_used=model_used,
-                        
-                        # Status and tracking
-                        status='Pending',
-                        created_at=datetime.utcnow(),
-                        
-                        # Default betting info (can be updated later)
-                        odds=market_odds,  # Use same as market odds for now
-                        stake=10.0,        # Default stake
-                        potential_payout=market_odds * 10 if final_outcome == 'H' else 0,
-                        
-                        # Store analysis in notes
-                        notes=f"AI Analysis:\n"
-                            f"- Total Goals: {total_goals_pred:.1f}\n"
-                            f"- BTTS Probability: {btts_probability:.1f}%\n"
-                            f"- Over 2.5 Probability: {over25_probability:.1f}%\n"
-                            f"- Risk Level: {risk_level}\n"
-                            f"- Model: {model_used}"
+                    flash('🔄 Your prediction is being processed. Please wait...', 'info')
+                    return redirect(url_for('prediction_status', task_id=task.id))
+                else:
+                    # Sync fallback – call the helper directly
+                    prediction_id = _process_prediction_sync(
+                        current_user.id,
+                        home,
+                        away,
+                        current_user.subscription_tier,
+                        user_prediction
                     )
-                    
-                    # Save to database
-                    db.session.add(prediction)
-                    db.session.commit()
-                    
-                    print(f"✅ [ROUTES] Prediction saved with ID: {prediction.id}")
-                    
-                    # ============================================
-                    # Online Learning Integration
-                    # ============================================
-                    
-                    # Store prediction in online learning system if available
-                    if ai_engine and hasattr(ai_engine, 'prediction_storage') and ai_engine.prediction_storage:
-                        try:
-                            match_id = f"{home}_{away}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
-                            ai_engine.prediction_storage.store_prediction(
-                                match_id=match_id,
-                                home_team=home,
-                                away_team=away,
-                                match_date=datetime.utcnow().isoformat(),
-                                predicted_data=result
-                            )
-                            print(f"📚 [ROUTES] Stored in online learning system with ID: {match_id}")
-                        except Exception as e:
-                            logger.error(f"Failed to store prediction in online learning: {e}")
-                    
-                    # ============================================
-                    # Log Activity
-                    # ============================================
-                    
-                    log_activity(current_user.id, 'prediction_made', 
-                                f'{home} vs {away}: {final_outcome} (AI: {ai_outcome}, Confidence: {confidence}%)')
-                    
-                    # Update user's prediction count
-                    current_user.predictions_today = getattr(current_user, 'predictions_today', 0) + 1
-                    db.session.commit()
-                    
-                    # ============================================
-                    # Show Success and Redirect
-                    # ============================================
-                    
-                    flash(f'✅ Prediction generated successfully! Confidence: {confidence:.1f}%', 'success')
-                    
-                    # Redirect to the saved prediction view (RECOMMENDED)
-                    return redirect(url_for('view_prediction', prediction_id=prediction.id))
-                    
-                except AttributeError as e:
-                    # This catches the "predict() method doesn't exist" error
-                    db.session.rollback()
-                    logger.error(f"Critical: AI Engine method missing - {e}")
-                    flash(f'System Error: AI Engine method not found. Please contact support. Error: {str(e)}', 'danger')
-                    return redirect(url_for('predict'))
-                    
-                except Exception as e:
-                    db.session.rollback()
-                    logger.error(f"Prediction error: {e}", exc_info=True)
-                    flash(f'Prediction failed: {str(e)}', 'danger')
-                    return redirect(url_for('predict'))
-        
-        # ============================================
-        # GET Request - Show prediction form
-        # ============================================
-        
-        # Debug: Log form validation errors
+                    flash(f'✅ Prediction generated successfully! Confidence: ?%', 'success')
+                    return redirect(url_for('view_prediction', prediction_id=prediction_id))
+
+            except AttributeError as e:
+                db.session.rollback()
+                logger.error(f"Critical: AI Engine method missing - {e}")
+                flash(f'System Error: AI Engine method not found. Please contact support.', 'danger')
+                return redirect(url_for('predict'))
+
+            except Exception as e:
+                db.session.rollback()
+                logger.error(f"Prediction error: {e}", exc_info=True)
+                flash(f'Prediction failed: {str(e)}', 'danger')
+                return redirect(url_for('predict'))
+
+        # --- GET request – show form ---
         if request.method == 'POST' and not form.validate_on_submit():
-            print(f"❌ [FORM] Form validation failed")
-            print(f"📋 [FORM] Errors: {form.errors}")
             logger.warning(f"Form validation errors: {form.errors}")
-        
-        # Check for query parameters (for quick predictions)
+
         default_home = request.args.get('home', '')
         default_away = request.args.get('away', '')
-        
-        # If user came from a match page, pre-select teams
         if default_home and default_away:
             form.home_team.data = default_home
             form.away_team.data = default_away
-        
-        # Render the prediction form
-        return render_template('features/predict.html', 
-                            form=form, 
-                            title='Make Prediction', 
+
+        return render_template('features/predict.html',
+                            form=form,
+                            title='Make Prediction',
                             hierarchy=hierarchy,
                             all_teams=teams_list,
                             default_home=default_home,
-                            default_away=default_away)
-    
+                            default_away=default_away) 
     
     # Add to the routes section (around other prediction-related routes)\
     @app.route('/prediction-status/<task_id>')
     @login_required
     def prediction_status(task_id):
-        from app.tasks import run_prediction_task
-        task = run_prediction_task.AsyncResult(task_id)
+        from celery.result import AsyncResult
+        task = AsyncResult(task_id, app=celery)
         if task.state == 'SUCCESS':
             prediction_id = task.result
             return redirect(url_for('view_prediction', prediction_id=prediction_id))
@@ -3365,9 +3217,8 @@ def create_routes(app):
             flash('Prediction failed. Please try again.', 'danger')
             return redirect(url_for('predict'))
         else:
-            # Still processing – show a waiting page
             return render_template('features/prediction_processing.html', task_id=task_id)
-
+        
     @app.route("/performance", methods=['GET'])
     @login_required
     def prediction_performance():
@@ -4098,168 +3949,51 @@ def create_routes(app):
     @app.route("/predict/advanced", methods=['GET', 'POST'])
     @login_required
     def advanced_predict():
-        """Advanced prediction with custom parameters"""
-        form = AdvancedSettingsForm()  # Use correct form name
-        
-        # Populate team choices
-        teams = get_all_teams()
-        form.home_team.choices = [(team, team) for team in teams]
-        form.away_team.choices = [(team, team) for team in teams]
-        
+        form = AdvancedSettingsForm()
+        # ... populate choices ...
+
         if form.validate_on_submit():
             home = form.home_team.data
             away = form.away_team.data
-            
-            # Check if teams are different
-            if home == away:
-                flash('Home and away teams cannot be the same.', 'danger')
-                return redirect(url_for('advanced_predict'))
-            
-            # Check AI engine availability
-            if not ai_engine:
-                flash('AI Prediction Engine is currently offline.', 'danger')
-                return redirect(url_for('advanced_predict'))
-            
-            # Check user limits (if applicable)
+
+            # Collect custom parameters from form
+            custom_params = {
+                'confidence_threshold': form.confidence_threshold.data,
+                'include_head_to_head': form.include_head_to_head.data,
+                'include_form': form.include_form.data,
+                'betting_strategy': form.betting_strategy.data,
+                'risk_level': form.risk_level.data,
+            }
+
+            # Check daily limit (same as predict)
             if not current_user.can_make_prediction():
-                flash('Daily prediction limit reached! Upgrade for unlimited predictions.', 'warning')
+                flash('Daily limit reached.', 'warning')
                 return redirect(url_for('upgrade'))
-            
-            try:
-                # ============================================
-                # Collect advanced parameters
-                # ============================================
-                custom_params = {
-                    'confidence_threshold': form.confidence_threshold.data,
-                    'include_head_to_head': form.include_head_to_head.data,
-                    'include_form': form.include_form.data,
-                    'include_injuries': form.include_injuries.data,
-                    'betting_strategy': form.betting_strategy.data,
-                    'risk_level': form.risk_level.data,
-                    'advanced_mode': True,
-                    'subscription_tier': getattr(current_user, 'subscription_tier', 'free')
-                }
-                
-                print(f"🔧 [ADVANCED] Custom params: {custom_params}")
-                
-                # ============================================
-                # Get prediction with advanced parameters
-                # ============================================
-                # CRITICAL FIX: Use predict_for_web() not predict_custom()
-                result = ai_engine.predict_for_web(home, away, custom_params['subscription_tier'])
-                
-                # Apply advanced filtering based on custom parameters
-                result = apply_advanced_filters(result, custom_params)
-                
-                # Check confidence threshold
-                confidence = result.get('prediction_confidence', 50)
-                threshold = custom_params.get('confidence_threshold', 75)
-                
-                if confidence < threshold:
-                    flash(f'⚠️ Warning: Prediction confidence ({confidence}%) is below your threshold ({threshold}%). Consider analyzing further.', 'warning')
-                
-                # ============================================
-                # Save advanced prediction to database
-                # ============================================
-                
-                # Extract data from result
-                ai_outcome = result.get('prediction_outcome', 'D')
-                score_data = result.get('score', {})
-                predicted_home_score = score_data.get('home', 0)
-                predicted_away_score = score_data.get('away', 0)
-                
-                # Get win probabilities
-                win_prob = result.get('win_prob', {})
-                mcmc_home_prob = win_prob.get('home', 0)
-                mcmc_draw_prob = win_prob.get('draw', 0)
-                mcmc_away_prob = win_prob.get('away', 0)
-                
-                # Create advanced prediction record
-                prediction = Prediction(
-                    user_id=current_user.id,
-                    home_team=home,
-                    away_team=away,
-                    match_date=date.today(),
-                    
-                    # Prediction outcomes
-                    pred_outcome=ai_outcome,
-                    ai_prediction=ai_outcome,
-                    
-                    # Scores
-                    pred_home_score=predicted_home_score,
-                    pred_away_score=predicted_away_score,
-                    
-                    # Probabilities
-                    confidence=confidence,
-                    mcmc_home_prob=mcmc_home_prob,
-                    mcmc_draw_prob=mcmc_draw_prob,
-                    mcmc_away_prob=mcmc_away_prob,
-                    
-                    # Advanced stats
-                    btts_probability=result.get('btts', 50.0),
-                    over25_probability=result.get('over25', 50.0),
-                    total_goals_pred=result.get('total_goals', 2.5),
-                    
-                    # Betting strategy from advanced form
-                    recommended_stake=result.get('recommended_stake', 2.5),
-                    kelly_fraction=result.get('kelly_fraction', 0.5),
-                    market_odds=result.get('market_odds', 2.5),
-                    risk_level=custom_params.get('risk_level', 'MEDIUM'),
-                    
-                    # Mark as advanced prediction
-                    model_used=f"Advanced ({custom_params.get('betting_strategy', 'Conservative')})",
-                    
-                    # Store custom parameters in notes
-                    notes=f"ADVANCED PREDICTION SETTINGS:\n"
-                        f"- Confidence Threshold: {threshold}%\n"
-                        f"- Data Sources: {'H2H ' if custom_params['include_head_to_head'] else ''}"
-                        f"{'Form ' if custom_params['include_form'] else ''}"
-                        f"{'Injuries ' if custom_params['include_injuries'] else ''}\n"
-                        f"- Betting Strategy: {custom_params['betting_strategy']}\n"
-                        f"- Risk Level: {custom_params['risk_level']}\n\n"
-                        f"AI ANALYSIS:\n{result.get('analysis', 'No analysis available.')}",
-                    
-                    # Status
-                    status='Pending',
-                    created_at=datetime.utcnow()
+
+            if CELERY_AVAILABLE:
+                # Async
+                task = run_advanced_prediction_task.delay(
+                    current_user.id, home, away,
+                    current_user.subscription_tier,
+                    custom_params,
+                    request.form.get('user_prediction')
                 )
-                
-                # Save to database
-                db.session.add(prediction)
-                db.session.commit()
-                
-                # ============================================
-                # Log activity and update user
-                # ============================================
-                log_activity(current_user.id, 'advanced_prediction', 
-                            f'Advanced: {home} vs {away} | Strategy: {custom_params["betting_strategy"]} | Risk: {custom_params["risk_level"]}')
-                
-                # Update prediction count
-                current_user.predictions_today = getattr(current_user, 'predictions_today', 0) + 1
-                db.session.commit()
-                
-                # ============================================
-                # Show results
-                # ============================================
-                flash(f'✅ Advanced prediction generated! Confidence: {confidence}%', 'success')
-                
-                # Pass custom parameters to template for display
-                return render_template('features/prediction_result.html',
-                                    prediction=prediction,
-                                    result=result,
-                                    custom_params=custom_params,
-                                    title='Advanced Prediction Result')
-                
-            except Exception as e:
-                db.session.rollback()
-                logger.error(f"Advanced prediction error: {e}", exc_info=True)
-                flash(f'Advanced prediction failed: {str(e)}', 'danger')
-                return redirect(url_for('advanced_predict'))
-        
-        # GET request - show advanced prediction form
-        return render_template('features/advanced_predict.html', 
-                            form=form, 
-                            title='Advanced Prediction')
+                flash('Advanced prediction is being processed...', 'info')
+                return redirect(url_for('prediction_status', task_id=task.id))
+            else:
+                # Sync fallback
+                prediction_id = _process_prediction_sync(
+                    current_user.id, home, away,
+                    current_user.subscription_tier,
+                    request.form.get('user_prediction'),
+                    custom_params
+                )
+                flash('Advanced prediction generated!', 'success')
+                return redirect(url_for('view_prediction', prediction_id=prediction_id))
+
+        # GET: show form
+        return render_template('features/advanced_predict.html', form=form)
+
 
     @app.route("/value-bets")
     @login_required
@@ -4355,51 +4089,41 @@ def create_routes(app):
 
     @app.route("/leaderboard", endpoint='leaderboard')
     def leaderboard_view():
-        """Global leaderboard"""
-        period = request.args.get('period', 'all')  # all, weekly, monthly
-        
+        period = request.args.get('period', 'all')
         query = Leaderboard.query
-        
         if period == 'weekly':
-            # Filter for last 7 days
             one_week_ago = datetime.utcnow() - timedelta(days=7)
             query = query.filter(Leaderboard.last_updated >= one_week_ago)
         elif period == 'monthly':
-            # Filter for last 30 days
             one_month_ago = datetime.utcnow() - timedelta(days=30)
             query = query.filter(Leaderboard.last_updated >= one_month_ago)
+        leaderboard_entries = query.order_by(Leaderboard.accuracy.desc()).limit(50).all()
         
-        leaderboard_entries = query.order_by(
-            Leaderboard.accuracy.desc()
-        ).limit(50).all()
-        
-        # Get current user's position
         user_entry = None
         if current_user.is_authenticated:
-            user_entry = Leaderboard.query.filter_by(
-                user_id=current_user.id
-            ).first()
-            
-        for user in users:
-            if user.last_updated:
-                delta = datetime.utcnow() - user.last_updated
+            user_entry = Leaderboard.query.filter_by(user_id=current_user.id).first()
+        
+        # Add relative time to each entry
+        for entry in leaderboard_entries:
+            if entry.last_updated:
+                delta = datetime.utcnow() - entry.last_updated
                 if delta.total_seconds() < 60:
-                    user.relative_time = "just now"
+                    entry.relative_time = "just now"
                 elif delta.total_seconds() < 3600:
-                    user.relative_time = f"{int(delta.total_seconds() // 60)} min ago"
+                    entry.relative_time = f"{int(delta.total_seconds() // 60)} min ago"
                 elif delta.total_seconds() < 86400:
-                    user.relative_time = f"{int(delta.total_seconds() // 3600)} hr ago"
+                    entry.relative_time = f"{int(delta.total_seconds() // 3600)} hr ago"
                 else:
-                    user.relative_time = f"{delta.days} day{'s' if delta.days != 1 else ''} ago"
+                    entry.relative_time = f"{delta.days} day{'s' if delta.days != 1 else ''} ago"
             else:
-                user.relative_time = "—"
+                entry.relative_time = "—"
         
         return render_template('public/leaderboard.html',
-                             users=users,
-                             leaderboard=leaderboard_entries,
-                             user_entry=user_entry,
-                             period=period,
-                             title='Leaderboard')
+                            users=leaderboard_entries,   # pass the list as 'users'
+                            leaderboard=leaderboard_entries,
+                            user_entry=user_entry,
+                            period=period,
+                            title='Leaderboard')
 
     @app.route("/profile", methods=['GET', 'POST'])
     @login_required
@@ -6069,7 +5793,9 @@ def create_routes(app):
                     prediction['analysis'] = (prediction.get('analysis', '') + 
                                             f"\nℹ️ Excluded per user request: {', '.join(exclusions)}.")
                     
-                app.performance_analyzer.record_prediction(match_id, prediction, actual_result=None)
+                match_id = None
+                if performance_analyzer:
+                    performance_analyzer.record_prediction(match_id, prediction, actual_result=None)
                 
                 # Add league if provided (though not used in prediction)
                 
@@ -6329,6 +6055,28 @@ def create_routes(app):
             current_app.cache.set(cache_key, chart_data, timeout=600)
         
         return jsonify(chart_data)
+    
+    @app.route("/api/models/live-stats")
+    @login_required
+    def get_model_live_stats():
+        """Return live performance stats for all models (admin only)."""
+        if not current_user.is_admin:
+            return jsonify({'error': 'Forbidden'}), 403
+
+        stats = ModelLiveStats.query.all()
+        return jsonify({
+            'success': True,
+            'stats': [{
+                'model_name': s.model_name,
+                'window_days': s.window_days,
+                'total_predictions': s.total_predictions,
+                'correct_predictions': s.correct_predictions,
+                'accuracy': round(s.accuracy, 2),
+                'avg_confidence': round(s.avg_confidence, 2),
+                'total_profit': round(s.total_profit, 2),
+                'last_updated': s.last_updated.isoformat()
+            } for s in stats]
+        })
 
     # Cache Management Endpoints
     @app.route("/api/cache/stats")

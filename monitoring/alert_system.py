@@ -36,8 +36,6 @@ if project_root not in sys.path:
     sys.path.append(project_root)
 
 try:
-    from app import db  # Flask DB
-    from app.models import SystemLog  # Use DB for logging
     from config.config import Config
     from utils.feature_engineering import FeatureEngineer
     from models.model_factory import ModelFactory
@@ -291,16 +289,21 @@ class AlertSystem:
             self._save_status_file(alerts)
             
             # Log to DB
-            for alert in alerts:
-                log = SystemLog(
-                    level=alert['severity'].upper(),
-                    module='alert_system',
-                    log_type='alert',
-                    message=alert['message'],
-                    data=json.dumps(alert)
-                )
-                db.session.add(log)
-            db.session.commit()
+            try:
+                from app import db
+                from app.models import SystemLog
+                for alert in alerts:
+                    log = SystemLog(
+                        level=alert['severity'].upper(),
+                        module='alert_system',
+                        log_type='alert',
+                        message=alert['message'],
+                        data=json.dumps(alert)
+                    )
+                    db.session.add(log)
+                db.session.commit()
+            except Exception as db_error:
+                print(f"⚠️ Failed to log alerts to DB: {db_error}")
             
             return alerts
             

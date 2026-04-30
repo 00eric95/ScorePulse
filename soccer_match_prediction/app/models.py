@@ -772,6 +772,9 @@ class Prediction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     
+    match_id = db.Column(db.Integer, db.ForeignKey('matches.id'), nullable=True, index=True)
+    outcome_date = db.Column(db.DateTime, nullable=True)
+    
     # Match information
     match_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, index=True)
     home_team = db.Column(db.String(100), nullable=False)
@@ -984,62 +987,75 @@ class CustomPrediction(db.Model):
 
 
 class PredictionPerformance(db.Model):
-    """Track prediction performance over time periods (daily, weekly, monthly)."""
+    """Store detailed performance data for each settled prediction (one row per prediction)."""
     __tablename__ = 'prediction_performances'
-    __table_args__ = {'extend_existing': True}  
-    
+    __table_args__ = {'extend_existing': True}
+
     id = db.Column(db.Integer, primary_key=True)
+
+    # Link to original prediction (optional but recommended)
+    prediction_id = db.Column(db.Integer, db.ForeignKey('predictions.id'), unique=True, nullable=False, index=True)
+
+    # User (denormalized for faster queries)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
-    period_start = db.Column(db.DateTime, nullable=False, index=True)
-    period_end = db.Column(db.DateTime, nullable=False)
-    period_type = db.Column(db.String(10), nullable=False)  # daily, weekly, monthly
-    
-    # Stats
-    total_predictions = db.Column(db.Integer, default=0)
-    correct_predictions = db.Column(db.Integer, default=0)
-    accuracy = db.Column(db.Float, default=0.0)
-    
-    # For AI predictions
-    ai_total = db.Column(db.Integer, default=0)
-    ai_correct = db.Column(db.Integer, default=0)
-    ai_accuracy = db.Column(db.Float, default=0.0)
-    
+
+    # Match information
+    match_date = db.Column(db.DateTime, nullable=False, index=True)
+    home_team = db.Column(db.String(100), nullable=False)
+    away_team = db.Column(db.String(100), nullable=False)
+
+    # Prediction outcome details
+    predicted_outcome = db.Column(db.String(10), nullable=False)   # 'H', 'D', 'A'
+    actual_outcome = db.Column(db.String(10), nullable=False)     # 'H', 'D', 'A'
+    is_correct = db.Column(db.Boolean, nullable=False)
+
+    # Performance metrics
+    confidence_score = db.Column(db.Float, nullable=True)
+    profit_loss = db.Column(db.Float, nullable=True)
+    odds_used = db.Column(db.Float, nullable=True)
+    stake = db.Column(db.Float, nullable=True)
+
+    # Model that generated the prediction
+    model_used = db.Column(db.String(100), nullable=True)
+
+    # Optional notes
+    notes = db.Column(db.Text, nullable=True)
+
+    # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     # Relationships
-    user = db.relationship('User', back_populates='prediction_performance')
-    
+    prediction = db.relationship('Prediction', backref=db.backref('performance_record', uselist=False))
+    user = db.relationship('User', backref='prediction_performances')
+
     __table_args__ = (
-        UniqueConstraint('user_id', 'period_start', 'period_type', name='uq_user_period'),
-        Index('idx_user_period', 'user_id', 'period_type', 'period_start'),
+        db.Index('idx_user_date', 'user_id', 'match_date'),
+        db.Index('idx_user_model', 'user_id', 'model_used'),
+        db.Index('idx_match_date', 'match_date'),
+        db.UniqueConstraint('prediction_id', name='uq_prediction_performance'),
     )
-    
-    def update_stats(self):
-        """Recalculate performance stats."""
-        if self.total_predictions > 0:
-            self.accuracy = (self.correct_predictions / self.total_predictions) * 100
-        
-        if self.ai_total > 0:
-            self.ai_accuracy = (self.ai_correct / self.ai_total) * 100
-    
+
     def to_dict(self):
-        """Convert performance stats to dictionary."""
         return {
             'id': self.id,
+            'prediction_id': self.prediction_id,
             'user_id': self.user_id,
-            'period_start': self.period_start.isoformat(),
-            'period_end': self.period_end.isoformat(),
-            'period_type': self.period_type,
-            'total_predictions': self.total_predictions,
-            'correct_predictions': self.correct_predictions,
-            'accuracy': round(self.accuracy, 2),
-            'ai_total': self.ai_total,
-            'ai_correct': self.ai_correct,
-            'ai_accuracy': round(self.ai_accuracy, 2)
+            'match_date': self.match_date.isoformat() if self.match_date else None,
+            'home_team': self.home_team,
+            'away_team': self.away_team,
+            'predicted_outcome': self.predicted_outcome,
+            'actual_outcome': self.actual_outcome,
+            'is_correct': self.is_correct,
+            'confidence_score': self.confidence_score,
+            'profit_loss': self.profit_loss,
+            'odds_used': self.odds_used,
+            'stake': self.stake,
+            'model_used': self.model_used,
+            'notes': self.notes,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
-
-
 # ============================================
 # PAYMENT AND SUBSCRIPTION MODELS
 # ============================================
@@ -1464,6 +1480,56 @@ class ModelEvaluation(db.Model):
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
 
+class ModelLiveStats(db.Model):
+    """Track live performance statistics for each prediction model."""
+    __tablename__ = 'model_live_stats'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    model_name = db.Column(db.String(100), nullable=False, index=True)
+
+    # Rolling window configuration
+    window_days = db.Column(db.Integer, default=30)  # e.g., last 30 days
+
+    # Cumulative counters (since last reset)
+    total_predictions = db.Column(db.Integer, default=0)
+    correct_predictions = db.Column(db.Integer, default=0)
+    total_profit = db.Column(db.Float, default=0.0)
+    total_confidence = db.Column(db.Float, default=0.0)
+
+    # Derived fields (updated automatically)
+    accuracy = db.Column(db.Float, default=0.0)
+    avg_confidence = db.Column(db.Float, default=0.0)
+
+    # Timestamps
+    last_updated = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def update_derived(self):
+        """Recalculate accuracy and average confidence from counters."""
+        if self.total_predictions > 0:
+            self.accuracy = (self.correct_predictions / self.total_predictions) * 100
+            self.avg_confidence = self.total_confidence / self.total_predictions
+        else:
+            self.accuracy = 0.0
+            self.avg_confidence = 0.0
+
+    @classmethod
+    def record_prediction(cls, model_name, is_correct, confidence, profit_loss):
+        """Record a single prediction outcome for a model (upsert)."""
+        stats = cls.query.filter_by(model_name=model_name).first()
+        if not stats:
+            stats = cls(model_name=model_name)
+            db.session.add(stats)
+
+        stats.total_predictions += 1
+        if is_correct:
+            stats.correct_predictions += 1
+        stats.total_profit += profit_loss or 0.0
+        stats.total_confidence += confidence or 0.0
+
+        stats.update_derived()
+        stats.last_updated = datetime.utcnow()
+        db.session.commit()
 
 class LearningReport(db.Model):
     """Store learning system reports"""

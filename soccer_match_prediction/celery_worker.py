@@ -1,10 +1,7 @@
 # celery_worker.py
-"""Celery worker entry point – builds the Flask app and exposes its celery instance."""
-
 import os
 import sys
 
-# Ensure the project root is in path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 if parent_dir not in sys.path:
@@ -12,11 +9,18 @@ if parent_dir not in sys.path:
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
+print("📍 [celery_worker] Initializing Celery worker...", flush=True)
+
 from app import create_app
 
-# Build the Flask application (this initializes everything,
-# including the fully configured Celery instance)
+print("📍 [celery_worker] Creating Flask app...", flush=True)
 app = create_app()
+print("📍 [celery_worker] Flask app created successfully", flush=True)
 
-# This is the instance the worker will use
+# Push an application context so that all tasks can use current_app and db
+ctx = app.app_context()
+ctx.push()
+print("📍 [celery_worker] App context pushed for worker", flush=True)
+
 celery = app.celery
+print(f"📍 [celery_worker] Celery instance obtained: {type(celery)}", flush=True)

@@ -1,3 +1,25 @@
+# =============================================================================
+# ScorePulse AI - Docker Compose Configuration
+# =============================================================================
+# Production-grade multi-container setup with Celery + Redis for task queue
+#
+# Services:
+#   - redis: Message broker and cache backend for Celery
+#   - web: Flask web application with gunicorn
+#   - celery-worker: Background task processor with optimized startup
+#     (skips routes, chatbot, scheduler, and metrics for fast initialization)
+#   - celery-beat: Scheduled task runner using RedisScheduler
+#   - flower: Celery monitoring dashboard
+#
+# Key Updates:
+#   - Celery worker uses celery_worker.celery entry point (sets worker flag)
+#   - Reduced start_period for workers from 10s to 15s (accounts for app init)
+#   - Added explicit CELERY_BROKER_URL and CELERY_RESULT_BACKEND
+#   - Changed worker pool from eventlet to solo for simpler concurrency
+#   - Added working_dir directives for proper module resolution
+#
+version: '3.8'
+
 services:
   redis:
     image: redis:7-alpine
@@ -29,6 +51,8 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
     volumes:
       - ./instance:/app/instance
       - ./logs:/app/logs
@@ -52,29 +76,39 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: scorepulse-celery-worker
+    # Worker-specific optimizations:
+    # - Skips HTTP routes (not needed for background tasks)
+    # - Skips chatbot/AI initialization (lazy-loaded on demand)
+    # - Skips APScheduler (workers don't run scheduled tasks)
+    # - Skips metrics collector at startup (conditional initialization)
+    # This allows workers to start quickly without heavy component initialization
     environment:
       - FLASK_ENV=production
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
     volumes:
       - ./instance:/app/instance
       - ./logs:/app/logs
+    working_dir: /app/soccer_match_prediction
     depends_on:
       redis:
         condition: service_healthy
       web:
-        condition: service_healthy   # wait for web health too if needed
+        condition: service_healthy
     restart: unless-stopped
-    command: celery -A app.celery worker --loglevel=info --concurrency=4 --pool=eventlet --queues=default,email,predictions,reports,maintenance
+    # Entry point uses celery_worker module which sets worker flag for conditional app init
+    command: celery -A celery_worker.celery worker --loglevel=info --concurrency=4 --pool=solo --queues=default,email,predictions,reports,maintenance
     env_file:
       - .env
     healthcheck:
-      test: ["CMD", "celery", "-A", "app.celery", "inspect", "ping"]
+      test: ["CMD", "celery", "-A", "celery_worker.celery", "inspect", "ping"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 15s
 
   celery-beat:
     build:
@@ -86,16 +120,19 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
     volumes:
       - ./instance:/app/instance
       - ./logs:/app/logs
+    working_dir: /app/soccer_match_prediction
     depends_on:
       redis:
         condition: service_healthy
       celery-worker:
         condition: service_started
     restart: unless-stopped
-    command: celery -A app.celery beat --loglevel=info
+    command: celery -A celery_worker.celery beat --loglevel=info --scheduler=redisbeat:RedisScheduler
     env_file:
       - .env
 
@@ -112,14 +149,17 @@ services:
       - REDIS_PORT=6379
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - FLOWER_BASIC_AUTH=${FLOWER_BASIC_AUTH:-admin:change-this-in-prod}
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
     volumes:
       - ./instance:/app/instance
       - ./logs:/app/logs
+    working_dir: /app/soccer_match_prediction
     depends_on:
       celery-worker:
         condition: service_healthy
     restart: unless-stopped
-    command: celery -A app.celery flower --port=5555 --basic_auth=${FLOWER_BASIC_AUTH} --purge_offline_workers=3600
+    command: celery -A celery_worker.celery flower --port=5555 --basic_auth=${FLOWER_BASIC_AUTH} --purge_offline_workers=3600
     env_file:
       - .env
     healthcheck:
@@ -127,7 +167,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 15s
 
 volumes:
   redis_data:

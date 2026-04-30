@@ -154,6 +154,7 @@ SCORE_PULSEAIv2/
 5. **Run Celery Workers:**
    ```bash
    celery -A celery_app worker --loglevel=info
+   celery -A celery_worker.celery worker --loglevel=info --pool=solo
    ```
 
 ### Docker Deployment
@@ -220,5 +221,11 @@ The system includes comprehensive monitoring:
 - Hyperparameter optimization and validation
 - ROI simulation and backtesting
 - Feature importance analysis
+
+## celery initialization
+
+- -NetConnection localhost -Port 6379 
+- celery -A celery_worker.celery inspect ping
+
 
 This architecture ensures scalability, maintainability, and high availability for professional sports prediction services.

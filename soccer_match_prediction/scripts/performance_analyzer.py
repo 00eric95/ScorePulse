@@ -157,6 +157,50 @@ class PerformanceAnalyzer:
         
         return entry
     
+    def record_prediction(self, match_id, prediction, actual_result=None):
+        """
+        Legacy method to record a prediction (calls log_prediction internally).
+        Used by routes.py.
+        """
+        # If actual_result is None, we cannot yet determine correctness.
+        # Store as pending – actual outcome will be updated later.
+        if actual_result is None:
+            # Just log the prediction without outcome (will be updated later when match finishes)
+            # For now, we can store in a pending list or simply return.
+            # To keep it simple, we store with empty actual_result and mark as not evaluated.
+            pending_entry = {
+                'match_id': match_id,
+                'prediction': prediction,
+                'timestamp': datetime.now().isoformat(),
+                'status': 'pending'
+            }
+            # Append to a pending list (you can add a `self.pending_predictions` attribute if needed)
+            if not hasattr(self, 'pending_predictions'):
+                self.pending_predictions = []
+            self.pending_predictions.append(pending_entry)
+            return pending_entry
+        
+        # If actual_result is provided, use the existing log_prediction method
+        return self.log_prediction(
+            prediction=prediction,
+            actual_result=actual_result,
+            bet_type='match_winner'
+        )
+    def settle_prediction(self, match_id, actual_result):
+        """Update a pending prediction with actual result and calculate correctness."""
+        if not hasattr(self, 'pending_predictions'):
+            return
+        for pending in self.pending_predictions:
+            if pending.get('match_id') == match_id:
+                # Now log the full prediction with actual result
+                self.log_prediction(
+                    prediction=pending['prediction'],
+                    actual_result=actual_result,
+                    bet_type='match_winner'
+                )
+                self.pending_predictions.remove(pending)
+                break
+    
     def _check_prediction_correctness(self, prediction, actual_result, bet_type):
         """Check if prediction was correct for given bet type."""
         if bet_type == 'match_winner':

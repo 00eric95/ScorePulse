@@ -18,9 +18,6 @@ from collections import deque
 from flask import current_app
 import logging
 
-from app import db
-from app.models import Prediction, User, UserActivity
-
 logger = logging.getLogger(__name__)
 
 class MetricsCollector:
@@ -94,7 +91,11 @@ class MetricsCollector:
             self.metrics['system_metrics'].append(metric)
             
         except Exception as e:
-            current_app.logger.error(f"System metrics collection failed: {e}")
+            try:
+                current_app.logger.error(f"System metrics collection failed: {e}")
+            except RuntimeError:
+                import sys
+                print(f"System metrics collection failed: {e}", file=sys.stderr)
     
     def collect_prediction_metrics(self):
         """Collect prediction-related metrics"""
@@ -103,6 +104,8 @@ class MetricsCollector:
             one_hour_ago = datetime.now() - timedelta(hours=1)
             
             with self.app.app_context():
+                from app import db
+                from app.models import Prediction
                 # Count predictions by status
                 total = db.session.query(Prediction).filter(
                     Prediction.created_at >= one_hour_ago
@@ -132,12 +135,18 @@ class MetricsCollector:
                 self.metrics['predictions'].append(metric)
                 
         except Exception as e:
-            current_app.logger.error(f"Prediction metrics collection failed: {e}")
+            try:
+                current_app.logger.error(f"Prediction metrics collection failed: {e}")
+            except RuntimeError:
+                import sys
+                print(f"Prediction metrics collection failed: {e}", file=sys.stderr)
     
     def collect_user_metrics(self):
         """Collect user activity metrics"""
         try:
             with self.app.app_context():
+                from app import db
+                from app.models import User, UserActivity
                 # Active users in last 15 minutes
                 fifteen_min_ago = datetime.now() - timedelta(minutes=15)
                 active_users = db.session.query(User).filter(
@@ -167,7 +176,11 @@ class MetricsCollector:
                 self.metrics['user_activity'].append(metric)
                 
         except Exception as e:
-            current_app.logger.error(f"User metrics collection failed: {e}")
+            try:
+                current_app.logger.error(f"User metrics collection failed: {e}")
+            except RuntimeError:
+                import sys
+                print(f"User metrics collection failed: {e}", file=sys.stderr)
     
     def record_prediction(self, prediction_id, response_time, success=True):
         """Record a prediction event"""

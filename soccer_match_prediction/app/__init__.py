@@ -15,7 +15,6 @@ from flask_login import LoginManager, current_user
 from flask_mail import Mail
 from flask_socketio import SocketIO
 from flask_migrate import Migrate
-from flask_apscheduler import APScheduler
 from celery import Celery, Task
 from .celery_factory import make_celery
 from celery.schedules import crontab
@@ -23,9 +22,14 @@ import redis
 import pickle
 
 # --- Path Configuration ---
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-sys.path.insert(0, parent_dir)
+# --- Path Configuration ---
+current_dir = os.path.dirname(os.path.abspath(__file__))        # .../soccer_match_prediction/app
+soccer_match_dir = os.path.dirname(current_dir)                # .../soccer_match_prediction
+project_root = os.path.dirname(soccer_match_dir)               # .../SCORE_PULSEAIv2
+
+# Add both the project root and the soccer_match_prediction directory
+sys.path.insert(0, project_root)
+sys.path.insert(0, soccer_match_dir)
 
 # Try to import Config
 try:
@@ -266,7 +270,7 @@ login_manager.login_message_category = 'info'
 mail = Mail()
 socketio = SocketIO(async_mode='threading')
 migrate = Migrate()
-scheduler = APScheduler()
+scheduler = None  # Initialize conditionally
 celery = None
 redis_cache = RedisCache()
 
@@ -274,7 +278,7 @@ redis_cache = RedisCache()
 def create_app(config_class=Config):
     global celery
     """Application factory function."""
-    print("🚀 Starting ScorePulse AI app...")
+    print("[APP_INIT] Starting...", flush=True)
     app_start = time.time()
 
     app_dir = os.path.dirname(os.path.abspath(__file__))
@@ -283,6 +287,11 @@ def create_app(config_class=Config):
     load_dotenv()
 
     app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
+    
+    # Detect if running as Celery worker to skip heavy initialization
+    is_celery_worker = 'celery' in sys.argv or 'worker' in sys.argv
+    print(f"[WORKER_DETECTION] is_celery_worker = {is_celery_worker}", flush=True)
+    
     if config_class:
         app.config.from_object(config_class)
 
@@ -300,19 +309,25 @@ def create_app(config_class=Config):
     mail.init_app(app)
     migrate.init_app(app, db)
     socketio.init_app(app, cors_allowed_origins="*")
+    print("[EXTENSIONS] Core extensions initialized", flush=True)
     celery = make_celery(app)
-    scheduler.init_app(app)
-    print(f"✅ Extensions initialized in {time.time()-t:.2f}s")
+    print("[CELERY] Configured", flush=True)
+
+    # Initialize scheduler only for web app, not for Celery workers
+    if not is_celery_worker:
+        from flask_apscheduler import APScheduler
+        global scheduler
+        scheduler = APScheduler()
+        scheduler.init_app(app)
 
     # --- Redis Cache ---
     t = time.time()
+    print("[REDIS] Initializing...", flush=True)
     redis_cache.init_app(app)
+    print("[REDIS] Initialized", flush=True)
     app.cache = redis_cache
-    print(f"✅ Redis cache initialized in {time.time()-t:.2f}s")
-
 
     t = time.time()
-    
     app.celery = celery
     print(f"✅ Celery configured in {time.time()-t:.2f}s")
 
@@ -350,52 +365,75 @@ def create_app(config_class=Config):
     app.performance_analyzer = LazyLoader(load_performance_analyzer, "PerformanceAnalyzer")
     app.pitch_commander = LazyLoader(load_pitch_commander, "PitchCommander")
 
-    # --- Monitoring components (lightweight) ---
-    try:
-        from monitoring.alert_system import AlertSystem
-        from monitoring.health_checker import HealthChecker
-        from monitoring.metrics_collector import MetricsCollector
-        from monitoring.dashboard import Dashboard
-        from monitoring.logger import get_logger
+    # --- Define dummy classes for monitoring (always available) ---
+    class DummyHealthChecker:
+        def __init__(self, app): pass
+        def run_all_checks(self): return {'status': 'warning', 'message': 'Not available'}
 
-        app.health_checker = HealthChecker(app)
-        app.alert_manager = AlertSystem()
-        app.metrics_collector = MetricsCollector(app)
-        
-        with app.app_context():
-            app.metrics_collector.start()
-            app.training_logger = get_logger("INFO")
-            app.dashboard_builder = Dashboard()
-        print("✅ Monitoring components initialized")
-    except ImportError as e:
-        print(f"⚠️ Could not import monitoring components: {e}")
-        # Dummies (optional, but kept to avoid AttributeError)
-        class DummyHealthChecker:
-            def __init__(self, app): pass
-            def run_all_checks(self): return {'status': 'warning', 'message': 'Not available'}
-        class DummyAlertSystem:
-            def __init__(self): pass
-            def get_active_alerts(self): return []
-        class DummyMetricsCollector:
-            def __init__(self, app): pass
-            def start(self): pass
-        class DummyDashboard:
-            def __init__(self): pass
+    class DummyAlertSystem:
+        def __init__(self): pass
+        def get_active_alerts(self): return []
+
+    class DummyMetricsCollector:
+        def __init__(self, app): pass
+        def start(self): pass
+        def record_response_time(self, path, time, status): pass
+        def record_error(self, type, msg, level): pass
+
+    class DummyDashboard:
+        def __init__(self): pass
+        def generate_overview_metrics(self, df): return ""
+        def generate_performance_charts(self, df): return ""
+        def generate_system_gauges(self, metrics): return ""
+        def generate_alert_dashboard(self, alerts): return ""
+        def generate_prediction_analytics_dashboard(self, metrics): return ""
+
+    # --- Monitoring components (skip for Celery workers) ---
+    if not is_celery_worker:
+        print("[MONITORING] Initializing...", flush=True)
+        try:
+            from monitoring.alert_system import AlertSystem
+            from monitoring.health_checker import HealthChecker
+            from monitoring.metrics_collector import MetricsCollector
+            from monitoring.dashboard import Dashboard
+            from monitoring.logger import get_logger
+            print("[MONITORING] Modules imported", flush=True)
+
+            app.health_checker = HealthChecker(app)
+            app.alert_manager = AlertSystem()
+            app.metrics_collector = MetricsCollector(app)
+            
+            with app.app_context():
+                app.metrics_collector.start()
+                app.training_logger = get_logger("INFO")
+                app.dashboard_builder = Dashboard()
+            print("[MONITORING] Initialized successfully", flush=True)
+        except ImportError as e:
+            print(f"[MONITORING] Import failed, using dummies: {e}", flush=True)
+            app.health_checker = DummyHealthChecker(app)
+            app.alert_manager = DummyAlertSystem()
+            app.metrics_collector = DummyMetricsCollector(app)
+            app.training_logger = None
+            app.dashboard_builder = DummyDashboard()
+    else:
+        # Celery worker: assign dummy implementations to avoid AttributeError
         app.health_checker = DummyHealthChecker(app)
         app.alert_manager = DummyAlertSystem()
         app.metrics_collector = DummyMetricsCollector(app)
         app.training_logger = None
         app.dashboard_builder = DummyDashboard()
+        print("[MONITORING] Skipped (worker mode)", flush=True)
 
-    # --- Scheduler ---
-    scheduler.start()
+    # --- Scheduler (only for web app) ---
+    if not is_celery_worker:
+        scheduler.start()
 
     # --- Request timing middleware ---
     @app.before_request
     def before_request():
         g.start_time = time.time()
         request.start_time = time.time()
-
+        
     @app.after_request
     def after_request(response):
         if hasattr(g, 'start_time'):
@@ -408,9 +446,7 @@ def create_app(config_class=Config):
                 if hasattr(request, 'start_time'):
                     response_time = (time.time() - request.start_time) * 1000
                     app.metrics_collector.record_response_time(
-                        request.path,
-                        response_time,
-                        response.status_code
+                        request.path, response_time, response.status_code
                     )
                     if response.status_code >= 500:
                         app.metrics_collector.record_error(
@@ -503,54 +539,66 @@ def create_app(config_class=Config):
     def teardown_request(exception=None):
         pass
 
-    # --- Register routes and models (this imports routes.py) ---
+    # --- Register routes and models (skip routes for Celery workers) ---
     t = time.time()
+    print(f"[APP_CONTEXT] Initializing...", flush=True)
     with app.app_context():
+        print(f"[APP_CONTEXT] Inside context", flush=True)
         # Error blueprint
         from .errors import errors as errors_blueprint
         app.register_blueprint(errors_blueprint)
+        print(f"[ERRORS] Blueprint registered", flush=True)
 
-        # Routes (this registers all views, but lazy loaders mean heavy code runs only when needed)
-        from .routes import register_routes
-        register_routes(app)
+        # Routes - skip for Celery workers since they don't handle HTTP
+        if not is_celery_worker:
+            from .routes import register_routes
+            register_routes(app)
+        else:
+            print("[ROUTES] Skipped (worker mode)", flush=True)
 
         # Ensure models are known to SQLAlchemy
+        print(f"[MODELS] Importing...", flush=True)
         from . import models
+        print(f"[MODELS] Imported", flush=True)
 
         # Import tasks to register with Celery
         try:
+            print(f"[TASKS] Importing...", flush=True)
             from . import tasks
-            print("✅ Celery tasks imported")
+            print("[TASKS] Imported", flush=True)
         except ImportError as e:
-            print(f"⚠️ Could not import tasks module: {e}")
+            print(f"[TASKS] Import failed: {e}", flush=True)
 
         # Create database tables (should be quick if schema exists)
         try:
+            print(f"[DB] Creating tables...", flush=True)
             db.create_all()
-            print("✅ Database tables verified/created")
+            print("[DB] Tables verified", flush=True)
         except Exception as e:
             print(f"⚠️ Database initialization error: {e}")
 
     print(f"✅ Routes and database registered in {time.time()-t:.2f}s")
 
-    # --- Chatbot initialisation (unchanged – may be heavy) ---
-    # You can later apply lazy loading to chatbot as well
+    # --- Chatbot initialisation (skip for Celery workers) ---
     chatbot_initialized = False
-    try:
-        from app.pitch_wrapper import import_pitch_commander_safely
-        chatbot_bp, init_chatbot = import_pitch_commander_safely()
-        if chatbot_bp:
-            app.register_blueprint(chatbot_bp)
-            with app.app_context():
-                init_chatbot(app)   # <-- this may load models; if heavy, move to lazy loader
-            chatbot_initialized = True
-            print("✅ Chatbot System initialized successfully")
-        else:
-            raise ImportError("Chatbot components returned as None")
-    except Exception as e:
-        print(f"⚠️ Chatbot initialization error: {e}")
-        if app.debug:
-            traceback.print_exc()
+    if not is_celery_worker:
+        try:
+            from app.pitch_wrapper import import_pitch_commander_safely
+            chatbot_bp, init_chatbot = import_pitch_commander_safely()
+            if chatbot_bp:
+                app.register_blueprint(chatbot_bp)
+                with app.app_context():
+                    init_chatbot(app)
+                chatbot_initialized = True
+                print("✅ Chatbot System initialized successfully")
+            else:
+                raise ImportError("Chatbot components returned as None")
+        except Exception as e:
+            print(f"⚠️ Chatbot initialization error: {e}")
+            if app.debug:
+                traceback.print_exc()
+    else:
+        print("⏭️ Skipping chatbot initialization (Celery worker mode)")
 
     # Fallback context processor if chatbot failed
     if not chatbot_initialized:
